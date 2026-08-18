@@ -1,0 +1,767 @@
+/* Tokens 1:1 aus Ultraschwimmen-Info-Site — die beiden Seiten sollen als eine
+   Familie lesbar sein.
+
+   ACHTUNG, wichtigste Regel dieser Datei: Im Formularmodus rendert das
+   raceresult-Widget in unser DOM, und alles hier kaskadiert hinein. Deshalb
+   KEINE nackten Element-Selektoren (div, input, label, button, a, p …) —
+   ein einziges `div { opacity: .8 }` graut das halbe Anmeldeformular aus.
+   Global sind nur `*`, `html` und `body` erlaubt; alles andere klassenbasiert.
+   Das Widget selbst wird gezielt im Abschnitt „Widget-Theming" unten
+   umgefärbt. */
+:root {
+  --bg-top: #f2f9fd;
+  --bg-bottom: #ffffff;
+  --accent: #1b96e3;
+  --accent-strong: #0f7dc4;
+  --text: #16181a;
+  --text-muted: rgba(22, 24, 26, 0.62);
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --card-border: rgba(22, 24, 26, 0.1);
+  --highlight-bg: linear-gradient(135deg, #1b96e3, #63c2ff);
+  --cta-height: 6.5rem;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg-top);
+}
+
+body {
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  background: radial-gradient(
+    circle at 50% 0%,
+    var(--bg-top),
+    var(--bg-bottom) 70%
+  );
+  color: var(--text);
+}
+
+/* --- Wellen (Info-Site) --------------------------------------------------- */
+.waves {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20vh;
+  min-height: 90px;
+  max-height: 170px;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to top, #000 45%, transparent);
+  mask-image: linear-gradient(to top, #000 45%, transparent);
+}
+
+.waves-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.wave-parallax > use {
+  animation: wave-move 25s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
+}
+
+.wave-parallax > use:nth-child(1) {
+  animation-delay: -2s;
+  animation-duration: 8s;
+  fill: rgba(27, 150, 227, 0.09);
+}
+
+.wave-parallax > use:nth-child(2) {
+  animation-delay: -3s;
+  animation-duration: 11s;
+  fill: rgba(27, 150, 227, 0.13);
+}
+
+.wave-parallax > use:nth-child(3) {
+  animation-delay: -4s;
+  animation-duration: 15s;
+  fill: rgba(27, 150, 227, 0.1);
+}
+
+.wave-parallax > use:nth-child(4) {
+  animation-delay: -5s;
+  animation-duration: 21s;
+  fill: rgba(27, 150, 227, 0.22);
+}
+
+@keyframes wave-move {
+  from {
+    transform: translate3d(-90px, 0, 0);
+  }
+  to {
+    transform: translate3d(85px, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-parallax > use {
+    animation: none;
+  }
+}
+
+/* --- Layout --------------------------------------------------------------- */
+.page {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 1.25rem calc(var(--cta-height) + 2rem);
+}
+
+.content {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.loading {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* --- Header --------------------------------------------------------------- */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
+}
+
+.logo {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  filter: drop-shadow(0 6px 16px rgba(27, 150, 227, 0.18));
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.header-meta {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* --- Deadline-Streifen ---------------------------------------------------- */
+.deadline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  text-align: center;
+  padding: 0.9rem 1.1rem;
+  border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(22, 24, 26, 0.06);
+}
+
+.deadline p {
+  margin: 0;
+}
+
+.deadline-lead {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.deadline-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.deadline-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.deadline.is-closed {
+  background: rgba(192, 57, 43, 0.06);
+  border-color: rgba(192, 57, 43, 0.25);
+}
+
+.deadline.is-closed .deadline-value {
+  color: #c0392b;
+  font-size: 1.05rem;
+}
+
+/* --- Distanz-Karten ------------------------------------------------------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.75rem;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.95rem 1.05rem;
+  border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(22, 24, 26, 0.06);
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 26px rgba(22, 24, 26, 0.12);
+}
+
+/* Die Radios tragen die Auswahl-Semantik (Pfeiltasten, Screenreader); sichtbar
+   ist stattdessen die Karte selbst. */
+.card-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+
+.card:has(.card-input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card:has(.card-input:checked) {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 8px 24px rgba(27, 150, 227, 0.22);
+}
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.card-label {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.card-price {
+  font-weight: 700;
+  color: var(--accent-strong);
+  white-space: nowrap;
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.card-meta > span + span::before {
+  content: "·";
+  margin-right: 0.5rem;
+}
+
+.card-youth {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.card-check {
+  flex: none;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: transparent;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.card:has(.card-input:checked) .card-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+/* --- Gruppen-Hinweis ------------------------------------------------------ */
+.group {
+  padding: 1.1rem 1.2rem;
+  border-radius: 16px;
+  background: rgba(27, 150, 227, 0.07);
+  border: 1px solid rgba(27, 150, 227, 0.22);
+  gap: 0.5rem;
+}
+
+.group-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.group-note {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* --- FAQ ------------------------------------------------------------------ */
+.faq-item {
+  border-radius: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 0.2rem 1rem;
+}
+
+.faq-q {
+  cursor: pointer;
+  padding: 0.7rem 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.faq-q::-webkit-details-marker {
+  display: none;
+}
+
+.faq-q::after {
+  content: "+";
+  flex: none;
+  color: var(--accent-strong);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.faq-item[open] .faq-q::after {
+  content: "–";
+}
+
+.faq-q:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.faq-a {
+  margin: 0 0 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* --- Footer --------------------------------------------------------------- */
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--card-border);
+}
+
+.footer-note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.footer-links {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.footer-link:hover,
+.footer-link:focus-visible {
+  color: var(--text);
+  border-color: var(--card-border);
+}
+
+/* --- Sticky CTA ----------------------------------------------------------- */
+.cta-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  padding: 0.85rem 1.25rem calc(0.85rem + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--card-border);
+}
+
+.cta-inner {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.95rem 1.25rem;
+  border-radius: 16px;
+  background: var(--highlight-bg);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+  box-shadow: 0 6px 20px rgba(27, 150, 227, 0.32);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.cta:hover,
+.cta:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(27, 150, 227, 0.42);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+.cta-arrow {
+  transition: transform 0.18s ease;
+}
+
+.cta:hover .cta-arrow {
+  transform: translateX(3px);
+}
+
+.cta-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* --- Fehlerpfad ----------------------------------------------------------- */
+.error {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.error p {
+  margin: 0;
+  color: #c0392b;
+}
+
+.error-link {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+/* --- Formularmodus -------------------------------------------------------- */
+.continuity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 16px;
+  background: rgba(27, 150, 227, 0.07);
+  border: 1px solid rgba(27, 150, 227, 0.22);
+}
+
+.continuity-text {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.continuity-change {
+  color: var(--accent-strong);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+.widget-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+  padding: 2rem 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+}
+
+.widget-fallback p {
+  margin: 0;
+}
+
+/* Im Formularmodus gibt es keine Sticky-Leiste — der Platz unten darf weg. */
+.page:has(#divRRRegStart) {
+  padding-bottom: 2.5rem;
+}
+
+/* `hidden` muss auch wirklich verstecken. Jede eigene `display`-Regel hat
+   dieselbe Spezifität wie das UA-Stylesheet `[hidden] { display: none }` und
+   gewinnt allein durch die spätere Position — das Attribut wird dann wirkungslos.
+   Betrifft alles, was per `hidden` umgeschaltet wird; beim Hinzufügen neuer
+   Elemente hier ergänzen. */
+.cta-bar[hidden],
+.widget-fallback[hidden] {
+  display: none;
+}
+
+/* --- Widget-Theming ------------------------------------------------------- */
+/* raceresult liefert ~4,3 KB eigenes CSS mit, das der Veranstalter in seinem
+   Backend pflegt — dort in Rot (#c21b17) und mit `!important`. Wir haben auf
+   dieses Backend keinen Zugriff.
+
+   Das CSS wird zur Laufzeit injiziert, also NACH dieser Datei; bei gleicher
+   Spezifität würde es gewinnen. Das vorangestellte `body` ist deshalb kein
+   Zierrat, sondern hebt uns eine Stufe darüber. Nur diese sechs Regeln tragen
+   überhaupt Farbe — der Rest des Backend-CSS ist Layout und bleibt bewusst
+   unangetastet. */
+body .RRReg button {
+  background-color: var(--accent) !important;
+}
+
+body .RRReg {
+  --navigation-selected: var(--accent) !important;
+  --navigation-hover: var(--accent) !important;
+}
+
+body .RRReg div.RRReg_Tab > div.RRReg_TabsList > div.selected,
+body .RRReg div.RRReg_Tab > div.RRReg_TabsList > div.selected + div.RRReg_TabsList_RemoveTab {
+  background-color: var(--accent) !important;
+}
+
+body .RRReg div.RRReg_EntryField .RRReg_RadioGroup.RRReg_RadioGroupTile > label.selected {
+  background-color: var(--accent-strong) !important;
+}
+
+body .RRReg_StarMandatory {
+  color: var(--accent) !important;
+}
+
+body .RRRegStart div.RRReg_EntryField.RRReg_Mandatory > *~label::after {
+  color: var(--accent) !important;
+}
+
+/* Schrift: raceresult bringt `urw-din` für Beschriftungen und Arial für
+   Eingabefelder mit. `inherit` zieht stattdessen unsere Familie aus `body`
+   durch. Formularelemente erben Schrift nie von allein — deshalb müssen input,
+   select, textarea und button einzeln genannt werden. */
+body .RRReg,
+body .RRReg input,
+body .RRReg select,
+body .RRReg textarea,
+body .RRReg button {
+  font-family: inherit !important;
+}
+
+/* Hintergrund: Das Widget stapelt intern mehrere deckend weiße Ebenen. Die
+   werden alle transparent gestellt — und stattdessen bekommt der äußere
+   Container genau die Karten-Optik der übrigen Seite (halbtransparentes Weiß,
+   1 px Rahmen, 16 px Radius, Blur). So bleibt erkennbar, dass hier ein
+   zusammenhängender Anmeldedialog steht, ohne dass sich weiße Flächen stapeln.
+
+   Ausdrücklich nicht angefasst: Eingabefelder (Lesbarkeit) und die grauen
+   Info-Kästen des Veranstalters. */
+body #divRRRegStart {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(22, 24, 26, 0.06);
+  padding: 1rem;
+}
+
+body .RRReg,
+body .RRReg .RRReg_Main,
+body .RRReg .RRReg_Page,
+body .RRReg .RRReg_Table,
+body .RRReg .children,
+body .RRReg .RRReg_Box:not(.BoxHTML):not(.BoxHTMLlong):not(.BoxNoFee):not(.BoxUnderHTML) {
+  background-color: transparent !important;
+}
+
+/* Runde Ecken durchziehen: eckige Kästen in einer runden Karte sehen nach
+   Unfall aus. Die grauen Info-Kästen sitzen jeweils als Kopf auf einem
+   Inhaltsblock — deshalb oben rund, unten eckig, und beim Block darunter
+   umgekehrt. */
+body .RRReg .RRReg_Box {
+  border-radius: 12px;
+}
+
+body .RRReg .BoxHTML,
+body .RRReg .BoxHTMLlong,
+body .RRReg .BoxNoFee {
+  border-radius: 12px 12px 0 0;
+}
+
+body .RRReg .BoxUnderHTML {
+  border-radius: 0 0 12px 12px;
+}
+
+/* Beschriftungen: raceresult benutzt ein „floating label", das absolut auf dem
+   oberen Rahmen des Eingabefelds sitzt und den Rahmen mit einem deckenden
+   Hintergrund ausstanzt. Auf transparentem Grund funktioniert dieser Trick
+   nicht mehr — die Rahmenlinie liefe hinter der Schrift durch.
+
+   Statt dem Label einen deckenden Hintergrund zu verpassen (der auf unserem
+   Verlauf ohnehin nie exakt passen würde), stellen wir es normal über das Feld.
+   Das Label steht im DOM *nach* dem Eingabefeld, deshalb Flex-Spalte mit
+   `order: -1` statt einfachem `position: static`. */
+body .RRReg .RRReg_EntryField {
+  display: flex !important;
+  flex-direction: column;
+  padding-top: 0 !important;
+  margin-bottom: 0.9rem;
+}
+
+body .RRReg .RRReg_EntryField > label {
+  position: static !important;
+  order: -1;
+  top: auto !important;
+  left: auto !important;
+  margin: 0 0 0.3rem !important;
+  padding: 0 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.3;
+  color: var(--text-muted);
+}
+
+/* --- Widget-Korrekturen für schmale Viewports ----------------------------- */
+/* Nicht Kosmetik, sondern zwei echte Bedienfehler auf dem Handy. Das Widget
+   ist auf Breakpoints bei 600/500/400 px ausgelegt; bei 390 px reicht das
+   nicht. */
+
+/* Die Schrittleiste schneidet ihren letzten Schritt („BUCHUNG") ab, weil das
+   Backend-CSS `overflow: hidden` setzt. Scrollen statt abschneiden. */
+body .RRReg .RRReg_Nav > div {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+/* Die Vorschlagsliste des Vereinsfelds bekommt von raceresult per JS eine feste
+   Inline-Breite (628 px), die den Viewport sprengt und die ganze Seite seitlich
+   scrollen lässt. Inline-Styles schlägt nur `!important`. */
+body .RRReg .ComboWizard {
+  max-width: 100% !important;
+}
+
+@media (max-width: 420px) {
+  .logo {
+    max-width: 210px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header-title {
+    font-size: 1.2rem;
+  }
+
+  .continuity {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
