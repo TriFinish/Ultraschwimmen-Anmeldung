@@ -25,6 +25,11 @@ group:
   text: Im Anmeldeformular fügst du mit „+" weitere Personen hinzu — jede mit eigener Distanz, bezahlt wird einmal zusammen. Adresse, Mail und Telefon gelten dann für die ganze Buchung.
   note: Wer andere anmeldet, braucht deren Einverständnis und informiert sie über die Datenschutzerklärung des Veranstalters.
 
+# Wortlaut unverändert von der raceresult-Zwischenseite übernommen, die durch
+# die Einbettung übersprungen wird. Steht im Formularmodus unter dem Formular.
+legal:
+  processing: Es wird ausdrücklich darauf hingewiesen, dass mit Abschluss dieser Anmeldung der Veranstalter zum Vertragspartner der Teilnehmer wird. Es gelten die Datenschutzbestimmungen des Veranstalters. Die race result AG und tollense-timing verarbeiten diese Daten lediglich im Auftrag des Veranstalters. Der Anmeldende ist dafür verantwortlich, die Vollmacht derer zu besitzen, die er anmeldet sowie diese Teilnehmer über die Datenschutzerklärung des Veranstalters zu informieren. Bei Fragen wenden Sie sich bitte an den Veranstalter.
+
 distances:
   - id: 10km
     label: 10 km
@@ -102,4 +107,4 @@ footer:
     - label: Impressum
       url: https://imprint.trifinish.eu/
     - label: Datenschutz
-      url: https://neu.advents-aaseelauf.de/privacy
+      url: https://ultraschwimmen.de/datenschutz/
