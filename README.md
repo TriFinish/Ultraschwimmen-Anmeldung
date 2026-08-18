@@ -195,6 +195,17 @@ curl -s -X POST "https://events2.raceresult.com/api/registrations/request?eventi
 Darin nach `#c21b17` und `a81815` suchen: Was dort auftaucht und in unserem
 Override-Layer fehlt, ist die Lücke.
 
+Zwei Regeln im Theming sind kein Geschmack, sondern behobene Fehler und
+sollten nicht wegoptimiert werden:
+
+- **Eingabefelder auf `max(1rem, 16px)`.** iOS Safari zoomt beim Antippen
+  automatisch hinein, sobald ein Feld unter 16 px liegt — und zoomt nicht
+  wieder heraus. raceresult setzt an den Feldern keine Größe, es griff also die
+  Browser-Vorgabe von 13,33 px. Nicht über `user-scalable=no` lösen: das
+  sperrt alle aus, die zum Lesen zoomen müssen.
+- **`.cta-bar[hidden]` und `.widget-fallback[hidden]` auf `display: none`.**
+  Eigene `display`-Regeln schlagen sonst das `hidden`-Attribut.
+
 **Wichtigste Regel in `style.css`: keine nackten Element-Selektoren.** Unser CSS
 kaskadiert ins Widget; ein `div { opacity: .8 }` graut das halbe Formular aus.
 Global erlaubt sind nur `*`, `html` und `body`.

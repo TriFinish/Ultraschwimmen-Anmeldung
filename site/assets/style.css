@@ -639,7 +639,14 @@ body .RRReg_StarMandatory {
   color: var(--accent) !important;
 }
 
+/* Pflichtfeld-Stern. raceresult setzt ihn als `" *"` mit führendem Leerzeichen
+   — und genau dort bricht die Zeile, sodass der Stern bei schmalen Feldern
+   („Geburtstag", „Geschlecht") allein auf einer zweiten Zeile landet. Ohne
+   Leerzeichen bildet er mit dem Wort eine Einheit ohne Umbruchstelle; der
+   Abstand kommt stattdessen aus `margin-left`. */
 body .RRRegStart div.RRReg_EntryField.RRReg_Mandatory > *~label::after {
+  content: '*' !important;
+  margin-left: 0.15em;
   color: var(--accent) !important;
 }
 
@@ -700,6 +707,23 @@ body .RRReg .BoxUnderHTML {
   border-radius: 0 0 12px 12px;
 }
 
+/* Schriftgröße der Eingabefelder: iOS Safari zoomt beim Antippen automatisch
+   hinein, sobald ein Feld kleiner als 16 px gesetzt ist — und zoomt danach
+   nicht wieder heraus. raceresult setzt an den Feldern gar keine Größe, es
+   greift also die Browser-Vorgabe von 13,33 px.
+
+   `max()` statt festen 16 px, damit eine vom Nutzer hochgesetzte
+   Grundschriftgröße erhalten bleibt.
+
+   Ausdrücklich NICHT über `user-scalable=no` im Viewport gelöst: das würde das
+   Zoomen für alle abschalten und Menschen aussperren, die es zum Lesen
+   brauchen. */
+body .RRReg input,
+body .RRReg select,
+body .RRReg textarea {
+  font-size: max(1rem, 16px) !important;
+}
+
 /* Beschriftungen: raceresult benutzt ein „floating label", das absolut auf dem
    oberen Rahmen des Eingabefelds sitzt und den Rahmen mit einem deckenden
    Hintergrund ausstanzt. Auf transparentem Grund funktioniert dieser Trick
@@ -708,15 +732,65 @@ body .RRReg .BoxUnderHTML {
    Statt dem Label einen deckenden Hintergrund zu verpassen (der auf unserem
    Verlauf ohnehin nie exakt passen würde), stellen wir es normal über das Feld.
    Das Label steht im DOM *nach* dem Eingabefeld, deshalb Flex-Spalte mit
-   `order: -1` statt einfachem `position: static`. */
-body .RRReg .RRReg_EntryField {
+   `order: -1` statt einfachem `position: static`.
+
+   Ankreuzfelder sind ausgenommen: dort liegt das `input` IM Label und ist
+   absolut positioniert — die Beschriftung hält mit ihrem Innenabstand den Platz
+   dafür frei. Nähme man ihn weg, läge das Kästchen auf dem Text. */
+body .RRReg .RRReg_EntryField:not(:has(input[type='checkbox'])):not(:has(input[type='radio'])) {
   display: flex !important;
   flex-direction: column;
+  /* Bedienelement an die Unterkante. Ohne das säßen Felder ohne Beschriftung
+     (Monat und Jahr beim Geburtsdatum) um eine Labelzeile höher als ihre
+     Nachbarn — die Felder sind gleich hoch, nur ihr Inhalt saß oben. */
+  justify-content: flex-end;
   padding-top: 0 !important;
   margin-bottom: 0.9rem;
 }
 
-body .RRReg .RRReg_EntryField > label {
+/* Nicht jedes Feld hat eine Beschriftung: Monat und Jahr beim Geburtsdatum
+   gehören zum Label „Geburtstag" des Nachbarfelds. Solange die Beschriftungen
+   absolut positioniert waren, spielte das keine Rolle; jetzt stehen sie im
+   Fluss und beschriftete Felder wären um eine Zeile nach unten versetzt.
+
+   Statt an Ausrichtungen zu drehen — was je nach Zwischen-Wrapper mal greift
+   und mal nicht — reservieren beschriftungslose Felder exakt dieselbe Höhe.
+   Die Werte spiegeln die Label-Regel oben: Schriftgröße × Zeilenhöhe + Abstand. */
+@media screen and (min-width: 501px) {
+  body .RRReg .RRReg_EntryField:not(:has(> label))::before {
+    content: '';
+    display: block;
+    height: calc(0.82rem * 1.3 + 0.3rem);
+    flex: none;
+  }
+}
+
+/* Nebeneinanderliegende Felder an der Unterkante ausrichten. Nötig, seit die
+   Beschriftungen im Fluss stehen: Felder ohne Beschriftung (Monat und Jahr beim
+   Geburtsdatum) säßen sonst um genau eine Labelzeile höher als ihre Nachbarn.
+   Vorher fiel das nicht auf, weil die Labels absolut positioniert waren.
+
+   Nur für Zeilen mit Eingabefeldern — die Zeile aus Bild und Fließtext beim
+   Notfallkontakt soll oben bündig bleiben. */
+/* Ab hier nur für echte Zeilen: Unterhalb von 500 px stapelt raceresult
+   `.RRReg_Table` zu einer Spalte (`flex-direction: column`). Dort ist die
+   Querachse waagerecht — `align-items: flex-end` schöbe die Felder dann nach
+   rechts statt nach unten, und der Abstandhalter für beschriftungslose Felder
+   risse sinnlose Lücken. Beides gilt deshalb erst ab 501 px. */
+@media screen and (min-width: 501px) {
+  body .RRReg .RRReg_Table:has(.RRReg_EntryField) {
+    /* `!important` ist hier nötig, nicht Bequemlichkeit: das Backend-CSS setzt
+       `.RRReg div.RRReg_Table { align-items: unset !important }`, und eine
+       wichtige Deklaration schlägt jede unwichtige — unabhängig von Spezifität.
+
+       Nötig, weil Beschriftungen unterschiedlich hoch ausfallen können:
+       „Nation" passt in eine Zeile, „Geschlecht" bricht in seinem schmalen Feld
+       auf zwei. Unten ausgerichtet fluchten die Bedienelemente trotzdem. */
+    align-items: flex-end !important;
+  }
+}
+
+body .RRReg .RRReg_EntryField:not(:has(input[type='checkbox'])):not(:has(input[type='radio'])) > label {
   position: static !important;
   order: -1;
   top: auto !important;
@@ -726,6 +800,12 @@ body .RRReg .RRReg_EntryField > label {
   font-size: 0.82rem !important;
   line-height: 1.3;
   color: var(--text-muted);
+  /* raceresult setzt an Beschriftungen `nowrap` und `overflow: hidden` — als
+     schwebendes Label über dem Rahmen war das sinnvoll. Über dem Feld schneidet
+     es lange Sätze mitten im Wort ab, etwa den Hinweis zur Weitergabe der
+     Zahlungsdaten auf der Bezahlseite. */
+  white-space: normal !important;
+  overflow: visible !important;
 }
 
 /* --- Widget-Korrekturen für schmale Viewports ----------------------------- */
@@ -740,11 +820,67 @@ body .RRReg .RRReg_Nav > div {
   scrollbar-width: thin;
 }
 
+/* Die Schrittleiste ist `position: sticky` und bleibt beim Scrollen oben
+   stehen — ihr Hintergrund ist mit `rgba(0,0,0,.1)` aber halbdurchsichtig,
+   sodass der darunter durchlaufende Text hindurchscheint. Derselbe Grauton,
+   nur deckend: das ist genau das Ergebnis von 10 % Schwarz auf Weiß. */
+body .RRReg .RRReg_Nav {
+  background-color: #e6e6e6 !important;
+}
+
 /* Die Vorschlagsliste des Vereinsfelds bekommt von raceresult per JS eine feste
    Inline-Breite (628 px), die den Viewport sprengt und die ganze Seite seitlich
    scrollen lässt. Inline-Styles schlägt nur `!important`. */
 body .RRReg .ComboWizard {
   max-width: 100% !important;
+}
+
+/* Die Buttons haben `min-width: 170px`. Zwei davon nebeneinander passen auf dem
+   Handy nicht in die Karte und ragen rechts heraus. Mitschrumpfen und notfalls
+   umbrechen lassen. */
+body .RRReg .RRReg_Buttons > div {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+body .RRReg button {
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: 100%;
+}
+
+/* Die Startgeld-Tabelle braucht mehr Breite, als ihr Elternelement hergibt, und
+   schießt sonst über den Kartenrand hinaus. Erst versuchen, sie einzupassen —
+   und falls das nicht reicht, innerhalb der Karte scrollen statt ausbrechen. */
+body .RRReg .RRReg_EntryFees {
+  overflow-x: auto;
+}
+
+body .RRReg .RRReg_EntryFees table {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+/* Gilt genauso für die Wertetabellen („Deine Eingaben", Mandatsdaten): sie
+   dürfen scrollen, aber nicht überstehen. */
+body .RRReg .RRReg_Table,
+body .RRReg .RRReg_Box {
+  max-width: 100%;
+}
+
+/* Gläubiger-ID und Mandats-ID sind lange Zeichenketten ohne Leerzeichen
+   (`DE75ZZZ00002310226`). In der zweispaltigen Wertetabelle passen sie nicht in
+   ihre Spalte und laufen rechts aus der Karte — umbrechen können sie von allein
+   nicht, weil es innerhalb eines Wortes keine Trennstelle gibt.
+
+   raceresult stapelt die Tabelle erst unter 500 px; dazwischen bleibt das
+   Problem. `anywhere` erlaubt den Bruch innerhalb solcher Ketten und wirkt
+   zusätzlich auf die Mindestbreite der Spalte, sodass sie überhaupt schrumpfen
+   darf. Bei normalem Text greift es nur, wenn ein Wort sonst nicht passt. */
+body .RRReg .RRReg_Value,
+body .RRReg td,
+body .RRReg th {
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 420px) {
