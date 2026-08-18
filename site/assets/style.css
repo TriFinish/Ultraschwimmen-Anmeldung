@@ -576,6 +576,21 @@ body {
   border-bottom: 1px solid currentColor;
 }
 
+/* Rechtlicher Hinweis unter dem Formular: bewusst zurückhaltend, aber lesbar —
+   nicht kleiner als 0.78rem, sonst wird aus einer Information eine Alibizeile. */
+.legal-note {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.legal-link {
+  color: var(--accent-strong);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .widget-fallback {
   display: flex;
   flex-direction: column;
@@ -788,6 +803,26 @@ body .RRReg .RRReg_EntryField:not(:has(input[type='checkbox'])):not(:has(input[t
        auf zwei. Unten ausgerichtet fluchten die Bedienelemente trotzdem. */
     align-items: flex-end !important;
   }
+
+  /* Knapp oberhalb des Umschaltpunkts wird die Zeile eng: Geburtstag, Monat,
+     Jahr, Geschlecht und Nation nebeneinander brauchen mehr Platz, als bei
+     501 px da ist. Flex-Elemente haben von Haus aus `min-width: auto` und
+     schrumpfen deshalb nicht unter ihren Inhalt — sie ragen stattdessen aus der
+     Karte. `min-width: 0` hebt das auf.
+
+     Kein `flex-wrap`: das ließe die Felder auf breiten Schirmen umbrechen,
+     statt den vorhandenen Platz zu nutzen. */
+  body .RRReg .RRReg_Table:has(.RRReg_EntryField) > * {
+    min-width: 0;
+  }
+
+  /* Das Feld darf aber nicht schmaler werden als seine eigene Beschriftung.
+     raceresult bemisst manche Felder allein nach dem Bedienelement — „Geschlecht"
+     bekam 36 px für 77 px Text und wurde über das Nachbarfeld hinweg gemalt.
+     `min-content` heißt hier: so breit wie das längste unteilbare Wort. */
+  body .RRReg .RRReg_EntryField:not(:has(input[type='checkbox'])):not(:has(input[type='radio'])) {
+    min-width: min-content;
+  }
 }
 
 body .RRReg .RRReg_EntryField:not(:has(input[type='checkbox'])):not(:has(input[type='radio'])) > label {
@@ -806,6 +841,10 @@ body .RRReg .RRReg_EntryField:not(:has(input[type='checkbox'])):not(:has(input[t
      Zahlungsdaten auf der Bezahlseite. */
   white-space: normal !important;
   overflow: visible !important;
+  /* Falls eine Beschriftung doch einmal umbrechen muss, dann mit korrekter
+     Silbentrennung — das Dokument ist als `lang="de"` ausgezeichnet. Kein
+     `overflow-wrap: break-word`: das zerlegte „Geschlecht" in „Ge-schle-cht". */
+  hyphens: auto;
 }
 
 /* --- Widget-Korrekturen für schmale Viewports ----------------------------- */

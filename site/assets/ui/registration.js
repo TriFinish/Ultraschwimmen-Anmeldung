@@ -221,6 +221,31 @@ export function renderFormularmodus(data, params) {
   notausgang.appendChild(link);
   app.appendChild(notausgang);
 
+  // Der Hinweis, wer Vertragspartner wird und wer die Daten verarbeitet, stand
+  // auf der raceresult-Zwischenseite, die wir überspringen. Eingebettet ist er
+  // wichtiger als vorher: In der Adressleiste stand früher `my.raceresult.com`
+  // und verriet die Beteiligung Dritter — jetzt läuft alles auf unserer Domain.
+  if (data.legal?.processing) {
+    const hinweis = el('p', 'legal-note', data.legal.processing);
+
+    // Der Hinweis verweist auf „die Datenschutzbestimmungen des Veranstalters" —
+    // die sollten von hier aus auch erreichbar sein. Die URL kommt bewusst aus
+    // dem Footer-Eintrag statt aus einem eigenen Feld: eine Quelle, die beim
+    // Korrigieren nicht auseinanderlaufen kann.
+    const datenschutz = (data.footer?.links ?? []).find((l) => /datenschutz/i.test(l.label ?? ''));
+    if (datenschutz?.url) {
+      hinweis.appendChild(document.createTextNode(' '));
+      const link = el('a', 'legal-link', 'Zur Datenschutzerklärung');
+      link.href = datenschutz.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.setAttribute('data-umami-event', 'Datenschutzerklärung geöffnet');
+      hinweis.appendChild(link);
+    }
+
+    app.appendChild(hinweis);
+  }
+
   if (data.footer) app.appendChild(renderFooter(data.footer));
 
   track('Formular geöffnet', { distanz: distance?.label ?? 'keine Auswahl' });

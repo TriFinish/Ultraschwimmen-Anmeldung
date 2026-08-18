@@ -33,7 +33,7 @@ raceresult-Script wird **nur** im Formularmodus geladen.
 | Logik | Repo | [`site/assets/`](site/assets/) — siehe Modulübersicht unten |
 | Styles | Repo | [`site/assets/style.css`](site/assets/style.css) |
 | Logo / Favicon | Repo | [`site/assets/logo.svg`](site/assets/logo.svg) |
-| Custom Domain | Repo | [`site/CNAME`](site/CNAME) |
+| Custom Domain | GitHub | Settings → Pages (bei Actions-Deploy wird keine `CNAME`-Datei benötigt) |
 | Deployment | GitHub | [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) → GitHub Pages |
 | Analytics | Vercel | Umami, eingebunden im `<head>` von `index.html` |
 | Anmeldeformular | raceresult | Event `383076`, Formular `Sammel-Anmeldung` |
