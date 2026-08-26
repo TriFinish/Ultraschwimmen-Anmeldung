@@ -1,81 +1,119 @@
 # Ultraschwimmen — Anmelde-Seite
 
-Anmeldeseite für das Ultraschwimmen unter `anmeldung.ultraschwimmen.de`.
+Anmeldeseite für das Ultraschwimmen unter **`anmelden.ultraschwimmen.de`**.
 Der **gesamte** Anmeldevorgang läuft hier — Distanzwahl, Formular, Bezahlung,
 Buchung. Das raceresult-Formular ist als JavaScript-Widget eingebettet und in
 unser blaues Theme umgefärbt; der Nutzer wechselt nie die Domain.
 
-Reines HTML/CSS/JS, kein Build-Schritt, kein Backend, keine eigene Zahlung:
+Astro + TypeScript, statischer Output, kein Backend, keine eigene Zahlung:
 Vertragspartner bleibt der Verein, das Startgeld zieht tollense-timing ein.
 
-Warum der Schnitt genau dort liegt, steht in [PLAN.md](PLAN.md).
+## Warum es den Canary gibt
+
+Tollense Timing hat die Einbettung erlaubt — mit einer Einschränkung
+(Mail vom 26.08.2026):
+
+> „Wir haben damit an sich kein Problem, weisen euch aber darauf hin das wir für
+> Probleme in der Anmeldung dann nicht mehr primär verantwortlich sind —
+> RaceResult ändert hier gerne und oft was im Hintergrund, wenn dies dann eure
+> Anmeldung beeinträchtigt bekommen wir es mitunter nicht proaktiv mit."
+
+Das Betriebsrisiko liegt damit bei uns. Die Seite greift an drei Stellen in
+fremdes Markup — Wettbewerbs-Vorwahl, Abschluss-Tracking, CSS-Theming — und
+würde bei einer stillen raceresult-Änderung **kommentarlos** brechen.
+Deshalb läuft täglich [`canary.yml`](.github/workflows/canary.yml).
+
+**Diese Griffe sind alternativlos, nicht bequem.** Nachgeprüft im ausgelieferten
+Bundle: Das Widget liest aus der URL nur `n`, `k`, `regname` und `test` — einen
+Deep-Link für den Wettbewerb gibt es nicht. Und es feuert weder `CustomEvent`
+noch Callback bei Abschluss. Die offizielle Doku dokumentiert lediglich zwei
+Konstruktor-Argumente und `ShowInfoText`; **keine** CSS-Klasse des Formulars,
+keinen URL-Parameter, keinen Callback.
+
+## Die Ladekette
+
+Wichtig zu verstehen, bevor jemand am Widget-Code etwas ändert:
+
+```
+my.raceresult.com/RRRegStart/load.js.php      v2.0.221 (hartkodiert)
+  └─ RRRegStart.js?v=v2.0.221 + lang.js       äußere Hülle, Login/Auswahl
+       └─ events2.../registrations/init.js    ⚠ UNVERSIONIERT
+            ├─ registration.css?build=v14.0.19-10   erzeugt unsere Klassen
+            ├─ registration.js ?build=v14.0.19-10   erzeugt unser Markup
+            └─ RRReg(div.RRReg, …)            ← Ziel unseres CSS
+```
+
+Die dritte Stufe ist das Scharnier: `init.js` trägt **keine Version**, wird
+24 h gecacht und hat als ETag nur einen Zeitstempel. Dort kann sich unsere
+Integration ohne Vorwarnung ändern — deshalb überwacht der Canary die
+`build=`-Version daraus, nicht die `v2.0.221` der äußeren Hülle.
 
 ## Die zwei Modi
 
-Das Widget schaltet über `?regname=` in der URL dieser Seite. Daraus ergibt sich
-die einzige Verzweigung im Code:
+Beide Modi stehen im ausgelieferten HTML; `?regname=` in der URL entscheidet,
+welcher bleibt. Das raceresult-Script lädt **nur** im Formularmodus.
 
 | URL | Modus |
 |---|---|
-| `/` | Entscheidung — Distanz-Karten, Preise, Frist, FAQ |
+| `/` | Entscheidung — Distanzen, Preise, Frist, FAQ |
 | `/?regname=Sammel-Anmeldung` | Formular — das eingebettete Widget |
 | `/?regname=Sammel-Anmeldung&d=6km` | Formular, Wettbewerb „6 km" vorgewählt |
 
-Der CTA im Entscheidungsmodus zeigt auf die zweite bzw. dritte Form. Das
-raceresult-Script wird **nur** im Formularmodus geladen.
-
 ## Wo liegt was?
 
-| Bereich | Ort | Datei / Ressource |
-|---|---|---|
-| Inhalte (Preise, Zeiten, FAQ, Links) | Repo | [`site/data/anmeldung.yaml`](site/data/anmeldung.yaml) |
-| Seiten-Markup + Templates | Repo | [`site/index.html`](site/index.html) |
-| Logik | Repo | [`site/assets/`](site/assets/) — siehe Modulübersicht unten |
-| Styles | Repo | [`site/assets/style.css`](site/assets/style.css) |
-| Logo / Favicon | Repo | [`site/assets/logo.svg`](site/assets/logo.svg) |
-| Custom Domain | GitHub | Settings → Pages (bei Actions-Deploy wird keine `CNAME`-Datei benötigt) |
-| Deployment | GitHub | [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) → GitHub Pages |
-| Analytics | Vercel | Umami, eingebunden im `<head>` von `index.html` |
-| Anmeldeformular | raceresult | Event `383076`, Formular `Sammel-Anmeldung` |
-
-**`anmeldung.yaml` ist die einzige Datei, die im Betrieb gepflegt wird.** Preise,
-Startzeiten, Frist, FAQ und Footer-Links stehen dort; Änderungen brauchen keinen
-Eingriff in HTML, CSS oder JS.
-
-## Aufbau des JavaScripts
-
-ES-Module, vom Browser direkt aufgelöst — **kein Bundler, kein Build-Schritt**.
-
-| Datei | Zuständig für |
+| Bereich | Datei |
 |---|---|
-| [`app.js`](site/assets/app.js) | Einstieg: YAML laden, Modus wählen, Fehlerpfad |
-| [`lib/yaml.js`](site/assets/lib/yaml.js) | `parseYamlLite` — eingeschränkter YAML-Parser |
-| [`lib/dom.js`](site/assets/lib/dom.js) | `el`, `fromTemplate`, `formatEuro` |
-| [`lib/tracking.js`](site/assets/lib/tracking.js) | Umami-Anbindung samt Ereignispuffer |
-| [`ui/shared.js`](site/assets/ui/shared.js) | Header und Footer — in beiden Modi gleich |
-| [`ui/deadline.js`](site/assets/ui/deadline.js) | Countdown, Fristende, Abgleich der beiden Datumsangaben |
-| [`ui/decision.js`](site/assets/ui/decision.js) | Entscheidungsmodus: Karten, Gruppen-Hinweis, FAQ, CTA |
-| [`ui/registration.js`](site/assets/ui/registration.js) | Formularmodus: Widget, Vorwahl, Autofocus-Sperre, Notausgang |
+| Inhalte (Preise, Zeiten, FAQ, Links) | [`src/content/anmeldung.yaml`](src/content/anmeldung.yaml) |
+| Schema + Validierung | [`src/data/schema.ts`](src/data/schema.ts), [`load.ts`](src/data/load.ts) |
+| Seite (beide Modi) | [`src/pages/index.astro`](src/pages/index.astro) |
+| Widget-Anbindung | [`src/scripts/widget.ts`](src/scripts/widget.ts) |
+| Client-Logik | [`src/scripts/page.ts`](src/scripts/page.ts) |
+| Unser Design | [`src/styles/app.css`](src/styles/app.css) |
+| Widget-Theming | [`src/styles/widget.css`](src/styles/widget.css) |
+| Canary | [`tests/contract/`](tests/contract/), [`canary.yml`](.github/workflows/canary.yml) |
+| Deployment | [`deploy.yml`](.github/workflows/deploy.yml) → GitHub Pages |
+| Anmeldeformular | raceresult, Event `383076`, Formular `Sammel-Anmeldung` |
 
-`ui/registration.js` ist die einzige Datei, die fremdes Markup anfasst. Wenn
-raceresult etwas ändert, bricht es dort — und nirgendwo sonst.
+**`anmeldung.yaml` ist die einzige Datei, die im Betrieb gepflegt wird.**
+Sie wird beim Build gegen ein Zod-Schema geprüft — ein Datenfehler bricht den
+Build, statt als Konsolen-Warnung auf der Live-Seite zu landen.
 
-## Lokale Entwicklung
+## Entwickeln
 
 ```bash
-python3 -m http.server --directory site 8000
+npm install
+npm run dev          # http://127.0.0.1:4321
 ```
 
-Dann **<http://127.0.0.1:8000>** öffnen — **nicht** `localhost`.
+**Nicht `localhost` verwenden.** Der raceresult-Loader prüft
+`window.location.origin.indexOf("localhost") < 0` und hält jeden
+localhost-Origin für seine eigene Umgebung. Er sucht seine Scripts dann auf
+*unserem* Server, bekommt 404 und rendert **kommentarlos nichts**.
 
-Das ist keine Marotte: Der Loader von raceresult prüft
-`window.location.origin.indexOf("localhost") < 0` und nimmt an, `localhost` sei
-seine eigene Umgebung. Trifft das zu, sucht er seine Scripts auf *unserem*
-Server, bekommt 404 und rendert **kommentarlos nichts**. Über `127.0.0.1`
-funktioniert alles.
+## Tests
 
-Der YAML-Abruf läuft über `fetch`, es braucht also ohnehin einen echten Server —
-`file://` funktioniert nicht.
+```bash
+npm run test:unit        # offline, < 1 s — Schema, Countdown, Formatierung
+npm run test:contract    # gegen die echte raceresult-API (Canary)
+npm run test:e2e         # Playwright, mobil + Desktop
+npm run canary:update    # Baselines bewusst neu setzen
+npm run build            # astro check && astro build
+```
+
+### Was der Canary prüft
+
+Zwei Schichten, weil sie **unterschiedliche Reaktionen** verlangen:
+
+| Schicht | Label | Bedeutung |
+|---|---|---|
+| Produkt | `canary:product` | raceresult hat deployed. Niemand sagt uns Bescheid — `widget.css` und `widget.ts` gegenprüfen |
+| Veranstalter | `canary:event` | Tollense hat das Event bearbeitet. Kein Notfall: nachfragen, YAML angleichen, `npm run canary:update` |
+| — | `canary:unreachable` | Netzwerkausfall. **Kein** Vertragsbruch; erst bei mehreren Tagen nachhaken |
+
+Baselines liegen in [`tests/contract/__snapshots__/`](tests/contract/__snapshots__/),
+damit eine Änderung im PR-Diff sichtbar wird statt nur im Actions-Log.
+Der Job öffnet bzw. aktualisiert **ein** Issue (dedupliziert über den Titel) und
+schließt es automatisch, sobald der Lauf wieder grün ist.
 
 ### Fristende testen
 
@@ -91,126 +129,68 @@ Date = class extends O {
 };
 ```
 
-## Datenmodell
+## Zwei Regeln, die nicht verhandelbar sind
 
-`anmeldung.yaml` wird von einem bewusst eingeschränkten Parser gelesen
-(`parseYamlLite`, übernommen aus `Ultraschwimmen-Info-Site`). Er kann
-verschachtelte Maps und `- key: value`-Listen — **keine Listen in Listen**.
-Beim Erweitern darauf achten.
+**1. Keine nackten Element-Selektoren im CSS.** Das Widget rendert in unser DOM,
+und alles kaskadiert hinein. Ein einziges `div { opacity: .8 }` graut das halbe
+Anmeldeformular aus. Global erlaubt sind nur `*`, `html` und `body`.
+Aus demselben Grund läuft **Tailwind ohne Preflight** — dessen `button {}`- und
+`input {}`-Resets würden das Formular zerlegen.
 
-| Block | Zweck |
-|---|---|
-| `event` | Titel, Datum, Ort, Frist (`deadline`, ISO-8601 **mit Offset**), Nachmeldegebühr, Altersgrenzen |
-| `provider` | `event_id` und `regname` fürs Widget; `url` nur als Notausgang |
-| `group` | Text des Gruppen-Hinweises |
-| `distances` | Karten: `label`, `laps`, `start`, `price`, `price_youth` — plus `contest_id` für die Vorwahl |
-| `faq` | `<details>`-Einträge |
-| `footer` | Hinweis + Links |
+**2. `widget.css` bleibt global und ungelayert.** raceresult injiziert sein CSS
+ungelayert und *nach* unserem Stylesheet. Ungelayerte Regeln schlagen jede
+`@layer`-Regel — käme unser Override-Layer in einen Tailwind-Layer, verlöre er
+sofort. Die `body`-Präfixe darin sind der Spezifitäts-Gewinn, kein Zierrat.
 
-Zwei Fallstricke, die der Code aktiv meldet:
+Zwei Regeln im Theming sind behobene Fehler, kein Geschmack:
 
-- **`deadline` muss den Zeitzonen-Offset tragen.** Der Countdown vergleicht gegen
-  den absoluten Zeitpunkt, sonst sähe jemand in einer anderen Zeitzone die
-  Anmeldung zu früh geschlossen.
-- **`deadline_label` und `deadline` werden beide von Hand gepflegt.** Driften sie
-  auseinander, warnt `app.js` in der Konsole.
+- **Eingabefelder auf `max(1rem, 16px)`.** iOS Safari zoomt beim Antippen in
+  jedes Feld unter 16 px — und zoomt nicht wieder heraus. Nicht über
+  `user-scalable=no` lösen: das sperrt alle aus, die zum Lesen zoomen müssen.
+- **`[hidden]` auf `display: none`.** Eigene `display`-Regeln schlagen sonst
+  das `hidden`-Attribut.
 
-## Vor dem Livegang
+## Distanz-Vorwahl
 
-- [ ] **Umami-Website-ID eintragen.** In `index.html` steht der Platzhalter
-      `TODO-EIGENE-WEBSITE-ID`; solange er dort steht, wird nichts gemessen und
-      `app.js` warnt in der Konsole. Eine **neue** ID anlegen, nicht die der
-      Info-Site mitbenutzen.
-- [ ] **Mindestalter klären.** Das raceresult-Formular sagt 12 Jahre, die
-      Preisstaffel und die Ausschreibung sagen 10. Der FAQ-Eintrag in der YAML
-      steht deshalb auf `TODO` — er ist auf der Seite sichtbar und muss vor dem
-      Livegang ersetzt werden.
-- [ ] Preise und Startzeiten gegen die dann aktuelle Ausschreibung abgleichen.
-      Die Seite darf nie günstiger aussehen als das Anmeldeformular.
-- [ ] DNS-CNAME `anmeldung` → GitHub Pages, HTTPS in den Pages-Settings
-      erzwingen.
-- [ ] Mobil zuerst prüfen — der Traffic kommt aus der Instagram-Bio.
-- [ ] **Testbuchung.** `Anmeldung abgeschlossen` lässt sich nur prüfen, indem
-      wirklich gebucht wird — mit echter Lastschrift. Dafür braucht es vom
-      Zeitnehmer eine Testveranstaltung oder einen 100-%-Gutscheincode.
+raceresult wertet aus der URL nur `regname` aus. Eingebettet steht das Feld aber
+in *unserem* DOM, also setzt `preselectContest` es nach dem Rendern selbst
+(Zuordnung über `contest_id` in der YAML).
+
+Das kann bei einem raceresult-Update brechen, deshalb scheitert es **still**:
+Feld nicht da → nichts passiert, kein Fehler. Aufgefangen wird das von der
+Kontinuitätsleiste über dem Formular („Deine Wahl: 6 km · 37 €") — sie sagt dem
+Nutzer auch dann, was er wählen wollte. Der Canary meldet den Bruch am nächsten
+Morgen.
 
 ## Tracking-Events
 
 | Event | Wann |
 |---|---|
 | `Distanz gewählt: 10 km` | Klick auf eine Distanz-Karte |
-| `Zur Anmeldung` | Klick auf den CTA, mit `{ distanz }` als Event-Data |
+| `Zur Anmeldung` | Klick auf den CTA, mit `{ distanz }` |
 | `Formular geöffnet` | Seitenaufruf im Formularmodus |
 | `Distanz vorgewählt: 10 km` | Vorwahl hat im Widget gegriffen |
 | `Anmeldung abgeschlossen` | Bestätigungsseite des Widgets wird sichtbar |
-| `Formular nicht ladbar` | Widget-Script kam nicht durch, Notausgang gezeigt |
+| `Formular nicht ladbar` | Widget kam nicht durch, Notausgang gezeigt |
 | `Deadline abgelaufen` | Seitenaufruf nach Fristende |
-| `Footer: Ausschreibung` | Klick auf einen Footer-Link |
-
-Der Trichter reicht damit erstmals bis zum Abschluss statt nur bis zum Klick.
-`Anmeldung abgeschlossen` beobachtet fremdes Markup und ist entsprechend
-zerbrechlich; es zählt Ereignisse, keine Personendaten.
 
 Events, die feuern bevor Umami geladen ist, werden gepuffert und nachgereicht
-(bis zu 15 s). Ohne das ginge ausgerechnet `Deadline abgelaufen` verloren, weil
-es direkt nach dem YAML-Abruf ausgelöst wird.
+(bis zu 15 s).
 
-## Distanz-Vorwahl
+## Offen vor dem Livegang
 
-raceresult wertet aus der URL nur `regname` aus — einen Deep-Link mit
-vorgewähltem Wettbewerb gibt es nicht. Eingebettet steht das Feld aber in
-*unserem* DOM, also setzt `app.js` es nach dem Rendern selbst
-(`preselectContest`, Zuordnung über `contest_id` in der YAML).
-
-Das ist ein Griff in fremdes Markup und kann bei einem raceresult-Update
-brechen. Deshalb scheitert es still: Feld nicht da → nichts passiert, kein
-Fehler. Aufgefangen wird das von der Kontinuitätsleiste über dem Formular
-(„Deine Wahl: 6 km · 37 €") — sie sagt dem Nutzer auch dann, was er wählen
-wollte.
-
-## Theming des Formulars
-
-raceresult liefert ~4,3 KB eigenes CSS mit, das der Veranstalter in seinem
-Backend pflegt — in Rot und mit `!important`. **Auf dieses Backend haben wir
-keinen Zugriff.**
-
-Umgefärbt wird deshalb aus `style.css`, Abschnitt „Widget-Theming": sechs
-Regeln, jeweils mit `body` davor. Das ist kein Zierrat — das Backend-CSS wird
-zur Laufzeit *nach* unserem Stylesheet injiziert und gewänne bei gleicher
-Spezifität.
-
-Taucht irgendwann wieder Rot auf, weil der Zeitnehmer sein Backend geändert hat,
-lässt sich der aktuelle Stand jederzeit abrufen — dafür braucht es keine Kopie
-im Repo:
-
-```bash
-KEY=$(curl -s 'https://my.raceresult.com/383076/registration?regname=Sammel-Anmeldung' \
-      | grep -oE 'RRReg_key[ =]*"[^"]+"' | grep -oE '"[^"]+"' | tr -d '"')
-curl -s -X POST "https://events2.raceresult.com/api/registrations/request?eventid=383076&rname=Sammel-Anmeldung&key=$KEY&lang=de" \
-     -H 'content-type: text/plain' \
-     -d '{"URL":"https://my.raceresult.com/383076/registration?regname=Sammel-Anmeldung"}' \
-  | python3 -c "import sys,json; print(json.load(sys.stdin)['CSS'].replace('}','}\n'))"
-```
-
-Darin nach `#c21b17` und `a81815` suchen: Was dort auftaucht und in unserem
-Override-Layer fehlt, ist die Lücke.
-
-Zwei Regeln im Theming sind kein Geschmack, sondern behobene Fehler und
-sollten nicht wegoptimiert werden:
-
-- **Eingabefelder auf `max(1rem, 16px)`.** iOS Safari zoomt beim Antippen
-  automatisch hinein, sobald ein Feld unter 16 px liegt — und zoomt nicht
-  wieder heraus. raceresult setzt an den Feldern keine Größe, es griff also die
-  Browser-Vorgabe von 13,33 px. Nicht über `user-scalable=no` lösen: das
-  sperrt alle aus, die zum Lesen zoomen müssen.
-- **`.cta-bar[hidden]` und `.widget-fallback[hidden]` auf `display: none`.**
-  Eigene `display`-Regeln schlagen sonst das `hidden`-Attribut.
-
-**Wichtigste Regel in `style.css`: keine nackten Element-Selektoren.** Unser CSS
-kaskadiert ins Widget; ein `div { opacity: .8 }` graut das halbe Formular aus.
-Global erlaubt sind nur `*`, `html` und `body`.
+- [ ] **Umami-Website-ID eintragen.** In `Base.astro` steht der Platzhalter
+      `TODO-EIGENE-WEBSITE-ID`; solange er dort steht, wird nichts gemessen.
+- [ ] **Mindestalter klären.** Das raceresult-Formular sagt 12, Preisstaffel und
+      Ausschreibung sagen 10. Der FAQ-Eintrag steht deshalb auf `TODO` — er ist
+      auf der Seite sichtbar.
+- [ ] Preise und Startzeiten gegen die aktuelle Ausschreibung abgleichen.
+      Die Seite darf nie günstiger aussehen als das Anmeldeformular.
+- [ ] **Testbuchung.** `Anmeldung abgeschlossen` lässt sich nur prüfen, indem
+      wirklich gebucht wird. Dafür braucht es vom Zeitnehmer eine
+      Testveranstaltung oder einen 100-%-Gutscheincode.
 
 ## Deployment
 
-Push auf `main` löst [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
-aus und veröffentlicht `site/` auf GitHub Pages.
+Push auf `main` löst [`deploy.yml`](.github/workflows/deploy.yml) aus und
+veröffentlicht den Build auf GitHub Pages.

@@ -1,0 +1,150 @@
+name: Canary — raceresult-Vertrag
+
+# Tollense Timing hat die Einbettung erlaubt, aber ausdrücklich darauf
+# hingewiesen: „RaceResult ändert hier gerne und oft was im Hintergrund, wenn
+# dies dann eure Anmeldung beeinträchtigt bekommen wir es mitunter nicht
+# proaktiv mit." Dieser Job ist die Antwort darauf.
+
+on:
+  schedule:
+    - cron: '0 5 * * *' # 07:00 Berliner Zeit (06:00 im Winter)
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/content/**'
+      - 'src/scripts/widget.ts'
+      - 'src/styles/widget.css'
+      - 'tests/contract/**'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: canary
+  cancel-in-progress: false
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    outputs:
+      layer: ${{ steps.run.outputs.layer }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Vertragstests
+        id: run
+        run: |
+          set +e
+          npm run test:contract 2>&1 | tee canary.log
+          code=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$code" -eq 0 ]; then
+            exit 0
+          fi
+
+          # Ein Netzwerkausfall ist KEIN Vertragsbruch. Die Sonde wirft dafür
+          # UnreachableError; das bekommt ein eigenes Label, damit ein Ausfall
+          # bei raceresult nicht wie eine Änderung an unserer Integration
+          # aussieht.
+          if grep -q 'UnreachableError' canary.log; then
+            echo "layer=unreachable" >> "$GITHUB_OUTPUT"
+          elif grep -q 'Produkt-Schicht' canary.log; then
+            echo "layer=product" >> "$GITHUB_OUTPUT"
+          else
+            echo "layer=event" >> "$GITHUB_OUTPUT"
+          fi
+          exit 1
+
+      - name: Log als Artefakt sichern
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: canary-log
+          path: canary.log
+          retention-days: 30
+
+  report:
+    needs: contract
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: canary-log
+        continue-on-error: true
+
+      - name: Issue öffnen, aktualisieren oder schließen
+        uses: actions/github-script@v7
+        env:
+          RESULT: ${{ needs.contract.result }}
+          LAYER: ${{ needs.contract.outputs.layer }}
+        with:
+          script: |
+            const fs = require('fs');
+            // Fester Titel = Deduplizierung. Ohne das stünde hier nach einer
+            // Woche Ausfall ein Stapel identischer Issues.
+            const TITLE = 'Canary: raceresult-Vertrag weicht ab';
+            const ok = process.env.RESULT === 'success';
+            const repo = { owner: context.repo.owner, repo: context.repo.repo };
+            const runUrl = `${context.serverUrl}/${repo.owner}/${repo.repo}/actions/runs/${context.runId}`;
+
+            const { data: offen } = await github.rest.issues.listForRepo({
+              ...repo, state: 'open', labels: 'canary',
+            });
+            const bestehend = offen.find((i) => i.title === TITLE);
+
+            if (ok) {
+              // Wieder grün: Issue schließen statt es verwaisen zu lassen.
+              if (bestehend) {
+                await github.rest.issues.createComment({
+                  ...repo, issue_number: bestehend.number,
+                  body: `Canary ist wieder grün ([Lauf](${runUrl})). Wird automatisch geschlossen.`,
+                });
+                await github.rest.issues.update({
+                  ...repo, issue_number: bestehend.number, state: 'closed',
+                });
+              }
+              return;
+            }
+
+            let log = '';
+            try { log = fs.readFileSync('canary.log', 'utf8').slice(-6000); } catch {}
+
+            const layer = process.env.LAYER || 'event';
+            const erklaerung = {
+              product: '**raceresult hat sein Produkt geändert.** Niemand informiert uns darüber — genau davor hat Tollense gewarnt. Prüfen, ob `src/styles/widget.css` und `src/scripts/widget.ts` noch greifen.',
+              event: '**Tollense hat vermutlich das Event bearbeitet.** Kein Notfall: kurz nachfragen, dann ggf. `src/content/anmeldung.yaml` angleichen und `npm run canary:update` laufen lassen.',
+              unreachable: '**raceresult war nicht erreichbar.** Das ist kein Vertragsbruch. Wenn das mehrere Tage anhält, beim Zeitnehmer nachfragen.',
+            }[layer];
+
+            const body = [
+              erklaerung, '',
+              `Lauf: [${context.runId}](${runUrl})`, '',
+              '<details><summary>Testausgabe</summary>', '',
+              '```', log || '(kein Log)', '```', '',
+              '</details>',
+            ].join('\n');
+
+            const labels = ['canary', `canary:${layer}`];
+
+            if (bestehend) {
+              // Aktualisieren statt neu anlegen — ein Issue pro Vorfall.
+              await github.rest.issues.createComment({
+                ...repo, issue_number: bestehend.number, body,
+              });
+              await github.rest.issues.setLabels({
+                ...repo, issue_number: bestehend.number, labels,
+              });
+            } else {
+              await github.rest.issues.create({ ...repo, title: TITLE, body, labels });
+            }

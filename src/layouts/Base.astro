@@ -1,0 +1,53 @@
+---
+// Gemeinsames Gerüst beider Modi.
+import '../styles/app.css';
+// Ungelayert und global — siehe Kommentarkopf der Datei. Muss NACH app.css
+// stehen, damit unsere Overrides bei gleicher Spezifität gewinnen.
+import '../styles/widget.css';
+
+interface Props {
+  title: string;
+  description: string;
+  formMode?: boolean;
+}
+
+const { title, description, formMode = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <!--
+      Nicht entfernen: raceresult liefert `registration.js` ohne `charset` im
+      Content-Type aus. Das eingebettete Formular erbt deshalb die Kodierung
+      dieser Seite — ohne diese Zeile wird aus „Zurück" und „März" Buchstabensalat.
+    -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0b1f33" />
+
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+
+    <!--
+      Umami Analytics (self-hosted auf Vercel).
+      TODO vor Livegang: eigene Website-ID für anmelden.ultraschwimmen.de
+      anlegen und unten eintragen. Solange der Platzhalter steht, wird nichts
+      gemessen; startTracking() warnt zusätzlich in der Konsole.
+    -->
+    <script
+      defer
+      src="https://umami-six-cyan.vercel.app/script.js"
+      data-website-id="TODO-EIGENE-WEBSITE-ID"></script>
+  </head>
+  <body>
+    <div class:list={['page', formMode && 'is-form']}>
+      <slot />
+    </div>
+  </body>
+</html>
