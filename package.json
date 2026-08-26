@@ -1,0 +1,30 @@
+{
+  "name": "ultraschwimmen-anmelde-seite",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro check && astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "test:unit": "vitest run --project unit",
+    "test:contract": "vitest run --project contract",
+    "canary:update": "UPDATE_CANARY=1 vitest run --project contract",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:contract"
+  },
+  "dependencies": {
+    "astro": "^5.14.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@playwright/test": "^1.56.0",
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/js-yaml": "^4.0.9",
+    "happy-dom": "^20.0.0",
+    "js-yaml": "^4.1.0",
+    "tailwindcss": "^4.1.14",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
