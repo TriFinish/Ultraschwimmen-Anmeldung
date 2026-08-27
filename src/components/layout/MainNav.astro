@@ -1,0 +1,69 @@
+---
+// Hauptnavigation.
+//
+// Kein Hamburger-Menü und keine Zeile JavaScript. Dank der Gruppe „Wettkampf"
+// stehen auf oberster Ebene nur vier Einträge — die passen auch auf einem
+// 390px-Display in eine Zeile. Ein Schubladenmenü wäre hier Aufwand, der
+// nichts löst.
+//
+// Die Gruppe ist ein natives <details>. Das bringt Tastaturbedienung,
+// aria-expanded und das Aufklappen vom Browser mit; auf breiten Geräten wird
+// die Liste per CSS zum schwebenden Ausklappmenü.
+//
+// Absichtlich NICHT verschachtelt: Ein geschlossenes <details> verbirgt seinen
+// Inhalt über den Shadow-Slot, nicht über `display`. Ein äußeres Schubladen-
+// <details> ließe sich auf dem Desktop deshalb nicht per CSS dauerhaft öffnen.
+//
+// Die Komponente holt sich nichts selbst; sie bekommt die fertig aufgelöste
+// Struktur aus resolveNav(). Deshalb ist sie ohne Seite testbar.
+
+import { isGroup, type ResolvedNavItem } from '../../lib/nav';
+
+interface Props {
+  items: ResolvedNavItem[];
+  /** Nur für aria-label — unterscheidet Kopf- von Fußnavigation. */
+  label?: string;
+}
+
+const { items, label = 'Hauptnavigation' } = Astro.props;
+---
+
+<nav class="nav" aria-label={label}>
+  <ul class="nav-list">
+    {
+      items.map((item) =>
+        isGroup(item) ? (
+          <li class="nav-item is-group">
+            {/* `open`, wenn man sich in der Gruppe befindet: Der aktive
+                Eintrag soll sichtbar sein, ohne dass man erst aufklappt. */}
+            <details class="nav-group" open={item.isActive}>
+              <summary class="nav-summary" data-active={item.isActive ? 'true' : undefined}>
+                {item.label}
+                <span class="nav-chevron" aria-hidden="true"></span>
+              </summary>
+              <ul class="nav-sublist">
+                {item.children.map((child) => (
+                  <li>
+                    <a
+                      class="nav-link is-sub"
+                      href={child.href}
+                      aria-current={child.isActive ? 'page' : undefined}
+                    >
+                      {child.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </li>
+        ) : (
+          <li class="nav-item">
+            <a class="nav-link" href={item.href} aria-current={item.isActive ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ),
+      )
+    }
+  </ul>
+</nav>

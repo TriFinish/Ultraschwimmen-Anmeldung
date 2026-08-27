@@ -1,0 +1,65 @@
+---
+// Kontakt.
+//
+// Kein Formular. Eine statische Seite hat keinen Server, der eine Nachricht
+// entgegennehmen könnte — ein Formular bräuchte einen fremden Dienst, der dann
+// mitliest. Zwei echte Wege sind ehrlicher als ein Eingabefeld, dessen
+// Absenden irgendwo landet.
+
+import Page from '../layouts/Page.astro';
+import { loadSite } from '../data/load';
+import { loadEvent } from '../data/load';
+
+const { contact, organizer } = loadSite();
+const { event, venue } = loadEvent();
+
+// Der Betreff spart uns das Zuordnen und dem Absender das Erklären.
+const mailto = `mailto:${contact.email}?subject=${encodeURIComponent(`Frage zum ${event.title}`)}`;
+---
+
+<Page
+  title="Kontakt"
+  description={`Fragen zum ${event.title}? Schreib uns eine E-Mail an ${contact.email} oder melde dich bei Instagram.`}
+  heading="Kontakt"
+  lead="Fragen zur Anmeldung, zur Strecke oder zum Ablauf? Schreib uns — wir antworten."
+>
+  <div class="contact-ways">
+    <a class="contact-card" href={mailto}>
+      <span class="contact-kind">E-Mail</span>
+      <span class="contact-value">{contact.email}</span>
+      <span class="contact-hint">Der zuverlässigste Weg. Wir antworten in der Regel innerhalb weniger Tage.</span>
+    </a>
+
+    <a
+      class="contact-card"
+      href={contact.instagram.url}
+      rel="me noopener noreferrer"
+      target="_blank"
+    >
+      <span class="contact-kind">Instagram</span>
+      <span class="contact-value">{contact.instagram.handle}</span>
+      <span class="contact-hint">Für kurze Fragen und alles Aktuelle rund um den Wettkampftag.</span>
+    </a>
+  </div>
+
+  <div class="prose">
+    <h2>Veranstalter</h2>
+    <p>
+      {organizer.legal_name}<br />
+      {organizer.address_lines.map((line) => (<>{line}<br /></>))}
+    </p>
+    <p>
+      Die vollständigen Angaben nach § 5 TMG stehen im <a href="/impressum/">Impressum</a>.
+    </p>
+
+    <h2>Wettkampfgelände</h2>
+    <p>
+      {venue.name}{venue.detail && <>, {venue.detail}</>}<br />
+      {venue.street}, {venue.city}
+    </p>
+    <p>
+      Am Wettkampftag erreichst du uns am schnellsten direkt vor Ort — das Wettkampfbüro öffnet um
+      {' '}{event.office_opens} Uhr.
+    </p>
+  </div>
+</Page>

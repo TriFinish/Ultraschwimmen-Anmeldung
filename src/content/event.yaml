@@ -12,6 +12,28 @@ event:
   youth_birth_to: 2016-08-29
   youth_label: Jahrgang 2009 bis Geburtstag 29.08.2016
 
+venue:
+  name: Stadthafen Münster
+  detail: Wettkampfgelände am Hafenkai beim Power Sports Münster
+  street: Hafenweg 10
+  city: 48155 Münster
+  maps_url: https://www.openstreetmap.org/search?query=Hafenweg%2010%2C%2048155%20M%C3%BCnster
+
+course:
+  headline: Eine Runde durch das Hafenbecken
+  lap_length_m: 1000
+  paragraphs:
+    - Der Kurs misst 1000 m und verläuft einmal durch das gesamte Hafenbecken — als Wendepunktstrecke mit 500 m Länge, zwei Bahnen ergeben eine Runde.
+    - Anmeldung sowie Ein- und Ausstieg befinden sich vor dem Power Sports, Hafenweg 10, 48155 Münster.
+    - Gezählt und gemessen wird elektronisch per Transponder. Das Tragen eines Neoprenanzuges ist freigestellt.
+  image:
+    src: /strecke/kurs.png
+    # alt ist im Schema Pflicht: Eine Streckenkarte ohne Beschreibung ist für
+    # jeden wertlos, der sie nicht sehen kann.
+    alt: Luftbild des Münsteraner Stadthafens mit eingezeichnetem Kurs — eine Wendepunktstrecke von 500 m Länge entlang des Hafenbeckens, Start und Ziel am Hafenkai vor dem Power Sports.
+    width: 2138
+    height: 814
+
 provider:
   name: raceresult
   event_id: 383076
@@ -94,17 +116,3 @@ faq:
     a: Ja, am Veranstaltungstag gegen 5 € Nachmeldegebühr.
   - q: Wie wird gewertet?
     a: Nach DTU-Altersklassen, mit elektronischer Zeitmessung per Transponder.
-
-footer:
-  note: Ultraschwimmen ist ein Event des Vereins TriFinish
-  links:
-    - label: Ausschreibung
-      url: https://ultraschwimmen.de/ausschreibung/
-    - label: Zeitplan
-      url: https://ultraschwimmen.de/zeitplan/
-    - label: Strecke
-      url: https://ultraschwimmen.de/strecken/
-    - label: Impressum
-      url: https://imprint.trifinish.eu/
-    - label: Datenschutz
-      url: https://ultraschwimmen.de/datenschutz/

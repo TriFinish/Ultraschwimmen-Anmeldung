@@ -1,0 +1,41 @@
+---
+// 404.
+//
+// Nach dem Umzug von WordPress werden alte Adressen aufgerufen, die es nicht
+// mehr gibt. Statt einer Sackgasse zeigt die Seite die Wege, die es gibt.
+
+import Page from '../layouts/Page.astro';
+import { loadSite } from '../data/load';
+
+const { nav, contact } = loadSite();
+
+// Alles, was ein Ziel hat — flach, denn hier hilft die Gruppierung nicht.
+const ziele = nav.flatMap((item) => ('href' in item ? [item] : item.children));
+---
+
+<Page
+  title="Seite nicht gefunden"
+  description="Diese Adresse gibt es nicht (mehr). Hier geht es weiter zu Anmeldung, Zeitplan und Ergebnissen."
+  heading="Seite nicht gefunden"
+  lead="Diese Adresse gibt es nicht mehr — beim Umzug der Website hat sich einiges verschoben. Vielleicht suchst du eines davon:"
+>
+  <ul class="year-list">
+    {
+      ziele.map((ziel) => (
+        <li class="year-item">
+          <a class="year-link" href={ziel.href}>
+            <span class="year-label">{ziel.label}</span>
+            <span class="year-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="prose">
+    <p>
+      Nichts dabei? Schreib uns an
+      <a href={`mailto:${contact.email}`}>{contact.email}</a> — dann finden wir es gemeinsam.
+    </p>
+  </div>
+</Page>

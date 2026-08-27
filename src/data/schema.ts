@@ -1,9 +1,13 @@
-// Schema für anmeldung.yaml.
+// Schemas für event.yaml und site.yaml.
 //
 // Ersetzt den handgeschriebenen `parseYamlLite` aus der Vorgängerversion. Der
 // alte Parser konnte keine Listen in Listen und meldete Datenfehler bestenfalls
 // als Konsolen-Warnung im Browser — also erst, wenn die Seite schon live war.
 // Hier scheitert stattdessen der Build.
+//
+// Die Aufteilung folgt der Frage „ändert sich das pro Jahr?": Alles, was mit
+// dem Wettkampf 2026 kommt und geht, steht in event.yaml. Was das Jahr
+// überdauert — Verein, Navigation, Kontaktwege — steht in site.yaml.
 
 import { z } from 'astro/zod';
 
@@ -34,6 +38,31 @@ export const eventSchema = z.object({
   youth_label: z.string().optional(),
 });
 
+// Der Wettkampfort. Steht getrennt von `event.location`, weil die Startseite
+// nur den Kurznamen zeigt, Ausschreibung und Strecke aber die volle Anschrift
+// brauchen — und die soll nur an einer Stelle gepflegt werden.
+export const venueSchema = z.object({
+  name: z.string().min(1),
+  detail: z.string().optional(),
+  street: z.string().min(1),
+  city: z.string().min(1),
+  maps_url: z.string().url().optional(),
+});
+
+export const courseSchema = z.object({
+  headline: z.string().min(1),
+  lap_length_m: z.number().int().positive(),
+  paragraphs: z.array(z.string().min(1)).min(1),
+  image: z
+    .object({
+      src: z.string().min(1),
+      alt: z.string().min(1), // Pflicht, nicht optional — siehe dist-Test.
+      width: z.number().int().positive(),
+      height: z.number().int().positive(),
+    })
+    .optional(),
+});
+
 export const providerSchema = z.object({
   name: z.string().min(1),
   event_id: z.number().int().positive(),
@@ -55,8 +84,10 @@ export const distanceSchema = z.object({
   price_youth: z.number().nonnegative().optional(),
 });
 
-export const anmeldungSchema = z.object({
+export const eventDataSchema = z.object({
   event: eventSchema,
+  venue: venueSchema,
+  course: courseSchema,
   provider: providerSchema,
   group: z
     .object({
@@ -68,14 +99,107 @@ export const anmeldungSchema = z.object({
   legal: z.object({ processing: z.string().min(1) }).optional(),
   distances: z.array(distanceSchema).min(1),
   faq: z.array(z.object({ q: z.string().min(1), a: z.string().min(1) })).default([]),
-  footer: z
-    .object({
-      note: z.string().optional(),
-      links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
-    })
-    .optional(),
 });
 
-export type Anmeldung = z.infer<typeof anmeldungSchema>;
+// --------------------------------------------------------- ergebnisse.yaml
+
+export const resultsSchema = z.object({
+  timer: z.object({ name: z.string().min(1), url: z.string().url() }),
+  years: z
+    .array(
+      z.object({
+        year: z.number().int().min(2000).max(2100),
+        // Absolut: Die Listen liegen beim Zeitnehmer, nicht bei uns.
+        url: z.string().url(),
+      }),
+    )
+    .min(1),
+});
+
+// ---------------------------------------------------------------- site.yaml
+
+// Interne Ziele beginnen mit „/" und enden mit „/". Beides erzwungen, weil der
+// Build statisches HTML in Verzeichnisse legt: `/zeitplan` ohne Schrägstrich
+// lädt auf GitHub Pages zwar noch, aber relative Links darin brechen dann.
+const internalHref = z
+  .string()
+  .regex(/^\/(?:[a-z0-9-]+\/)*$/, 'interne Ziele: klein, mit führendem und schließendem /');
+
+const navLeafSchema = z.object({
+  label: z.string().min(1),
+  href: internalHref,
+});
+
+// Genau eine Ebene tief. Das ist keine Sparsamkeit, sondern die Form, die das
+// Menü heute hat („Wettkampf" klappt auf) — und tiefer wird ein Menü mit sieben
+// Einträgen auf dem Handy unbedienbar.
+export const navItemSchema = z.union([
+  navLeafSchema,
+  z.object({
+    label: z.string().min(1),
+    children: z.array(navLeafSchema).min(1),
+  }),
+]);
+
+export const siteSchema = z.object({
+  site: z.object({
+    name: z.string().min(1),
+    tagline: z.string().min(1),
+    url: z.string().url(),
+    // Liegt unter public/. Steht hier, damit ein Verschieben der Datei eine
+    // Zeile ist und nicht eine Suche über Layout, Kopfbereich und Favicon.
+    logo: z.string().startsWith('/'),
+  }),
+  nav: z.array(navItemSchema).min(1),
+  contact: z.object({
+    email: z.string().email(),
+    instagram: z.object({
+      handle: z.string().regex(/^@[\w.]+$/),
+      url: z.string().url(),
+    }),
+  }),
+  organizer: z.object({
+    name: z.string().min(1),
+    legal_name: z.string().min(1),
+    address_lines: z.array(z.string().min(1)).min(1),
+    represented_by: z.string().min(1),
+    phone: z.string().min(1),
+    email: z.string().email(),
+    register_court: z.string().min(1),
+    register_number: z.string().min(1),
+    content_responsible: z.string().min(1),
+    url: z.string().url(),
+  }),
+  // Ein Logo trägt immer seine echten Maße mit. Ohne width/height reserviert
+  // der Browser keinen Platz, und die Seite springt beim Nachladen.
+  sponsors: z
+    .object({
+      headline: z.string().min(1),
+      items: z
+        .array(
+          z.object({
+            name: z.string().min(1),
+            logo: z.string().startsWith('/'),
+            width: z.number().int().positive(),
+            height: z.number().int().positive(),
+            url: z.string().url().optional(),
+            role: z.string().optional(),
+          }),
+        )
+        .min(1),
+    })
+    .optional(),
+  footer: z.object({
+    note: z.string().optional(),
+    links: z.array(navLeafSchema).default([]),
+  }),
+});
+
+export type EventData = z.infer<typeof eventDataSchema>;
+export type SiteData = z.infer<typeof siteSchema>;
+export type Results = z.infer<typeof resultsSchema>;
 export type Distance = z.infer<typeof distanceSchema>;
 export type EventInfo = z.infer<typeof eventSchema>;
+export type Venue = z.infer<typeof venueSchema>;
+export type Course = z.infer<typeof courseSchema>;
+export type NavItem = z.infer<typeof navItemSchema>;

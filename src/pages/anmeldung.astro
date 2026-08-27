@@ -1,0 +1,239 @@
+---
+// Der Anmeldetrichter. Bewusst OHNE Menü und ohne Seitengerüst: Wer hier ist,
+// soll sich anmelden und nicht weiterklicken. Deshalb liegt diese Seite direkt
+// auf Base.astro statt auf Page.astro.
+//
+// Beide Modi in einer statischen Seite. `?regname=` entscheidet zur Laufzeit,
+// welcher Block stehen bleibt — der andere wird von page.ts entfernt.
+//
+// Das raceresult-Script lädt ausschließlich im Formularmodus, weil mountWidget
+// nur dann aufgerufen wird.
+
+import Base from '../layouts/Base.astro';
+import { loadEvent, loadSite } from '../data/load';
+import { formatEuro } from '../scripts/format';
+
+const { event, provider, group, legal, distances, faq } = loadEvent();
+// Der Trichter zeigt kein Menü, aber die Rechtslinks des Vereins gehören
+// auch hier unter das Formular. Sie kommen aus site.yaml, damit sie mit dem
+// Rest der Seite gepflegt werden.
+const site = loadSite();
+const footer = site.footer;
+
+// Die längste Distanz ist der „Ultra", um den es geht — sie bekommt die
+// Hero-Zeile. Vorher sahen alle sieben Karten identisch aus.
+const hero = distances.reduce((a, b) => (b.laps > a.laps ? b : a));
+const rest = distances.filter((d) => d.id !== hero.id);
+
+const datenschutz = footer.links.find((l) => /datenschutz/i.test(l.label));
+
+// An den Client. Nur was die Laufzeit wirklich braucht.
+const config = {
+  deadline: event.deadline,
+  deadlineLabel: event.deadline_label,
+  officeOpens: event.office_opens,
+  lateFee: event.late_fee,
+  eventId: provider.event_id,
+  distances: distances.map((d) => ({
+    id: d.id,
+    label: d.label,
+    contest_id: d.contest_id,
+    price: d.price,
+  })),
+};
+
+const title = `Anmeldung ${event.title}`;
+const description = `Distanzen, Preise und Anmeldefrist für das ${event.title} im ${event.location} — und der direkte Weg zur Anmeldung.`;
+---
+
+<Base title={title} description={description} favicon={site.site.logo}>
+  {/* is:inline, weil dieser Block Daten transportiert und nicht gebündelt
+      werden darf — page.ts liest ihn zur Laufzeit aus dem DOM. */}
+  <script type="application/json" id="page-config" is:inline set:html={JSON.stringify(config)} />
+
+  <div class="layout">
+    <div class="rail">
+      <header class="masthead">
+        <img
+          class="masthead-logo"
+          src={site.site.logo}
+          alt={event.title}
+          width="208"
+          height="133"
+        />
+        <h1 class="masthead-title">
+          Anmeldung<br /><span class="is-accent">{event.title}</span>
+        </h1>
+        <p class="masthead-meta">
+          <span class="meta-item">{event.date_label}</span>
+          <span class="meta-rule" aria-hidden="true"></span>
+          <span class="meta-item">{event.location}</span>
+        </p>
+      </header>
+
+      <section class="deadline" data-deadline aria-live="polite">
+        <p class="deadline-lead">Voranmeldung noch</p>
+        <p class="deadline-value">…</p>
+        <p class="deadline-sub">Schluss: {event.deadline_label}</p>
+      </section>
+
+      <!-- Auf dem Desktop steht der CTA hier in der Spalte, mobil als Leiste
+           am unteren Rand. Die Leiste verdeckte vorher Inhalt — .page trägt
+           deshalb unten Platz in ihrer Höhe plus Safe-Area. -->
+      <div class="cta-bar" id="cta-bar" hidden>
+        <div class="cta-inner">
+          <a class="cta" id="cta" href="?regname=Sammel-Anmeldung">
+            <span>Zur Anmeldung</span>
+            <span aria-hidden="true">→</span>
+          </a>
+          <p class="cta-hint" id="cta-hint">
+            Anmeldung und Bezahlung laufen hier auf dieser Seite.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <!-- ================= Entscheidungsmodus ================= -->
+      <div id="mode-decision">
+        <section class="section">
+          <h2 class="section-title">Distanz wählen</h2>
+          <div class="distances">
+            <label class="card is-hero reveal">
+              <input class="card-input" type="radio" name="distanz" value={hero.id} />
+              <span class="card-flag">Die Ultra-Distanz</span>
+              <span class="card-head">
+                <span class="card-label">{hero.label}</span>
+                <span class="card-price">{formatEuro(hero.price)}</span>
+              </span>
+              <span class="card-meta">
+                <span>Start {hero.start} Uhr</span>
+                <span>{hero.laps} Runden</span>
+              </span>
+              {
+                hero.price_youth !== undefined && event.youth_label && (
+                  <span class="card-youth">
+                    {formatEuro(hero.price_youth)} für {event.youth_label}
+                  </span>
+                )
+              }
+            </label>
+
+            {
+              rest.map((d) => (
+                <label class="card">
+                  <input class="card-input" type="radio" name="distanz" value={d.id} />
+                  <span class="card-head">
+                    <span class="card-label">{d.label}</span>
+                    <span class="card-price">{formatEuro(d.price)}</span>
+                  </span>
+                  <span class="card-meta">
+                    <span>Start {d.start} Uhr</span>
+                    <span>
+                      {d.laps} {d.laps === 1 ? 'Runde' : 'Runden'}
+                    </span>
+                  </span>
+                  {d.price_youth !== undefined && event.youth_label && (
+                    <span class="card-youth">
+                      {formatEuro(d.price_youth)} für {event.youth_label}
+                    </span>
+                  )}
+                </label>
+              ))
+            }
+          </div>
+        </section>
+
+        {
+          group && (
+            <section class="section">
+              <div class="note">
+                <h2 class="note-headline">{group.headline}</h2>
+                <p class="note-text">{group.text}</p>
+                {group.note && <p class="note-fine">{group.note}</p>}
+              </div>
+            </section>
+          )
+        }
+
+        {
+          faq.length > 0 && (
+            <section class="section">
+              <h2 class="section-title">Häufige Fragen</h2>
+              {faq.map((item) => (
+                <details class="faq-item">
+                  <summary class="faq-q">{item.q}</summary>
+                  <p class="faq-a">{item.a}</p>
+                </details>
+              ))}
+            </section>
+          )
+        }
+      </div>
+
+      <!-- ================= Formularmodus ================= -->
+      <div id="mode-form">
+        <div class="continuity">
+          <span class="continuity-text" id="continuity-text">
+            Wähle deinen Wettbewerb unten im Formular.
+          </span>
+          <a class="continuity-change" href="/anmeldung/">Distanzen ansehen</a>
+        </div>
+
+        <div class="RRRegStart" id="divRRRegStart"></div>
+
+        <div class="widget-fallback" id="widget-fallback" hidden>
+          <p>Das Anmeldeformular konnte hier nicht geladen werden.</p>
+          <a class="error-link" href={provider.url} rel="noopener noreferrer">
+            Anmeldung direkt bei raceresult öffnen
+          </a>
+        </div>
+
+        {
+          /* Der Hinweis, wer Vertragspartner wird und wer die Daten verarbeitet,
+             stand auf der raceresult-Zwischenseite, die wir überspringen.
+             Eingebettet ist er wichtiger als vorher: In der Adressleiste stand
+             früher `my.raceresult.com` und verriet die Beteiligung Dritter. */
+        }
+        {
+          legal?.processing && (
+            <p class="legal-note">
+              {legal.processing}{' '}
+              {datenschutz && (
+                <a
+                  class="legal-link"
+                  href={datenschutz.href}
+                  data-umami-event="Datenschutzerklärung geöffnet"
+                >
+                  Zur Datenschutzerklärung
+                </a>
+              )}
+            </p>
+          )
+        }
+      </div>
+
+      <footer class="footer">
+        {footer.note && <p class="footer-note">{footer.note}</p>}
+        <div class="footer-links">
+          {
+            footer.links.map((link) => (
+              <a
+                class="footer-link"
+                href={link.href}
+                data-umami-event={`Footer: ${link.label}`}
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </div>
+      </footer>
+    </main>
+  </div>
+</Base>
+
+<script>
+  import { initPage } from '../scripts/page';
+  initPage();
+</script>
