@@ -6,11 +6,11 @@
 
 import { describe, expect, it } from 'vitest';
 import { compareBaseline } from './baseline.js';
-import { loadAnmeldung } from '../../src/data/load.js';
+import { loadEvent } from '../../src/data/load.js';
 import { probeEvent, type EventProbe } from './probe.js';
 
 const probe: EventProbe = await probeEvent();
-const data = loadAnmeldung();
+const data = loadEvent();
 
 describe('raceresult Veranstalter-Schicht', () => {
   it('hat das Wettbewerbsfeld unter der erwarteten Klasse', () => {
@@ -21,7 +21,7 @@ describe('raceresult Veranstalter-Schicht', () => {
     expect(probe.contestFieldControlType).toBe('dropdown');
   });
 
-  it('kennt jede contest_id aus anmeldung.yaml mit identischem Label', () => {
+  it('kennt jede contest_id aus event.yaml mit identischem Label', () => {
     // Fängt Umnummerierung UND Umbenennung. Ein stummes Verschieben der IDs
     // würde sonst die falsche Distanz vorwählen — schlimmer als gar keine.
     const imFormular = new Map(probe.contests.map((c) => [c.Value, c.Label]));

@@ -8,7 +8,7 @@ const CONTEST = '[name="RRReg_1_0"]';
 
 test.describe('Entscheidungsmodus', () => {
   test('zeigt Distanzen und führt zur Anmeldung', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/anmeldung/');
 
     await expect(page.locator('.card')).toHaveCount(7);
     // Die längste Distanz ist der Hero — sonst sähen alle sieben gleich aus.
@@ -20,7 +20,7 @@ test.describe('Entscheidungsmodus', () => {
 
   test('verdeckt auf dem Handy keinen Inhalt mit der CTA-Leiste', async ({ page }, info) => {
     test.skip(info.project.name !== 'mobil', 'nur mobil relevant');
-    await page.goto('/');
+    await page.goto('/anmeldung/');
     await page.locator('.card').first().click();
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 
@@ -34,7 +34,7 @@ test.describe('Entscheidungsmodus', () => {
   });
 
   test('scrollt nicht horizontal', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/anmeldung/');
     const ueberbreit = await page.evaluate(
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
     );
@@ -44,13 +44,13 @@ test.describe('Entscheidungsmodus', () => {
 
 test.describe('Formularmodus', () => {
   test('lädt das raceresult-Widget', async ({ page }) => {
-    await page.goto('/?regname=Sammel-Anmeldung');
+    await page.goto('/anmeldung/?regname=Sammel-Anmeldung');
     await expect(page.locator(CONTEST)).toBeVisible({ timeout: 30000 });
     await expect(page.locator('#widget-fallback')).toBeHidden();
   });
 
   test('wählt die Distanz aus der URL vor', async ({ page }) => {
-    await page.goto('/?regname=Sammel-Anmeldung&d=6km');
+    await page.goto('/anmeldung/?regname=Sammel-Anmeldung&d=6km');
     const contest = page.locator(CONTEST);
     await expect(contest).toBeVisible({ timeout: 30000 });
     // contest_id 2 = 6 km. Bricht, wenn raceresult umnummeriert.
@@ -59,7 +59,7 @@ test.describe('Formularmodus', () => {
   });
 
   test('färbt das Formular um — kein Rot des Veranstalters', async ({ page }) => {
-    await page.goto('/?regname=Sammel-Anmeldung');
+    await page.goto('/anmeldung/?regname=Sammel-Anmeldung');
     await expect(page.locator(CONTEST)).toBeVisible({ timeout: 30000 });
 
     const rot = await page.evaluate((sel) => {
@@ -83,7 +83,7 @@ test.describe('Formularmodus', () => {
 
   test('hält Eingabefelder bei mindestens 16px', async ({ page }, info) => {
     test.skip(info.project.name !== 'mobil', 'nur mobil relevant');
-    await page.goto('/?regname=Sammel-Anmeldung');
+    await page.goto('/anmeldung/?regname=Sammel-Anmeldung');
     await expect(page.locator(CONTEST)).toBeVisible({ timeout: 30000 });
 
     // iOS Safari zoomt beim Antippen in jedes Feld unter 16px — und zoomt nicht
@@ -104,7 +104,7 @@ test.describe('Formularmodus', () => {
     // Adblocker, Netzwerkausfall, raceresult down: Die Anmeldung darf nie in
     // einer leeren Seite enden.
     await page.route('**://my.raceresult.com/**', (route) => route.abort());
-    await page.goto('/?regname=Sammel-Anmeldung');
+    await page.goto('/anmeldung/?regname=Sammel-Anmeldung');
 
     const fallback = page.locator('#widget-fallback');
     await expect(fallback).toBeVisible({ timeout: 40000 });

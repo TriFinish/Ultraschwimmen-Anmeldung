@@ -1,0 +1,118 @@
+event:
+  title: Ultraschwimmen 2026
+  date: 2026-08-29
+  date_label: Samstag, 29. August 2026
+  location: Stadthafen Münster
+  location_detail: Hafenkai vor dem Fitnessstudio Power Sports, Hafenweg 10, 48155 Münster
+  office_opens: "09:00"
+  deadline: 2026-08-27T23:00:00+02:00
+  deadline_label: Donnerstag, 27.08.2026 · 23:00 Uhr
+  late_fee: 5
+  youth_birth_from: 2009-01-01
+  youth_birth_to: 2016-08-29
+  youth_label: Jahrgang 2009 bis Geburtstag 29.08.2016
+
+venue:
+  name: Stadthafen Münster
+  detail: Wettkampfgelände am Hafenkai beim Power Sports Münster
+  street: Hafenweg 10
+  city: 48155 Münster
+  maps_url: https://www.openstreetmap.org/search?query=Hafenweg%2010%2C%2048155%20M%C3%BCnster
+
+course:
+  headline: Eine Runde durch das Hafenbecken
+  lap_length_m: 1000
+  paragraphs:
+    - Der Kurs misst 1000 m und verläuft einmal durch das gesamte Hafenbecken — als Wendepunktstrecke mit 500 m Länge, zwei Bahnen ergeben eine Runde.
+    - Anmeldung sowie Ein- und Ausstieg befinden sich vor dem Power Sports, Hafenweg 10, 48155 Münster.
+    - Gezählt und gemessen wird elektronisch per Transponder. Das Tragen eines Neoprenanzuges ist freigestellt.
+  image:
+    src: /strecke/kurs.png
+    # alt ist im Schema Pflicht: Eine Streckenkarte ohne Beschreibung ist für
+    # jeden wertlos, der sie nicht sehen kann.
+    alt: Luftbild des Münsteraner Stadthafens mit eingezeichnetem Kurs — eine Wendepunktstrecke von 500 m Länge entlang des Hafenbeckens, Start und Ziel am Hafenkai vor dem Power Sports.
+    width: 2138
+    height: 814
+
+provider:
+  name: raceresult
+  event_id: 383076
+  regname: Sammel-Anmeldung
+  # Notausgang. Das Formular läuft eingebettet auf unserer Seite; dieser Link
+  # erscheint nur, wenn das Widget nicht lädt (Adblocker, Ausfall).
+  url: https://my.raceresult.com/383076/registration?regname=Sammel-Anmeldung
+
+group:
+  headline: Als Team gemeinsam melden
+  text: Im Anmeldeformular fügst du mit „+" weitere Personen hinzu — jede mit eigener Distanz, bezahlt wird einmal zusammen. Adresse, Mail und Telefon gelten dann für die ganze Buchung.
+  note: Wer andere anmeldet, braucht deren Einverständnis und informiert sie über die Datenschutzerklärung des Veranstalters.
+
+# Wortlaut unverändert von der raceresult-Zwischenseite übernommen, die durch
+# die Einbettung übersprungen wird. Steht im Formularmodus unter dem Formular.
+legal:
+  processing: Es wird ausdrücklich darauf hingewiesen, dass mit Abschluss dieser Anmeldung der Veranstalter zum Vertragspartner der Teilnehmer wird. Es gelten die Datenschutzbestimmungen des Veranstalters. Die race result AG und tollense-timing verarbeiten diese Daten lediglich im Auftrag des Veranstalters. Der Anmeldende ist dafür verantwortlich, die Vollmacht derer zu besitzen, die er anmeldet sowie diese Teilnehmer über die Datenschutzerklärung des Veranstalters zu informieren. Bei Fragen wenden Sie sich bitte an den Veranstalter.
+
+distances:
+  - id: 10km
+    label: 10 km
+    contest_id: 7
+    laps: 10
+    start: "10:00"
+    price: 47
+    price_youth: 21
+  - id: 8km
+    label: 8 km
+    contest_id: 1
+    laps: 8
+    start: "10:00"
+    price: 42
+    price_youth: 21
+  - id: 6km
+    label: 6 km
+    contest_id: 2
+    laps: 6
+    start: "10:00"
+    price: 37
+    price_youth: 21
+  - id: 4km
+    label: 4 km
+    contest_id: 3
+    laps: 4
+    start: "10:00"
+    price: 32
+    price_youth: 21
+  - id: flossen
+    label: 2 km Flossenschwimmen
+    contest_id: 6
+    laps: 2
+    start: "12:00"
+    price: 22
+    price_youth: 16
+  - id: 2km
+    label: 2 km
+    contest_id: 4
+    laps: 2
+    start: "13:00"
+    price: 22
+    price_youth: 16
+  - id: 1km
+    label: 1 km
+    contest_id: 5
+    laps: 1
+    start: "13:00"
+    price: 17
+    price_youth: 13
+
+faq:
+  - q: Ist Neopren erlaubt?
+    a: Freigestellt — du entscheidest.
+  - q: Ab welchem Alter?
+    a: TODO vor Livegang klären — das Anmeldeformular sagt 12, die Preisstaffel und die Ausschreibung sagen 10. Unter 18 zusätzlich mit schriftlicher Einverständniserklärung der Erziehungsberechtigten; die wird mit der Meldebestätigung zugesandt.
+  - q: Können wir uns als Gruppe gemeinsam anmelden?
+    a: Ja. Im Anmeldeformular fügst du mit „+" weitere Personen hinzu — jede mit eigener Distanz, bezahlt wird einmal zusammen. Adresse, Mail und Telefon gelten dann für die ganze Buchung.
+  - q: Was brauche ich für die Anmeldung?
+    a: Adresse, Mail und Telefonnummer für die Buchung, dazu pro Person Name, Geburtsdatum, Geschlecht und die gewünschte Distanz. Ein Notfallkontakt ist optional, aber sinnvoll.
+  - q: Kann ich nachmelden?
+    a: Ja, am Veranstaltungstag gegen 5 € Nachmeldegebühr.
+  - q: Wie wird gewertet?
+    a: Nach DTU-Altersklassen, mit elektronischer Zeitmessung per Transponder.

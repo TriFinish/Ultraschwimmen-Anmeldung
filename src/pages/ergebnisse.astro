@@ -1,0 +1,50 @@
+---
+// Ergebnislisten der Vorjahre.
+//
+// Alle Ziele sind fremd — die Listen liegen beim Zeitnehmer. Deshalb hier
+// konsequent target="_blank" samt noopener; der dist-Test besteht darauf.
+
+import Page from '../layouts/Page.astro';
+import { loadResults } from '../data/load';
+
+const { timer, years } = loadResults();
+
+// Absteigend, das jüngste Jahr zuerst — danach sucht man.
+const sortiert = [...years].sort((a, b) => b.year - a.year);
+---
+
+<Page
+  title="Ergebnisse"
+  description="Ergebnislisten und Urkunden vergangener Ultraschwimmen-Wettkämpfe seit 2010."
+  heading="Ergebnisse"
+  lead={`Die Ergebnislisten liegen bei unserem Zeitnehmer ${timer.name}. Dort lässt sich auch die eigene Urkunde anzeigen und ausdrucken.`}
+>
+  <ul class="year-list">
+    {
+      sortiert.map((eintrag) => (
+        <li class="year-item">
+          <a
+            class="year-link"
+            href={eintrag.url}
+            rel="noopener noreferrer"
+            target="_blank"
+            data-umami-event={`Ergebnisse ${eintrag.year}`}
+          >
+            <span class="year-number">{eintrag.year}</span>
+            <span class="year-label">Ergebnisliste ansehen</span>
+            <span class="year-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="prose">
+    <p>
+      Zeitmessung und Auswertung übernimmt
+      <a href={timer.url} rel="noopener noreferrer" target="_blank">{timer.name}</a>. Für die Jahre
+      vor 2021 liegen die Listen noch bei den damaligen Anbietern; die Links führen trotzdem
+      weiterhin ans Ziel.
+    </p>
+  </div>
+</Page>

@@ -1,12 +1,40 @@
-# Ultraschwimmen — Anmelde-Seite
+# Ultraschwimmen
 
-Anmeldeseite für das Ultraschwimmen unter **`anmelden.ultraschwimmen.de`**.
-Der **gesamte** Anmeldevorgang läuft hier — Distanzwahl, Formular, Bezahlung,
-Buchung. Das raceresult-Formular ist als JavaScript-Widget eingebettet und in
-unser blaues Theme umgefärbt; der Nutzer wechselt nie die Domain.
+Die Website des Ultraschwimmens unter **`ultraschwimmen.de`** — sie löst die
+WordPress-Installation ab und enthält den Anmeldetrichter als eine ihrer Seiten.
 
 Astro + TypeScript, statischer Output, kein Backend, keine eigene Zahlung:
 Vertragspartner bleibt der Verein, das Startgeld zieht tollense-timing ein.
+
+Unter **`/anmeldung/`** läuft der **gesamte** Anmeldevorgang — Distanzwahl,
+Formular, Bezahlung, Buchung. Das raceresult-Formular ist als JavaScript-Widget
+eingebettet und in unser blaues Theme umgefärbt; der Nutzer wechselt nie die
+Domain. Diese Seite ist die einzige **ohne** Menü: Wer dort ist, soll sich
+anmelden und nicht weiterklicken.
+
+## Woher die Inhalte kommen
+
+Alles Inhaltliche steht in `src/content/` und wird beim Build gegen ein
+Zod-Schema geprüft — ein Datenfehler bricht den Build, statt als
+Konsolen-Warnung auf der Live-Seite zu landen.
+
+| Datei | Enthält | Ändert sich |
+|---|---|---|
+| `event.yaml` | Termin, Ort, Strecke, Distanzen, Preise, Frist, FAQ | jedes Jahr |
+| `site.yaml` | Navigation, Kontakt, Verein, Sponsoren, Fußzeile | selten |
+| `ergebnisse.yaml` | Ergebnislisten der Vorjahre | einmal im Jahr |
+| `ausschreibung.md` | die Ausschreibung als Fließtext | jedes Jahr |
+| `aktuelles/*.md` | Meldungen, eine Datei je Beitrag | laufend |
+
+**`event.yaml` ist die einzige Quelle für Termin, Preise und Startzeiten.**
+Startseite, Zeitplan, Strecke und Anmeldung rendern daraus — auf der alten
+Seite standen dieselben Zahlen auf vier Seiten und wichen voneinander ab.
+
+Die Ausschreibung ist bewusst Fließtext und keine erzeugte Tabelle: Sie ist ein
+formales Dokument mit eigenem Stand-Datum und verlinkt die Anmeldung nicht.
+Damit sie trotzdem nicht driftet, prüft
+[`tests/unit/ausschreibung.test.ts`](tests/unit/ausschreibung.test.ts) jede dort
+genannte Zahl gegen `event.yaml`.
 
 ## Warum es den Canary gibt
 
@@ -63,20 +91,32 @@ welcher bleibt. Das raceresult-Script lädt **nur** im Formularmodus.
 
 | Bereich | Datei |
 |---|---|
-| Inhalte (Preise, Zeiten, FAQ, Links) | [`src/content/anmeldung.yaml`](src/content/anmeldung.yaml) |
+| Inhalte | [`src/content/`](src/content/) — siehe Tabelle oben |
 | Schema + Validierung | [`src/data/schema.ts`](src/data/schema.ts), [`load.ts`](src/data/load.ts) |
-| Seite (beide Modi) | [`src/pages/index.astro`](src/pages/index.astro) |
+| Reine Logik (testbar ohne Rendern) | [`src/lib/`](src/lib/) — Navigation, Zeitplan, Preise, Datum |
+| Seitengerüst | [`src/layouts/Page.astro`](src/layouts/Page.astro), [`components/layout/`](src/components/layout/) |
+| Anmeldetrichter | [`src/pages/anmeldung.astro`](src/pages/anmeldung.astro) — liegt direkt auf `Base.astro`, ohne Menü |
 | Widget-Anbindung | [`src/scripts/widget.ts`](src/scripts/widget.ts) |
-| Client-Logik | [`src/scripts/page.ts`](src/scripts/page.ts) |
-| Unser Design | [`src/styles/app.css`](src/styles/app.css) |
+| Client-Logik des Trichters | [`src/scripts/page.ts`](src/scripts/page.ts) |
+| Design des Trichters | [`src/styles/app.css`](src/styles/app.css) — enthält auch die Tokens |
+| Design der Inhaltsseiten | [`src/styles/site.css`](src/styles/site.css) |
 | Widget-Theming | [`src/styles/widget.css`](src/styles/widget.css) |
+| Weiterleitungen alter Adressen | [`astro.config.mjs`](astro.config.mjs) |
 | Canary | [`tests/contract/`](tests/contract/), [`canary.yml`](.github/workflows/canary.yml) |
 | Deployment | [`deploy.yml`](.github/workflows/deploy.yml) → GitHub Pages |
 | Anmeldeformular | raceresult, Event `383076`, Formular `Sammel-Anmeldung` |
 
-**`anmeldung.yaml` ist die einzige Datei, die im Betrieb gepflegt wird.**
-Sie wird beim Build gegen ein Zod-Schema geprüft — ein Datenfehler bricht den
-Build, statt als Konsolen-Warnung auf der Live-Seite zu landen.
+### Wie eine Komponente gebaut ist
+
+**Komponenten holen sich nichts selbst — sie bekommen alles als Props.**
+`loadEvent()` und `getCollection()` rufen ausschließlich Seiten und
+`Page.astro` auf. Genau deshalb lässt sich jede Komponente in
+[`tests/component/`](tests/component/) einzeln mit erfundenen Daten rendern.
+
+Echte Logik gehört nach `src/lib/` und nicht in den Frontmatter einer
+`.astro`-Datei: Welcher Menüpunkt aktiv ist, wie der Zeitplan gruppiert wird,
+wie die Preistabelle sortiert — das sind gewöhnliche Funktionen mit
+gewöhnlichen Tests.
 
 ## Entwickeln
 
@@ -93,12 +133,30 @@ localhost-Origin für seine eigene Umgebung. Er sucht seine Scripts dann auf
 ## Tests
 
 ```bash
-npm run test:unit        # offline, < 1 s — Schema, Countdown, Formatierung
+npm run test:unit        # offline, < 2 s — Schema, Logik, Komponenten
+npm run build            # astro check && astro build
+npm run verify           # build + test:unit — das ist der Lauf, der zählt
 npm run test:contract    # gegen die echte raceresult-API (Canary)
 npm run test:e2e         # Playwright, mobil + Desktop
 npm run canary:update    # Baselines bewusst neu setzen
-npm run build            # astro check && astro build
 ```
+
+Vier Schichten, jede für eine Sorte Fehler:
+
+| Schicht | Prüft |
+|---|---|
+| `tests/unit/` | Schema, `src/lib/`, Formatierung, Ausschreibungs-Drift |
+| `tests/component/` | jede Komponente einzeln gerendert — **Bedeutung, nicht Klassennamen** |
+| `tests/unit/dist.test.ts` | das gebaute `dist/`: tote interne Links, fehlende `alt`, falsches raceresult-Event, Weiterleitungen |
+| `tests/e2e/` | echter Browser: Menü ohne JavaScript, kein seitlicher Überlauf, 404, Trichter |
+
+`dist.test.ts` läuft nur, wenn `dist/` existiert — deshalb `npm run verify`
+statt `npm run test:unit` allein. Im Deployment läuft er zwischen Build und
+Veröffentlichung; was er findet, geht nicht live.
+
+Komponententests nutzen `experimental_AstroContainer`. Sie behaupten nie etwas
+über Klassennamen, sondern über Überschriftenebenen, Linkziele, `alt`-Texte und
+`aria-current` — sonst wäre jede Umgestaltung ein Testumbau.
 
 ### Was der Canary prüft
 
@@ -189,8 +247,27 @@ Events, die feuern bevor Umami geladen ist, werden gepuffert und nachgereicht
 - [ ] **Testbuchung.** `Anmeldung abgeschlossen` lässt sich nur prüfen, indem
       wirklich gebucht wird. Dafür braucht es vom Zeitnehmer eine
       Testveranstaltung oder einen 100-%-Gutscheincode.
+- [ ] **Datenschutzerklärung juristisch prüfen.** `datenschutz.astro` ist neu
+      geschrieben und beschreibt, was diese Seite tatsächlich tut — Hosting bei
+      GitHub, Umami ohne Cookies, das eingebettete raceresult-Formular. Die alte
+      WordPress-Fassung nannte Newsletter, Kontaktformular und Google Web Fonts,
+      die es hier alle nicht gibt.
+- [ ] **Vereinsanschrift klären.** Impressum und Datenschutzerklärung der alten
+      Seite widersprachen sich: Lublinring 12, 48147 gegen Wilhelmstraße 60,
+      48149. Übernommen ist die Anschrift aus dem Impressum.
+- [ ] **DNS umstellen.** `public/CNAME` steht auf `ultraschwimmen.de`. Solange
+      die Domain auf WordPress zeigt, ändert der Build daran nichts.
+- [ ] **Fotogalerien.** 798 Bilder liegen noch auf der WordPress-Installation.
+      `/fotos/` und die fünf Sammlungsadressen leiten bis dahin auf die
+      Startseite.
 
 ## Deployment
 
-Push auf `main` löst [`deploy.yml`](.github/workflows/deploy.yml) aus und
-veröffentlicht den Build auf GitHub Pages.
+Push auf `main` löst [`deploy.yml`](.github/workflows/deploy.yml) aus: bauen,
+`npm run test:unit` gegen das Ergebnis, dann `dist/` auf GitHub Pages
+veröffentlichen. Scheitert der Build oder ein Test, wird nichts veröffentlicht.
+
+Alte WordPress-Adressen sind in [`astro.config.mjs`](astro.config.mjs)
+eingetragen. GitHub Pages kennt keine Server-Weiterleitung; Astro legt dafür je
+Eintrag eine kleine Seite mit Meta-Refresh und `rel="canonical"` ab. Das ist
+keine 301, aber niemand landet vor einer 404.

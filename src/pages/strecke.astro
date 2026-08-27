@@ -1,0 +1,75 @@
+---
+// Strecke.
+//
+// Erreichbar unter /strecke/ — die alte Seite hieß /strecken/ (Plural). Die
+// Weiterleitung dorthin steht in astro.config.mjs.
+
+import Page from '../layouts/Page.astro';
+import { loadEvent } from '../data/load';
+
+const { event, venue, course, distances } = loadEvent();
+
+// Die Rundenzahl je Distanz macht aus dem Kurs die eigentliche Strecke.
+const runden = [...distances].sort((a, b) => a.laps - b.laps);
+---
+
+<Page
+  title="Strecke"
+  description={`Der Kurs des ${event.title}: ${course.lap_length_m} m je Runde durch das Hafenbecken im ${venue.name}.`}
+  heading="Strecke"
+  lead={course.headline}
+  wide
+>
+  {
+    course.image && (
+      <figure class="figure">
+        <img
+          class="figure-image"
+          src={course.image.src}
+          alt={course.image.alt}
+          width={course.image.width}
+          height={course.image.height}
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption class="figure-caption">
+          Der Kursverlauf im Stadthafen. Ein- und Ausstieg liegen vor dem Power Sports,
+          {' '}{venue.street}.
+        </figcaption>
+      </figure>
+    )
+  }
+
+  <div class="prose">
+    {course.paragraphs.map((absatz) => <p>{absatz}</p>)}
+  </div>
+
+  <h2 class="section-heading">Wie viele Runden welche Strecke hat</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Strecke</th>
+        <th scope="col">Runden</th>
+        <th scope="col">Start</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        runden.map((d) => (
+          <tr>
+            <th scope="row">{d.label}</th>
+            <td>{d.laps}</td>
+            <td>{d.start} Uhr</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <div class="prose">
+    <p>
+      Die Startzeiten stehen im <a href="/zeitplan/">Zeitplan</a>, Preise und Bedingungen in der
+      <a href="/ausschreibung/">Ausschreibung</a>.
+    </p>
+  </div>
+</Page>

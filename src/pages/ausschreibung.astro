@@ -1,0 +1,29 @@
+---
+// Ausschreibung.
+//
+// Bewusst reiner Text und KEIN Link zur Anmeldung: Das hier ist das formale
+// Dokument zum Wettkampf, kein Werbeträger. Es trägt sein eigenes „Stand"-Datum
+// und wird als Ganzes gepflegt, nicht aus Bausteinen zusammengesetzt.
+//
+// Damit es trotzdem nicht driftet — auf der alten Seite nannte die
+// Ausschreibung andere Preise und ein anderes raceresult-Event als der Rest der
+// Website — prüft tests/unit/ausschreibung.test.ts die hier genannten Zahlen
+// gegen event.yaml.
+
+import Page from '../layouts/Page.astro';
+import { Content, frontmatter } from '../content/ausschreibung.md';
+import { loadEvent } from '../data/load';
+
+const { event } = loadEvent();
+---
+
+<Page
+  title="Ausschreibung"
+  description={`Ausschreibung zum ${event.title}: Strecken, Meldegebühren, Startberechtigung und Bedingungen.`}
+  heading="Ausschreibung"
+  eyebrow={`Stand: ${frontmatter.stand_label}`}
+>
+  <div class="prose">
+    <Content />
+  </div>
+</Page>

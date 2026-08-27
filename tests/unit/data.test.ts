@@ -1,15 +1,15 @@
 // Prüft die Daten und die reine Logik — offline, in Millisekunden.
 
 import { describe, expect, it } from 'vitest';
-import { anmeldungSchema } from '../../src/data/schema.js';
-import { loadAnmeldung } from '../../src/data/load.js';
+import { eventDataSchema } from '../../src/data/schema.js';
+import { loadEvent } from '../../src/data/load.js';
 import { formatEuro, formatRemaining, labelMatchesDeadline } from '../../src/scripts/format.js';
 
-const data = loadAnmeldung();
+const data = loadEvent();
 
-describe('anmeldung.yaml', () => {
+describe('event.yaml', () => {
   it('erfüllt das Schema', () => {
-    expect(() => loadAnmeldung()).not.toThrow();
+    expect(() => loadEvent()).not.toThrow();
   });
 
   it('hat eindeutige Distanz-IDs und contest_ids', () => {
@@ -32,16 +32,16 @@ describe('anmeldung.yaml', () => {
       ...data,
       event: { ...data.event, deadline: '2026-08-27T23:00:00' },
     };
-    expect(anmeldungSchema.safeParse(ohneOffset).success).toBe(false);
+    expect(eventDataSchema.safeParse(ohneOffset).success).toBe(false);
   });
 
   it('lehnt eine relative provider.url ab', () => {
     const relativ = { ...data, provider: { ...data.provider, url: '/anmeldung' } };
-    expect(anmeldungSchema.safeParse(relativ).success).toBe(false);
+    expect(eventDataSchema.safeParse(relativ).success).toBe(false);
   });
 
   it('lehnt eine leere Distanzliste ab', () => {
-    expect(anmeldungSchema.safeParse({ ...data, distances: [] }).success).toBe(false);
+    expect(eventDataSchema.safeParse({ ...data, distances: [] }).success).toBe(false);
   });
 });
 

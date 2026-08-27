@@ -1,0 +1,37 @@
+# Ergebnislisten der Vorjahre. Die URLs zeigen auf unseren Zeitnehmer, nicht
+# auf uns — dort liegen die Listen und dort gibt es auch die Urkunden.
+#
+# Die Anbieter haben über die Jahre gewechselt (your-sports → raceresult →
+# tollense-timing). Deshalb keine URL-Vorlage, sondern jede Adresse einzeln.
+
+timer:
+  name: Tollense-Timing
+  url: https://www.tollense-timing.de/
+
+years:
+  - year: 2025
+    url: https://my.tollense-timing.de/event/results?eventid=329646&lang=de
+  - year: 2024
+    url: https://my.tollense-timing.de/event/results?eventid=275289&lang=de
+  - year: 2023
+    url: https://my.tollense-timing.de/event/results?eventid=228425&lang=de
+  - year: 2022
+    url: https://my.tollense-timing.de/event/results?eventid=201828&lang=de
+  - year: 2021
+    url: https://my.tollense-timing.de/event/results?eventid=174928&lang=de
+  - year: 2020
+    url: https://my.raceresult.com/148891/results?lang=de
+  - year: 2019
+    url: https://my4.raceresult.com/131977/results?lang=de
+  - year: 2016
+    url: https://my4.raceresult.com/57780/?lang=de
+  - year: 2014
+    url: https://my4.raceresult.com/details/index.php?page=4&eventid=31026&lang=de
+  - year: 2013
+    url: https://my2.raceresult.com/details/results.php?lang=de&page=6&eventid=19131&contest=0&name=Ergebnislisten|Ergebnisliste%20Gesamteinlauf_alle&format=view
+  - year: 2012
+    url: https://my2.raceresult.com/details/results.php?lang=de&page=6&eventid=12617&contest=0&name=Ergebnislisten|Ergebnisliste%20Gesamteinlauf_alle&CertificateLink=1&format=view
+  - year: 2011
+    url: https://www3.your-sports.com/details/results.php?lang=de&page=6&eventid=8332&contest=0&name=Ergebnislisten|Ergebnisliste%20Gesamteinlauf_alle&CertificateLink=1&format=view
+  - year: 2010
+    url: https://www3.your-sports.com/details/index.php?page=4&eventid=4910&lang=de

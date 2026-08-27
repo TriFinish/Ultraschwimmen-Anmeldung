@@ -1,0 +1,118 @@
+---
+// Datenschutzerklärung.
+//
+// BEWUSST NEU GESCHRIEBEN, nicht von der WordPress-Seite übernommen. Die alte
+// Erklärung beschrieb Dinge, die es hier nicht mehr gibt (Newsletter,
+// Kontaktformular, Google Web Fonts) und verschwieg das, was tatsächlich
+// passiert: die eingebettete Anmeldung von raceresult. Sie nannte außerdem
+// eine andere Vereinsanschrift als das eigene Impressum.
+//
+// Was diese Seite tatsächlich tut, und nur das steht hier:
+//   — Auslieferung über GitHub Pages (Server-Logs beim Hoster)
+//   — Reichweitenmessung mit selbst gehostetem Umami, ohne Cookies
+//   — auf /anmeldung/ das eingebettete Formular von raceresult
+//   — keine eigenen Cookies, keine fremden Schriften, kein Newsletter
+//
+// Der Text ist juristisch zu prüfen, bevor die Domain umgezogen wird.
+
+import Page from '../layouts/Page.astro';
+import { loadSite } from '../data/load';
+
+const { organizer, contact } = loadSite();
+---
+
+<Page
+  title="Datenschutz"
+  description="Welche Daten beim Besuch von ultraschwimmen.de verarbeitet werden — Hosting, Reichweitenmessung und die eingebettete Anmeldung."
+  heading="Datenschutzerklärung"
+  eyebrow="Stand: August 2026"
+>
+  <div class="prose">
+    <p>
+      Diese Seite ist bewusst sparsam gebaut. Sie setzt keine eigenen Cookies, lädt keine Schriften
+      von fremden Servern und bindet weder Karten noch Social-Media-Widgets ein. Was trotzdem an
+      Daten anfällt, steht hier vollständig.
+    </p>
+
+    <h2>Verantwortliche Stelle</h2>
+    <p>
+      {organizer.legal_name}<br />
+      {organizer.address_lines.map((line) => (<>{line}<br /></>))}
+      Telefon: {organizer.phone}<br />
+      E-Mail: <a href={`mailto:${contact.email}`}>{contact.email}</a>
+    </p>
+
+    <h2>Hosting und Server-Logdateien</h2>
+    <p>
+      Diese Website wird von GitHub Pages (GitHub, Inc., 88 Colin P Kelly Jr St, San Francisco, CA
+      94107, USA) ausgeliefert. Beim Abruf einer Seite verarbeitet der Hoster technisch notwendige
+      Zugriffsdaten: IP-Adresse, Datum und Uhrzeit der Anfrage, abgerufene Datei, Referrer sowie
+      Browser- und Betriebssystemkennung. Diese Daten sind für die Auslieferung und die Abwehr von
+      Angriffen erforderlich; Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Wir selbst haben auf
+      diese Logdateien keinen Zugriff und führen sie mit keiner anderen Datenquelle zusammen.
+    </p>
+
+    <h2>Reichweitenmessung</h2>
+    <p>
+      Um zu verstehen, welche Seiten genutzt werden, setzen wir Umami ein — eine Analysesoftware,
+      die wir selbst betreiben. Umami arbeitet ohne Cookies und ohne geräteübergreifende
+      Wiedererkennung. Erfasst werden aufgerufene Seite, Referrer, ungefähre Herkunftsregion sowie
+      Browser- und Gerätetyp. Die IP-Adresse wird dabei nicht gespeichert, sondern nur kurzzeitig
+      zur Ableitung dieser Angaben verwendet. Ein Rückschluss auf einzelne Personen ist damit nicht
+      möglich. Rechtsgrundlage ist unser berechtigtes Interesse an einer bedarfsgerechten Gestaltung
+      der Seite, Art. 6 Abs. 1 lit. f DSGVO.
+    </p>
+
+    <h2>Anmeldung zum Wettkampf</h2>
+    <p>
+      Auf der Seite <a href="/anmeldung/">Anmeldung</a> ist das Anmeldeformular unseres Zeitnehmers
+      eingebettet. Es wird von der race result AG in Zusammenarbeit mit tollense-timing
+      bereitgestellt und lädt beim Aufruf dieser Seite Programmcode von
+      <code>my.raceresult.com</code> nach. Dabei wird Ihre IP-Adresse an race result übermittelt.
+    </p>
+    <p>
+      Alles, was Sie in dieses Formular eintragen — Name, Geburtsdatum, Anschrift, E-Mail-Adresse,
+      Telefonnummer und gewählte Strecke — verarbeitet race result im Auftrag des Veranstalters.
+      Mit Abschluss der Anmeldung wird der Veranstalter Ihr Vertragspartner; Rechtsgrundlage ist
+      Art. 6 Abs. 1 lit. b DSGVO. Startlisten und Ergebnislisten werden mit Name, Jahrgang, Verein
+      und Zeit veröffentlicht.
+    </p>
+    <p>
+      Wenn Sie das Formular nicht laden möchten, rufen Sie die Seite Anmeldung schlicht nicht auf —
+      auf allen übrigen Seiten wird kein Code von race result geladen.
+    </p>
+
+    <h2>Kontaktaufnahme per E-Mail</h2>
+    <p>
+      Ein Kontaktformular gibt es auf dieser Seite nicht. Wenn Sie uns schreiben, verarbeiten wir
+      Ihre Nachricht samt Absenderadresse ausschließlich zur Bearbeitung Ihres Anliegens
+      (Art. 6 Abs. 1 lit. b bzw. lit. f DSGVO) und bewahren sie so lange auf, wie es dafür nötig
+      ist. Bitte beachten Sie, dass unverschlüsselte E-Mail auf dem Transportweg mitgelesen werden
+      kann.
+    </p>
+
+    <h2>Verlinkte Angebote</h2>
+    <p>
+      Links zu Instagram, zum Verein und zu den Ergebnislisten unseres Zeitnehmers sind gewöhnliche
+      Verweise. Es werden erst dann Daten an diese Anbieter übertragen, wenn Sie den Link
+      tatsächlich anklicken. Für die dortige Verarbeitung gilt die Datenschutzerklärung des
+      jeweiligen Anbieters.
+    </p>
+
+    <h2>Ihre Rechte</h2>
+    <p>
+      Sie haben das Recht auf Auskunft über die zu Ihnen gespeicherten Daten, auf Berichtigung, auf
+      Löschung, auf Einschränkung der Verarbeitung sowie auf Datenübertragbarkeit. Einer
+      Verarbeitung auf Grundlage berechtigter Interessen können Sie jederzeit widersprechen. Wenden
+      Sie sich dafür an die oben genannte Adresse. Unabhängig davon steht Ihnen ein Beschwerderecht
+      bei einer Datenschutz-Aufsichtsbehörde zu; für uns zuständig ist die Landesbeauftragte für
+      Datenschutz und Informationsfreiheit Nordrhein-Westfalen.
+    </p>
+
+    <h2>Werbung per E-Mail</h2>
+    <p>
+      Der Nutzung der im Impressum veröffentlichten Kontaktdaten zur Übersendung nicht ausdrücklich
+      angeforderter Werbung wird hiermit widersprochen.
+    </p>
+  </div>
+</Page>

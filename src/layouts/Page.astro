@@ -1,0 +1,72 @@
+---
+// Standardgerüst aller Inhaltsseiten: Base plus Kopf, Navigation und Fuß.
+//
+// Der Anmeldetrichter benutzt dieses Layout NICHT — er läuft über
+// Funnel.astro, ohne Menü. Wer auf /anmeldung/ ist, soll sich anmelden und
+// nicht weiterklicken.
+//
+// Diese Datei ist die einzige Stelle, die site.yaml lädt. Die Komponenten
+// darunter bekommen alles als Props.
+
+import Base from './Base.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import SponsorBand from '../components/layout/SponsorBand.astro';
+import { loadSite } from '../data/load';
+import { normalizePath, resolveNav } from '../lib/nav';
+import '../styles/site.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Überschrift im Seitenkopf. Fehlt sie, liefert die Seite ihr eigenes h1. */
+  heading?: string;
+  /** Kleine Zeile über der Überschrift, z. B. „Stand: 10. Februar 2026". */
+  eyebrow?: string;
+  /** Einleitung unter der Überschrift. */
+  lead?: string;
+  /** Breite Seiten (Tabellen, Galerien) bekommen mehr Platz als Fließtext. */
+  wide?: boolean;
+}
+
+const { title, description, heading, eyebrow, lead, wide = false } = Astro.props;
+
+const site = loadSite();
+const pathname = normalizePath(Astro.url.pathname);
+const items = resolveNav(site.nav, pathname);
+
+// Der Titel im Browsertab trägt immer den Seitennamen mit — außer auf der
+// Startseite, wo er ihn sonst doppelt.
+const documentTitle = pathname === '/' ? title : `${title} – ${site.site.name}`;
+---
+
+<Base title={documentTitle} description={description} favicon={site.site.logo} bare>
+  <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
+  <SiteHeader
+    siteName={site.site.name}
+    tagline={site.site.tagline}
+    logo={site.site.logo}
+    items={items}
+    isHome={pathname === '/'}
+  />
+
+  <main class="site-main" id="inhalt">
+    <div class:list={['container', wide && 'is-wide']}>
+      {
+        heading && (
+          <div class="page-head">
+            {eyebrow && <p class="page-eyebrow">{eyebrow}</p>}
+            <h1 class="page-title">{heading}</h1>
+            {lead && <p class="page-lead">{lead}</p>}
+          </div>
+        )
+      }
+      <slot />
+    </div>
+  </main>
+
+  {site.sponsors && <SponsorBand sponsors={site.sponsors} />}
+
+  <SiteFooter site={site} />
+</Base>

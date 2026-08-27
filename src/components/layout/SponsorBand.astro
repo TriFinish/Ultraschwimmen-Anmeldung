@@ -1,0 +1,53 @@
+---
+// Sponsorenband über dem Fußbereich.
+//
+// Auf der alten Seite war das ein einziges, in Photoshop zusammengesetztes
+// Bild: auf dem Handy unlesbar klein, ohne alt-Text und ohne Links. Hier steht
+// jedes Logo für sich — beschriftet, verlinkt und mit eigenen Maßen, damit
+// beim Nachladen nichts springt.
+
+import type { SiteData } from '../../data/schema';
+
+interface Props {
+  sponsors: NonNullable<SiteData['sponsors']>;
+}
+
+const { sponsors } = Astro.props;
+---
+
+<aside class="sponsors" aria-labelledby="sponsors-titel">
+  <p class="sponsors-headline" id="sponsors-titel">{sponsors.headline}</p>
+
+  <ul class="sponsors-list">
+    {
+      sponsors.items.map((sponsor) => {
+        // Das Logo trägt den Namen als alt-Text; die Rolle steht daneben als
+        // echter Text, damit „Hauptsponsor" nicht in einer Grafik versteckt ist.
+        const bild = (
+          <img
+            class="sponsors-logo"
+            src={sponsor.logo}
+            alt={sponsor.name}
+            width={sponsor.width}
+            height={sponsor.height}
+            loading="lazy"
+            decoding="async"
+          />
+        );
+
+        return (
+          <li class="sponsors-item">
+            {sponsor.url ? (
+              <a class="sponsors-link" href={sponsor.url} rel="noopener noreferrer" target="_blank">
+                {bild}
+              </a>
+            ) : (
+              bild
+            )}
+            {sponsor.role && <span class="sponsors-role">{sponsor.role}</span>}
+          </li>
+        );
+      })
+    }
+  </ul>
+</aside>

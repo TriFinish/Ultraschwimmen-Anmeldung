@@ -9,9 +9,24 @@ interface Props {
   title: string;
   description: string;
   formMode?: boolean;
+  /**
+   * Ohne `.page`-Rahmen ausliefern. Inhaltsseiten über Page.astro brauchen
+   * ihn nicht: Sie bringen eigene Container mit, und Kopf- wie Fußbereich
+   * sollen über die volle Breite laufen. `.page` trägt außerdem unten Platz
+   * für die Anmelde-Leiste, den es nur im Trichter gibt.
+   */
+  bare?: boolean;
+  /** Pfad zum Logo unter public/ — zentral in site.yaml gepflegt. */
+  favicon?: string;
 }
 
-const { title, description, formMode = false } = Astro.props;
+const {
+  title,
+  description,
+  formMode = false,
+  bare = false,
+  favicon = '/tri-finish/logo.svg',
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -32,7 +47,7 @@ const { title, description, formMode = false } = Astro.props;
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#0b1f33" />
 
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" type="image/svg+xml" href={favicon} />
 
     <!--
       Umami Analytics (self-hosted auf Vercel).
@@ -46,8 +61,14 @@ const { title, description, formMode = false } = Astro.props;
       data-website-id="TODO-EIGENE-WEBSITE-ID"></script>
   </head>
   <body>
-    <div class:list={['page', formMode && 'is-form']}>
-      <slot />
-    </div>
+    {
+      bare ? (
+        <slot />
+      ) : (
+        <div class:list={['page', formMode && 'is-form']}>
+          <slot />
+        </div>
+      )
+    }
   </body>
 </html>

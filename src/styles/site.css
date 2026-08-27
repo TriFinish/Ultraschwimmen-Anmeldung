@@ -1,0 +1,957 @@
+/* Seitengerüst: Kopf, Navigation, Fuß, Fließtext.
+
+   Gilt nur für Inhaltsseiten über Page.astro. Der Anmeldetrichter lädt diese
+   Datei nicht.
+
+   DIESELBE REGEL WIE IN app.css: keine nackten Element-Selektoren. Zwar
+   rendert das raceresult-Widget nur auf /anmeldung/ und damit nie unter diesem
+   Stylesheet — aber die Regel hier zu brechen hieße, sie beim nächsten
+   Verschieben einer Komponente unbemerkt zu brechen. Tokens kommen aus
+   app.css, das Base.astro immer lädt. */
+
+/* ------------------------------------------------------------ Grundgerüst */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 0 0 var(--radius) 0;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+.site-main {
+  display: block;
+  min-height: 60vh;
+  padding: 2rem 0 4rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.container.is-wide {
+  max-width: 68rem;
+}
+
+/* ------------------------------------------------------------ Kopfbereich */
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+/* Mobil gestapelt: Marke oben, Navigation als eigene Zeile darunter. Beides
+   nebeneinander wird auf 390px zu eng, sobald die Marke zweizeilig wird. */
+.site-header-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 0.75rem var(--gutter);
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brand-name {
+  font-size: var(--step-1);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.brand-tagline {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------ Navigation */
+
+/* Die Liste steht immer — auf jeder Breite. Nur die Gruppe klappt auf. */
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  /* `flex-start`, nicht `center`: Klappt die Gruppe auf, wird ihr Element hoch.
+     Zentriert ausgerichtet rutschten die Nachbarn dann auf halbe Höhe. */
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+/* Aufgeklappt bekommt die Gruppe eine eigene Zeile. Ohne das setzt flex-wrap
+   die übrigen Einträge neben das ausgeklappte Feld, und das Menü zerfällt in
+   ein Durcheinander aus drei Spalten. */
+.nav-item.is-group:has(> .nav-group[open]) {
+  flex-basis: 100%;
+}
+
+.nav-link {
+  display: block;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-size: var(--step-0);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  background: var(--surface-sunk);
+  color: var(--accent-deep);
+}
+
+/* Der aktive Eintrag trägt aria-current="page" — die Auszeichnung, die auch
+   ein Screenreader meldet. Das Styling hängt sich an dieselbe Information,
+   statt eine zweite Klasse dafür zu erfinden. */
+.nav-link[aria-current='page'] {
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+}
+
+.nav-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius);
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  list-style: none;
+}
+
+/* Das Standard-Dreieck von <summary> in beiden Engines abschalten. */
+.nav-summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-summary::marker {
+  content: '';
+}
+
+.nav-summary:hover {
+  background: var(--surface-sunk);
+  color: var(--accent-deep);
+}
+
+.nav-summary[data-active='true'] {
+  color: var(--accent-deep);
+}
+
+.nav-chevron {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.nav-group[open] > .nav-summary > .nav-chevron {
+  transform: rotate(225deg) translateY(-1px);
+}
+
+.nav-sublist {
+  list-style: none;
+  margin: 0.25rem 0 0.25rem 0.6rem;
+  padding: 0 0 0 0.75rem;
+  border-left: 2px solid var(--line);
+}
+
+.nav-link.is-sub {
+  font-weight: 500;
+  font-size: var(--step--1);
+}
+
+/* ------------------------------------------------------------ Seitenkopf */
+
+.page-head {
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.page-title {
+  margin: 0;
+  font-size: var(--step-3);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.page-lead {
+  margin: 0.75rem 0 0;
+  max-width: var(--measure);
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------ Sponsoren */
+
+.sponsors {
+  max-width: 68rem;
+  margin: 3rem auto 0;
+  padding: 2rem var(--gutter);
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.sponsors-headline {
+  margin: 0 0 1.25rem;
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.sponsors-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem 2.5rem;
+}
+
+.sponsors-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Die Logos kommen in sehr verschiedenen Seitenverhältnissen. Eine gemeinsame
+   Höhe statt einer gemeinsamen Breite lässt sie gleich gewichtig wirken. */
+.sponsors-logo {
+  display: block;
+  width: auto;
+  height: 2.25rem;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.sponsors-link {
+  display: block;
+}
+
+.sponsors-role {
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+}
+
+/* ------------------------------------------------------------ Fußbereich */
+
+.site-footer {
+  margin-top: 3rem;
+  border-top: 1px solid var(--line);
+  background: var(--surface-sunk);
+}
+
+.site-footer-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 2.5rem var(--gutter) 1.5rem;
+}
+
+.footer-heading {
+  margin: 0 0 0.6rem;
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.footer-contact,
+.footer-legal {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.footer-link {
+  color: var(--ink);
+  font-size: var(--step-0);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.footer-link:hover {
+  color: var(--accent-deep);
+  border-bottom-color: currentColor;
+}
+
+.footer-org {
+  margin: 0;
+}
+
+.footer-note {
+  margin: 0.5rem 0 0;
+  max-width: 24rem;
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.footer-copy {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 1rem var(--gutter) 2rem;
+  border-top: 1px solid var(--line);
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+}
+
+/* -------------------------------------------------------- Fakten-Listen */
+
+/* Beschriftung/Wert-Paare: Impressum, Ausschreibungsdaten, Veranstaltungsort.
+   Als <dl> ausgezeichnet, weil es genau das ist — und ein Screenreader die
+   Zusammengehörigkeit dann auch meldet. */
+
+.facts {
+  margin: 0 0 2.5rem;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.facts-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.facts-term {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.facts-value {
+  margin: 0;
+  font-size: var(--step-0);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* Adresszeilen sollen untereinander stehen, ohne <br> im Markup. */
+.facts-line {
+  display: block;
+}
+
+.facts-link {
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* ----------------------------------------------------------- Hilfsklassen */
+
+/* Für Screenreader da, für Augen nicht. Nicht `display: none` — das nähme es
+   auch der Vorlesehilfe weg. */
+.is-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.section-note {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.section-note a {
+  color: var(--accent-deep);
+}
+
+/* ---------------------------------------------------------------- Hero */
+
+.hero {
+  margin-bottom: 3.5rem;
+}
+
+.hero-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: var(--step-0);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent-deep);
+}
+
+.hero-title {
+  margin: 0;
+  font-size: var(--step-4);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.hero-lead {
+  margin: 1rem 0 0;
+  max-width: 40rem;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.75rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.4rem;
+  border-radius: var(--radius);
+  background: var(--accent-deep);
+  color: #fff;
+  font-size: var(--step-0);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--ink);
+}
+
+.hero-note {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------- Kacheln */
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.card-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-sunk);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.card-link:hover {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.card-link-title {
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.card-link-text {
+  flex: 1;
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.card-link-more {
+  color: var(--accent-deep);
+}
+
+/* -------------------------------------------------------------- Beiträge */
+
+.posts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.post-item {
+  border-bottom: 1px solid var(--line);
+}
+
+.post-teaser {
+  padding: 1.35rem 0;
+}
+
+.post-date {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+}
+
+.post-title {
+  margin: 0;
+  font-size: var(--step-1);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.post-link {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.post-link:hover {
+  color: var(--accent-deep);
+}
+
+.post-excerpt {
+  margin: 0.4rem 0 0;
+  max-width: var(--measure);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.back-link {
+  margin: 2.5rem 0 0;
+  font-size: var(--step-0);
+}
+
+.back-link a {
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+
+.back-link a:hover {
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------- Zeitplan (Zeitstrahl) */
+
+.timeline {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.timeline-time {
+  font-size: var(--step-1);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-deep);
+}
+
+.timeline-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.timeline-title {
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.timeline-note {
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------- Tabellen */
+
+.section-heading {
+  margin: 2.5rem 0 0.75rem;
+  font-size: var(--step-2);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* Tabellen dürfen die Seite nie seitlich scrollen lassen — sie scrollen in
+   sich selbst. Auf dem Handy ist das der Unterschied zwischen lesbar und
+   kaputt. */
+.table-scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  margin: 0 0 2rem;
+  border-collapse: collapse;
+  font-size: var(--step-0);
+}
+
+.table th,
+.table td {
+  padding: 0.7rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+.table thead th {
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom-color: var(--line-strong);
+  white-space: nowrap;
+}
+
+.table tbody th {
+  font-weight: 600;
+}
+
+.table td {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------------- Jahresliste */
+
+/* Ergebnisse und 404: eine Liste großer, gut treffbarer Ziele. */
+
+.year-list {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.year-item {
+  border-bottom: 1px solid var(--line);
+}
+
+.year-link {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding: 0.95rem 0.25rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.year-link:hover {
+  color: var(--accent-deep);
+}
+
+.year-number {
+  min-width: 3.5rem;
+  font-size: var(--step-1);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.year-label {
+  flex: 1;
+  font-size: var(--step-0);
+  color: var(--ink-soft);
+}
+
+.year-link:hover .year-label {
+  color: inherit;
+}
+
+.year-arrow {
+  color: var(--ink-faint);
+}
+
+.year-link:hover .year-arrow {
+  color: inherit;
+}
+
+/* -------------------------------------------------------------- Kontakt */
+
+.contact-ways {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.contact-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.contact-kind {
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.contact-value {
+  font-size: var(--step-1);
+  font-weight: 700;
+  color: var(--accent-deep);
+  overflow-wrap: anywhere;
+}
+
+.contact-hint {
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------- Bilder */
+
+.figure {
+  margin: 0 0 2rem;
+}
+
+.figure-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.figure-caption {
+  margin-top: 0.6rem;
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------ Fließtext */
+
+/* Prose ist der eine Ort, an dem HTML aus Markdown landet — dort können wir
+   die Elemente nicht mit Klassen versehen. Deshalb hier Nachfahren-Selektoren
+   unter `.prose`, statt die Elemente global anzufassen. */
+
+.prose {
+  max-width: var(--measure);
+  font-size: var(--step-0);
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.prose > * + * {
+  margin-top: 1rem;
+}
+
+.prose h2 {
+  margin-top: 2.25rem;
+  margin-bottom: 0.5rem;
+  font-size: var(--step-2);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.prose h3 {
+  margin-top: 1.75rem;
+  margin-bottom: 0.35rem;
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.prose p,
+.prose ul,
+.prose ol {
+  margin-block: 0 1rem;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.25rem;
+}
+
+.prose li + li {
+  margin-top: 0.35rem;
+}
+
+.prose a {
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.prose strong {
+  font-weight: 700;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+.prose table {
+  width: 100%;
+  margin: 0 0 1.5rem;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+}
+
+.prose th,
+.prose td {
+  padding: 0.55rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+.prose thead th {
+  font-weight: 700;
+  border-bottom-color: var(--line-strong);
+}
+
+.prose hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* ------------------------------------------------------------ ab Tablet */
+
+@media (min-width: 48rem) {
+  .site-main {
+    padding-top: 3rem;
+  }
+
+  .sponsors-logo {
+    height: 2.75rem;
+  }
+
+  .site-header-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .nav-item.is-group {
+    position: relative;
+  }
+
+  /* Ab hier schwebt die Unterliste; die Gruppe braucht keine eigene Zeile mehr. */
+  .nav-item.is-group:has(> .nav-group[open]) {
+    flex-basis: auto;
+  }
+
+  /* Die Gruppe wird zum Aufklappmenü. `open` setzt weiterhin der Browser —
+     wir ändern nur, wo der Inhalt erscheint. */
+  /* Ab hier schwebt die Gruppe als Ausklappmenü, statt den Text zu schieben. */
+  .nav-sublist {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    z-index: 20;
+    min-width: 12rem;
+    margin: 0;
+    padding: 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 12px 28px rgb(11 31 51 / 12%);
+  }
+
+  .facts-row {
+    grid-template-columns: 16rem 1fr;
+    gap: 1.5rem;
+    align-items: baseline;
+  }
+
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .contact-ways {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .site-footer-inner {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}

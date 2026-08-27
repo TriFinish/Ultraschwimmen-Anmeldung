@@ -123,7 +123,7 @@ jobs:
             const layer = process.env.LAYER || 'event';
             const erklaerung = {
               product: '**raceresult hat sein Produkt geändert.** Niemand informiert uns darüber — genau davor hat Tollense gewarnt. Prüfen, ob `src/styles/widget.css` und `src/scripts/widget.ts` noch greifen.',
-              event: '**Tollense hat vermutlich das Event bearbeitet.** Kein Notfall: kurz nachfragen, dann ggf. `src/content/anmeldung.yaml` angleichen und `npm run canary:update` laufen lassen.',
+              event: '**Tollense hat vermutlich das Event bearbeitet.** Kein Notfall: kurz nachfragen, dann ggf. `src/content/event.yaml` angleichen und `npm run canary:update` laufen lassen.',
               unreachable: '**raceresult war nicht erreichbar.** Das ist kein Vertragsbruch. Wenn das mehrere Tage anhält, beim Zeitnehmer nachfragen.',
             }[layer];
 

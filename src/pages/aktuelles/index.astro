@@ -1,0 +1,38 @@
+---
+// Übersicht der Beiträge, neueste zuerst.
+
+import Page from '../../layouts/Page.astro';
+import { getCollection } from 'astro:content';
+import { formatGermanDate, isoDate, postPath } from '../../lib/dates';
+
+const beitraege = (await getCollection('aktuelles')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+---
+
+<Page
+  title="Aktuelles"
+  description="Neuigkeiten rund um das Ultraschwimmen in Münster — Wettkampfgelände, Wassertemperatur, Partner und Ergebnisse."
+  heading="Aktuelles"
+  lead="Meldungen rund um den Wettkampf — von der Wassertemperatur bis zum Standortwechsel."
+>
+  <ul class="posts">
+    {
+      beitraege.map((beitrag) => (
+        <li class="post-item">
+          <article class="post-teaser">
+            <time class="post-date" datetime={isoDate(beitrag.data.date)}>
+              {formatGermanDate(beitrag.data.date)}
+            </time>
+            <h2 class="post-title">
+              <a class="post-link" href={postPath(beitrag.id)}>
+                {beitrag.data.title}
+              </a>
+            </h2>
+            {beitrag.data.excerpt && <p class="post-excerpt">{beitrag.data.excerpt}</p>}
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+</Page>
