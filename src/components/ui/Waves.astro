@@ -84,9 +84,30 @@ const EBENEN = [0, 3, 5, 7];
     pointer-events: none;
   }
 
+  /* Nach oben auslaufend.
+     
+     Bewusst über viele Stützstellen statt mit zwei: Ein einzelner Farbstopp
+     ergibt einen linearen Verlauf mit sichtbarem Knick dort, wo er beginnt —
+     das Auge liest ihn als waagerechte Kante quer durch die Wellen. Die Kurve
+     hier steigt unten flach an und wird nach oben schneller, wie eine
+     Ausblendung eben aussieht.
+
+     Unten bleiben die ersten 10 % voll deckend: Dort übergibt die unterste
+     Wellenebene ihre Farbe an den Bereich darunter, und die muss exakt sein. */
   .waves.fade-up {
-    -webkit-mask-image: linear-gradient(to top, #000 45%, transparent);
-    mask-image: linear-gradient(to top, #000 45%, transparent);
+    --waves-mask: linear-gradient(
+      to top,
+      #000 0 10%,
+      rgb(0 0 0 / 94%) 22%,
+      rgb(0 0 0 / 82%) 34%,
+      rgb(0 0 0 / 64%) 48%,
+      rgb(0 0 0 / 42%) 63%,
+      rgb(0 0 0 / 22%) 78%,
+      rgb(0 0 0 / 8%) 90%,
+      transparent 100%
+    );
+    -webkit-mask-image: var(--waves-mask);
+    mask-image: var(--waves-mask);
   }
 
   .waves.fade-down {
