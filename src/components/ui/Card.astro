@@ -9,21 +9,6 @@
 // Hover, Fokus und Glasoptik stehen genau hier. PostCard, PhotoAlbumCard und
 // die Kacheln der Startseite erben sie, statt sie dreimal zu wiederholen.
 
-interface Props {
-  href?: string;
-  /** Externe Ziele bekommen target und rel — nie das eine ohne das andere. */
-  external?: boolean;
-  /** Hebt die Karte hervor (Ultra-Distanz, aktueller Jahrgang). */
-  hero?: boolean;
-  umamiEvent?: string;
-  /**
-   * Ohne `href` frei wählbar. `label` macht die ganze Karte zur Trefferfläche
-   * eines Formularfelds darin — so ist die Distanzwahl im Anmeldetrichter
-   * dieselbe Karte wie überall sonst, statt einer zweiten Sorte Karte.
-   */
-  as?: 'article' | 'label' | 'div';
-}
-
 const { href, external = false, hero = false, umamiEvent, as = 'article' } = Astro.props;
 
 const Tag = href ? 'a' : as;

@@ -10,10 +10,6 @@
 // Die Kinder kommen aus Markdown (<Content />) oder aus der Seite selbst,
 // deshalb `:global()` — sie tragen kein Scope-Attribut dieser Komponente.
 
-interface Props {
-  as?: 'div' | 'section';
-}
-
 const { as: Tag = 'div' } = Astro.props;
 ---
 

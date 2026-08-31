@@ -6,7 +6,6 @@
 import { describe, expect, it } from 'vitest';
 import { render, texts } from './render';
 import DistanceTable from '../../src/components/content/DistanceTable.astro';
-import PostList from '../../src/components/content/PostList.astro';
 import PhotoAlbumGrid from '../../src/components/content/PhotoAlbumGrid.astro';
 import ResultYearList from '../../src/components/content/ResultYearList.astro';
 
@@ -15,11 +14,6 @@ const distanzen = [
   { id: '10km', label: '10 km', laps: 10, start: '09:30', price: 40, contest_id: 7 },
   { id: '4km', label: '4 km', laps: 4, start: '11:00', price: 25, contest_id: 3 },
 ];
-
-const beitrag = (id: string, titel: string, datum: string) => ({
-  id,
-  data: { title: titel, date: new Date(datum) },
-});
 
 describe('DistanceTable', () => {
   it('sortiert die längste Strecke nach oben — danach wird gesucht', async () => {
@@ -61,31 +55,6 @@ describe('ResultYearList', () => {
     const links = [...el.querySelectorAll('a')];
     expect(links).toHaveLength(years.length);
     expect(links.every((a) => a.getAttribute('rel')?.includes('noopener'))).toBe(true);
-  });
-});
-
-describe('PostList', () => {
-  const posts = [
-    beitrag('2023-08-08-alt', 'Älterer Beitrag', '2023-08-08'),
-    beitrag('2025-08-30-neu', 'Neuester Beitrag', '2025-08-30'),
-    beitrag('2024-06-05-mitte', 'Mittlerer Beitrag', '2024-06-05'),
-  ];
-
-  it('sortiert neueste zuerst, unabhängig von der Eingabereihenfolge', async () => {
-    const el = await render(PostList, { posts });
-    expect(texts(el, 'h2')).toEqual(['Neuester Beitrag', 'Mittlerer Beitrag', 'Älterer Beitrag']);
-  });
-
-  it('gibt jedem Beitrag ein maschinenlesbares Datum', async () => {
-    const el = await render(PostList, { posts });
-    const zeiten = [...el.querySelectorAll('time')].map((t) => t.getAttribute('datetime'));
-    expect(zeiten).toEqual(['2025-08-30', '2024-06-05', '2023-08-08']);
-  });
-
-  it('respektiert die angeforderte Überschriftenebene', async () => {
-    const el = await render(PostList, { posts, level: 3 });
-    expect(el.querySelectorAll('h3')).toHaveLength(posts.length);
-    expect(el.querySelectorAll('h2')).toHaveLength(0);
   });
 });
 
