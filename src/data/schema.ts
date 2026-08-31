@@ -49,18 +49,25 @@ export const venueSchema = z.object({
   maps_url: z.string().url().optional(),
 });
 
+// Jedes Bild der Seite hat dieselbe Form — Streckenkarte, Beitragsbild,
+// Album-Titelbild. Ein Schema dafür, damit `Figure.astro` genau einen Typ
+// entgegennimmt und nicht drei fast gleiche.
+//
+// `alt` ist Pflicht, nicht optional: Auf der alten Seite hatte kein einziges
+// Bild einen alt-Text, und tests/unit/dist.test.ts besteht darauf. Ein
+// dekoratives Bild gehört ins CSS, nicht ins Markup.
+export const imageSchema = z.object({
+  src: z.string().min(1),
+  alt: z.string().min(1),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+});
+
 export const courseSchema = z.object({
   headline: z.string().min(1),
   lap_length_m: z.number().int().positive(),
   paragraphs: z.array(z.string().min(1)).min(1),
-  image: z
-    .object({
-      src: z.string().min(1),
-      alt: z.string().min(1), // Pflicht, nicht optional — siehe dist-Test.
-      width: z.number().int().positive(),
-      height: z.number().int().positive(),
-    })
-    .optional(),
+  image: imageSchema.optional(),
 });
 
 export const providerSchema = z.object({
@@ -116,6 +123,25 @@ export const resultsSchema = z.object({
     .min(1),
 });
 
+// -------------------------------------------------------------- fotos.yaml
+
+// Aufgebaut wie resultsSchema — aber bewusst OHNE `.min(1)`: Eine leere Liste
+// ist hier der gültige Ist-Zustand, solange keine Galerie umgezogen ist. Ein
+// erzwungener Mindesteintrag hieße, einen zu erfinden.
+export const photosSchema = z.object({
+  albums: z
+    .array(
+      z.object({
+        year: z.number().int().min(2000).max(2100),
+        // Absolut: Die Bilder liegen dort, wo sie gepflegt werden.
+        url: z.string().url(),
+        title: z.string().min(1).optional(),
+        cover: imageSchema.optional(),
+      }),
+    )
+    .default([]),
+});
+
 // ---------------------------------------------------------------- site.yaml
 
 // Interne Ziele beginnen mit „/" und enden mit „/". Beides erzwungen, weil der
@@ -125,9 +151,16 @@ const internalHref = z
   .string()
   .regex(/^\/(?:[a-z0-9-]+\/)*$/, 'interne Ziele: klein, mit führendem und schließendem /');
 
+// Erscheint zusätzlich in der mobilen Daumenleiste. Höchstens drei Ziele —
+// mehr passt neben „Start" und „Mehr" nicht auf ein 390px-Display, ohne dass
+// die Beschriftungen umbrechen. Erzwungen in tests/unit/nav.test.ts.
+//
+// Steht am Blatt-Schema und gilt damit formal auch für footer.links, wo es
+// wirkungslos ist. Ein eigenes Schema nur dafür wäre mehr Aufwand als Nutzen.
 const navLeafSchema = z.object({
   label: z.string().min(1),
   href: internalHref,
+  mobile: z.boolean().optional(),
 });
 
 // Genau eine Ebene tief. Das ist keine Sparsamkeit, sondern die Form, die das
@@ -184,6 +217,12 @@ export const siteSchema = z.object({
             height: z.number().int().positive(),
             url: z.string().url().optional(),
             role: z.string().optional(),
+            // Dasselbe Motiv in höherer Auflösung, für scharfe Darstellung auf
+            // Retina-Displays. Optional: Ein SVG braucht das nicht.
+            logo_2x: z.string().startsWith('/').optional(),
+            // Erscheint zusätzlich im Seitenkopf. Kein zweiter Datenort für
+            // denselben Sponsor — nur eine Markierung an dem, der schon da ist.
+            header: z.boolean().optional(),
           }),
         )
         .min(1),
@@ -198,8 +237,11 @@ export const siteSchema = z.object({
 export type EventData = z.infer<typeof eventDataSchema>;
 export type SiteData = z.infer<typeof siteSchema>;
 export type Results = z.infer<typeof resultsSchema>;
+export type Photos = z.infer<typeof photosSchema>;
+export type PhotoAlbum = Photos['albums'][number];
 export type Distance = z.infer<typeof distanceSchema>;
 export type EventInfo = z.infer<typeof eventSchema>;
 export type Venue = z.infer<typeof venueSchema>;
 export type Course = z.infer<typeof courseSchema>;
+export type Bild = z.infer<typeof imageSchema>;
 export type NavItem = z.infer<typeof navItemSchema>;

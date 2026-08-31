@@ -28,6 +28,16 @@ export function sha256(text: string): string {
 
 export class UnreachableError extends Error {}
 
+/**
+ * Die Anmeldung ist beim Zeitnehmer geschlossen.
+ *
+ * Ausdrücklich KEIN Vertragsbruch und kein Ausfall: Außerhalb der Meldephase
+ * ist das der Normalzustand. Eigene Klasse, weil der Canary sonst monatelang
+ * täglich „raceresult war nicht erreichbar" meldet — und ein Alarm, der immer
+ * steht, wird nicht mehr gelesen.
+ */
+export class RegistrationClosedError extends Error {}
+
 // Netzwerkfehler sind KEIN Vertragsbruch. Zweimal wiederholen und erst bei
 // dauerhaftem Ausfall aufgeben — der Workflow meldet das mit einem anderen
 // Label als eine echte Vertragsänderung.
@@ -135,7 +145,20 @@ function findElement(els: RRElement[], id: string): RRElement | undefined {
 // Alles, was Tollense in ihrem Backend pflegt. Ändert sich hier etwas, genügt
 // eine Rückfrage per Mail — deshalb im Workflow ein eigenes Label.
 export async function probeEvent(): Promise<EventProbe> {
-  const page = await (await fetchRetry(REG_PAGE)).text();
+  const seite = await fetchRetry(REG_PAGE);
+  const page = await seite.text();
+
+  // Ist die Anmeldung geschlossen, leitet raceresult `/registration` per 301
+  // auf die Event-Startseite um — die Query fällt dabei weg. Dann gibt es
+  // weder Schlüssel noch Formular, über das sich etwas behaupten ließe.
+  // Diese Prüfung steht VOR der Schlüsselsuche, weil sonst der fehlende
+  // Schlüssel als Netzwerkausfall durchginge.
+  if (!new URL(seite.url).pathname.includes('/registration') || /registration closed/i.test(page)) {
+    throw new RegistrationClosedError(
+      `Anmeldung für Event ${EVENT_ID} ist geschlossen (${REG_PAGE} → ${seite.url}).`,
+    );
+  }
+
   const key = page.match(/RRReg_key[ =]*"([^"]+)"/)?.[1];
   if (!key) throw new UnreachableError('RRReg_key nicht in der Registrierungsseite gefunden');
 
@@ -169,4 +192,25 @@ export async function probeEvent(): Promise<EventProbe> {
     organizerCssRedSelectors: redSelectors,
     stepTitles: form.Steps.map((s) => s.Title),
   };
+}
+
+/**
+ * Beantwortet die eine Frage, die E2E-Tests am eingebetteten Formular stellen
+ * müssen, bevor sie etwas behaupten: Gibt es dort gerade überhaupt ein Formular?
+ *
+ * Gibt nie einen Fehler weiter — auch ein Netzwerkausfall führt hier zu
+ * `offen: false`. Ein E2E-Lauf soll nicht daran scheitern, dass raceresult
+ * gerade nicht mag; dafür ist der Canary da, der genau diesen Unterschied
+ * unterscheidet und meldet.
+ */
+export async function anmeldungOffen(): Promise<{ offen: boolean; grund: string }> {
+  try {
+    await probeEvent();
+    return { offen: true, grund: '' };
+  } catch (err) {
+    if (err instanceof RegistrationClosedError) {
+      return { offen: false, grund: 'Anmeldung bei raceresult geschlossen' };
+    }
+    return { offen: false, grund: `raceresult nicht erreichbar: ${String(err)}` };
+  }
 }

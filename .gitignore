@@ -4,8 +4,3 @@ dist/
 .astro/
 test-results/
 playwright-report/
-# Mail-Export aus der Abstimmung mit dem Zeitnehmer — enthält Adressdaten
-# Dritter und gehört nicht ins Repository.
-emails.rtf
-test-results/
-playwright-report/

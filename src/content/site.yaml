@@ -9,23 +9,30 @@ site:
 
 # Reihenfolge hier = Reihenfolge im Menü. Eine Ebene tief, mehr nicht — siehe
 # navItemSchema. Interne Ziele mit führendem UND schließendem Schrägstrich.
+# Kein Eintrag „Startseite": Dorthin führt das Logo im Kopf, wie überall im
+# Web. Ein zusätzlicher Textlink wäre ein zweiter Weg zum selben Ziel.
 nav:
-  - label: Startseite
-    href: /
   - label: Wettkampf
     children:
+      # `mobile: true` = erscheint zusätzlich in der Daumenleiste am unteren
+      # Rand. Höchstens drei; mehr passt neben „Start" und „Mehr" nicht.
       - label: Anmeldung
-        href: /anmeldung/
+        href: /anmelden/
+        mobile: true
       - label: Ausschreibung
         href: /ausschreibung/
       - label: Zeitplan
         href: /zeitplan/
+        mobile: true
       - label: Strecke
         href: /strecke/
+        mobile: true
       - label: Ergebnisse
         href: /ergebnisse/
   - label: Aktuelles
     href: /aktuelles/
+  - label: Fotos
+    href: /fotos/
   - label: Kontakt
     href: /kontakt/
 
@@ -64,9 +71,12 @@ sponsors:
     - name: EFTAS Fernerkundung Technologietransfer GmbH
       role: Hauptsponsor
       logo: /sponsors/eftas/logo_long.png
+      # Dieselbe Grafik in 1404x421 — die Quelle, aus der logo_long.png stammt.
+      logo_2x: /sponsors/eftas/Webseite_Sponsoren-Fusszeile_1600px_final.png
       width: 634
       height: 125
       url: https://www.eftas.com/
+      header: true
     - name: DERMASENCE
       logo: /sponsors/dermasence/logo.svg
       width: 460

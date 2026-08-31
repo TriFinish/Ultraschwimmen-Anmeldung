@@ -1,19 +1,22 @@
 ---
 // Standardgerüst aller Inhaltsseiten: Base plus Kopf, Navigation und Fuß.
 //
-// Der Anmeldetrichter benutzt dieses Layout NICHT — er läuft über
-// Funnel.astro, ohne Menü. Wer auf /anmeldung/ ist, soll sich anmelden und
-// nicht weiterklicken.
+// Der Anmeldetrichter benutzt dieses Layout NICHT — er liegt direkt auf
+// Base.astro, ohne Menü. Wer auf /anmelden/ ist, soll sich anmelden und nicht
+// weiterklicken. Deshalb fehlt dort auch die Daumenleiste.
 //
 // Diese Datei ist die einzige Stelle, die site.yaml lädt. Die Komponenten
 // darunter bekommen alles als Props.
 
 import Base from './Base.astro';
+import Ergebnishinweis from '../components/content/Ergebnishinweis.astro';
+import MobileNav from '../components/layout/MobileNav.astro';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import SponsorBand from '../components/layout/SponsorBand.astro';
-import { loadSite } from '../data/load';
-import { normalizePath, resolveNav } from '../lib/nav';
+import Waves from '../components/ui/Waves.astro';
+import { loadEvent, loadSite } from '../data/load';
+import { normalizePath, resolveNav, splitMobileNav } from '../lib/nav';
 import '../styles/site.css';
 
 interface Props {
@@ -35,12 +38,25 @@ const site = loadSite();
 const pathname = normalizePath(Astro.url.pathname);
 const items = resolveNav(site.nav, pathname);
 
+// Der Hauptsponsor erscheint zusätzlich im Kopf. Welcher das ist, steht in
+// site.yaml — hier wird nur gesucht, nicht entschieden.
+const kopfSponsor = site.sponsors?.items.find((s) => s.header);
+
+// Dieselbe aufgelöste Navigation wie im Kopf, nur anders aufgeteilt — keine
+// zweite Wahrheit darüber, wo man gerade ist.
+const { tabs, rest } = splitMobileNav(items, pathname);
+
+// Der Wettkampftag entscheidet über den Ergebnishinweis. Wann genau er
+// erscheint, steht in src/scripts/ergebnishinweis.ts — hier wird nur das Datum
+// weitergereicht.
+const { event } = loadEvent();
+
 // Der Titel im Browsertab trägt immer den Seitennamen mit — außer auf der
 // Startseite, wo er ihn sonst doppelt.
 const documentTitle = pathname === '/' ? title : `${title} – ${site.site.name}`;
 ---
 
-<Base title={documentTitle} description={description} favicon={site.site.logo} bare>
+<Base title={documentTitle} description={description} favicon={site.site.logo}>
   <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
 
   <SiteHeader
@@ -49,6 +65,7 @@ const documentTitle = pathname === '/' ? title : `${title} – ${site.site.name}
     logo={site.site.logo}
     items={items}
     isHome={pathname === '/'}
+    sponsor={kopfSponsor}
   />
 
   <main class="site-main" id="inhalt">
@@ -68,5 +85,24 @@ const documentTitle = pathname === '/' ? title : `${title} – ${site.site.name}
 
   {site.sponsors && <SponsorBand sponsors={site.sponsors} />}
 
+  {/*
+    Die Wellen sind hier die Wasseroberfläche: Ihre unterste Ebene ist deckend
+    und trägt --water-line. Der Fußbereich beginnt mit derselben Farbe und wird
+    nach unten tiefer. Weil beide Seiten denselben Token benutzen, gibt es
+    zwischen ihnen keine Kante — auch nicht, wenn sich die Wellenhöhe ändert.
+    `fade="up"` blendet nach OBEN aus, damit die Wellen aus der hellen Seite
+    auftauchen statt mit einer Kante zu beginnen. Nach unten bleibt die Maske
+    voll deckend — dort trägt sie den Übergang in den Fußbereich.
+  */}
+  <Waves surface fade="up" />
   <SiteFooter site={site} />
+
+  <MobileNav tabs={tabs} rest={rest} />
+
+  <Ergebnishinweis eventDate={event.date} jahr={Number(event.date.slice(0, 4))} />
+
+  <script>
+    import { initErgebnishinweis } from '../scripts/ergebnishinweis';
+    initErgebnishinweis();
+  </script>
 </Base>

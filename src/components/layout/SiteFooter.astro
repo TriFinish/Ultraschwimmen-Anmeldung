@@ -22,7 +22,8 @@ const { contact, organizer, footer } = site;
       <p class="footer-heading">Kontakt</p>
       <ul class="footer-contact">
         <li>
-          <a class="footer-link" href={`mailto:${contact.email}`}>{contact.email}</a>
+          <a class="footer-link" href={`mailto:${contact.email}`}>
+          {contact.email}</a>
         </li>
         <li>
           <a
@@ -31,7 +32,7 @@ const { contact, organizer, footer } = site;
             rel="me noopener noreferrer"
             target="_blank"
           >
-            Instagram {contact.instagram.handle}
+            {contact.instagram.handle}
           </a>
         </li>
       </ul>

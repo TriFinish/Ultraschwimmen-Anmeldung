@@ -50,11 +50,17 @@ jobs:
             exit 0
           fi
 
-          # Ein Netzwerkausfall ist KEIN Vertragsbruch. Die Sonde wirft dafür
-          # UnreachableError; das bekommt ein eigenes Label, damit ein Ausfall
-          # bei raceresult nicht wie eine Änderung an unserer Integration
-          # aussieht.
-          if grep -q 'UnreachableError' canary.log; then
+          # Jede Ursache bekommt ihr eigenes Label — ein Ausfall bei raceresult
+          # soll nicht wie eine Änderung an unserer Integration aussehen.
+          #
+          # Reihenfolge zählt: RegistrationClosedError ist der Sonderfall
+          # „Registrierungsseite antwortet, aber ohne Formular" und ginge sonst
+          # als UnreachableError durch. Er erscheint hier überhaupt nur, wenn
+          # die Anmeldung VOR dem Meldeschluss zu ist — danach überspringt der
+          # Test und der Lauf bleibt grün.
+          if grep -q 'RegistrationClosedError' canary.log; then
+            echo "layer=closed" >> "$GITHUB_OUTPUT"
+          elif grep -q 'UnreachableError' canary.log; then
             echo "layer=unreachable" >> "$GITHUB_OUTPUT"
           elif grep -q 'Produkt-Schicht' canary.log; then
             echo "layer=product" >> "$GITHUB_OUTPUT"
@@ -125,6 +131,7 @@ jobs:
               product: '**raceresult hat sein Produkt geändert.** Niemand informiert uns darüber — genau davor hat Tollense gewarnt. Prüfen, ob `src/styles/widget.css` und `src/scripts/widget.ts` noch greifen.',
               event: '**Tollense hat vermutlich das Event bearbeitet.** Kein Notfall: kurz nachfragen, dann ggf. `src/content/event.yaml` angleichen und `npm run canary:update` laufen lassen.',
               unreachable: '**raceresult war nicht erreichbar.** Das ist kein Vertragsbruch. Wenn das mehrere Tage anhält, beim Zeitnehmer nachfragen.',
+              closed: '**Die Anmeldung ist geschlossen, obwohl der Meldeschluss noch nicht erreicht ist.** Wir bewerben sie also gerade ins Leere. Sofort beim Zeitnehmer nachfragen — entweder ist das Feld ausgebucht oder jemand hat die Anmeldung versehentlich abgeschaltet. (Nach dem Meldeschluss ist eine geschlossene Anmeldung normal und erzeugt kein Issue.)',
             }[layer];
 
             const body = [

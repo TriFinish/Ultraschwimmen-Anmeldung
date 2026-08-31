@@ -5,12 +5,16 @@
 // mehr gibt. Statt einer Sackgasse zeigt die Seite die Wege, die es gibt.
 
 import Page from '../layouts/Page.astro';
+import Prose from '../components/ui/Prose.astro';
+import TileList, { type Tile } from '../components/ui/TileList.astro';
 import { loadSite } from '../data/load';
 
 const { nav, contact } = loadSite();
 
 // Alles, was ein Ziel hat — flach, denn hier hilft die Gruppierung nicht.
-const ziele = nav.flatMap((item) => ('href' in item ? [item] : item.children));
+const ziele: Tile[] = nav
+  .flatMap((item) => ('href' in item ? [item] : item.children))
+  .map((ziel) => ({ label: ziel.label, href: ziel.href }));
 ---
 
 <Page
@@ -19,23 +23,12 @@ const ziele = nav.flatMap((item) => ('href' in item ? [item] : item.children));
   heading="Seite nicht gefunden"
   lead="Diese Adresse gibt es nicht mehr — beim Umzug der Website hat sich einiges verschoben. Vielleicht suchst du eines davon:"
 >
-  <ul class="year-list">
-    {
-      ziele.map((ziel) => (
-        <li class="year-item">
-          <a class="year-link" href={ziel.href}>
-            <span class="year-label">{ziel.label}</span>
-            <span class="year-arrow" aria-hidden="true">→</span>
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+  <TileList items={ziele} label="Seiten dieser Website" />
 
-  <div class="prose">
+  <Prose>
     <p>
       Nichts dabei? Schreib uns an
       <a href={`mailto:${contact.email}`}>{contact.email}</a> — dann finden wir es gemeinsam.
     </p>
-  </div>
+  </Prose>
 </Page>

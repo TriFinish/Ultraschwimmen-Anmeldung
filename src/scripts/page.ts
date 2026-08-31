@@ -89,6 +89,10 @@ function wireDecision(cfg: PageConfig): void {
 // CSS reicht nicht: Der Hinweistext bricht auf schmalen Geräten um, und dann
 // ist die Leiste höher als geschätzt. Also die echte Höhe messen und als
 // Unterrand der Seite setzen.
+//
+// Den gemessenen Wert liest der Fußbereich (site.css) und addiert ihn auf
+// `--dock`, den Platz der Daumenleiste. So stapeln sich beide, ohne dass eine
+// von beiden eine Zahl über die andere raten müsste.
 function keepBarFromCoveringContent(bar: HTMLElement): void {
   const anpassen = () => {
     // Auf dem Desktop steht die Leiste im Fluss (position: static), dann
@@ -96,7 +100,9 @@ function keepBarFromCoveringContent(bar: HTMLElement): void {
     const fixiert = getComputedStyle(bar).position === 'fixed';
     document.documentElement.style.setProperty(
       '--cta-height',
-      fixiert ? `${bar.offsetHeight}px` : '0px',
+      // Plus Abstand zur Daumenleiste darunter — denselben, den StickyCta
+      // als `bottom` setzt.
+      fixiert ? `${bar.offsetHeight + 12}px` : '0px',
     );
   };
   anpassen();

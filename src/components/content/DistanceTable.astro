@@ -1,0 +1,34 @@
+---
+// Die Distanzen als Tabelle.
+//
+// Zwei Seiten zeigen dieselben Daten mit unterschiedlichen Spalten: Die
+// Startseite nennt den Preis, die Streckenseite nicht. Statt zweier Tabellen
+// eine Komponente, die die Spalten kennt — die Sortierung „längste zuerst"
+// gilt für beide, denn danach wird gesucht.
+
+import type { Distance } from '../../data/schema';
+import DataTable, { type Cell } from '../ui/DataTable.astro';
+import { formatEuro } from '../../scripts/format';
+
+interface Props {
+  distances: Distance[];
+  /** Meldegebühr mit anzeigen. Auf /strecke/ geht es nur um den Kurs. */
+  withPrice?: boolean;
+  caption?: string;
+}
+
+const { distances, withPrice = false, caption } = Astro.props;
+
+const columns = ['Strecke', 'Runden', 'Start', ...(withPrice ? ['Meldegebühr'] : [])];
+
+const rows: Cell[][] = [...distances]
+  .sort((a, b) => b.laps - a.laps)
+  .map((d) => [
+    d.label,
+    d.laps,
+    `${d.start} Uhr`,
+    ...(withPrice ? [formatEuro(d.price)] : []),
+  ]);
+---
+
+<DataTable columns={columns} rows={rows} caption={caption} />

@@ -1,0 +1,41 @@
+---
+// Fotogalerien nach Jahrgang.
+//
+// Die Bilder liegen nicht bei uns — jeder Eintrag ist ein Jahr und ein Link.
+// Solange fotos.yaml leer ist, zeigt die Seite einen Hinweis statt einer
+// leeren Fläche. Sie existiert trotzdem schon: Die sechs alten
+// /fotos-*-sammlung/-Adressen aus der WordPress-Zeit führen hierher.
+
+import Page from '../layouts/Page.astro';
+import Prose from '../components/ui/Prose.astro';
+import PhotoAlbumGrid from '../components/content/PhotoAlbumGrid.astro';
+import { loadPhotos, loadSite } from '../data/load';
+
+const { albums } = loadPhotos();
+const { contact } = loadSite();
+---
+
+<Page
+  title="Fotos"
+  description="Bildergalerien vergangener Ultraschwimmen-Wettkämpfe im Stadthafen Münster."
+  heading="Fotos"
+  lead="Impressionen aus dem Hafenbecken — Start, Wendepunkt und Zieleinlauf der vergangenen Jahre."
+  wide
+>
+  <PhotoAlbumGrid albums={albums}>
+    <Fragment slot="leer">
+      Die Galerien der vergangenen Jahre ziehen gerade von der alten Website um. Bis dahin gibt es
+      die aktuellsten Bilder bei Instagram.
+    </Fragment>
+  </PhotoAlbumGrid>
+
+  <Prose>
+    <p>
+      Laufend Bilder und Kurzberichte gibt es auf
+      <a href={contact.instagram.url} rel="me noopener noreferrer" target="_blank">
+        Instagram {contact.instagram.handle}</a
+      >. Wer eigene Aufnahmen beisteuern möchte, schreibt uns an
+      <a href={`mailto:${contact.email}`}>{contact.email}</a>.
+    </p>
+  </Prose>
+</Page>

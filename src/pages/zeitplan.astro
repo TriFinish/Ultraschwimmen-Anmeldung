@@ -7,6 +7,7 @@
 // Ändert sich hier eine Startzeit, ändert sie sich überall.
 
 import Page from '../layouts/Page.astro';
+import Prose from '../components/ui/Prose.astro';
 import { loadEvent } from '../data/load';
 import { groupByStart } from '../lib/schedule';
 
@@ -29,6 +30,7 @@ const slots = groupByStart(distances);
             <span class="timeline-title">Startunterlagen</span>
             <span class="timeline-note">
               Das Wettkampfbüro öffnet — {venue.detail ?? venue.name}, {venue.street}.
+              Es bleibt bis zum Schluss geöffnet.
             </span>
           </span>
         </li>
@@ -59,7 +61,7 @@ const slots = groupByStart(distances);
     </li>
   </ol>
 
-  <div class="prose">
+  <Prose>
     <p>
       Die Voranmeldung ist bis {event.deadline_label} geöffnet.
       {
@@ -75,5 +77,5 @@ const slots = groupByStart(distances);
       Alle Strecken und Preise stehen in der <a href="/ausschreibung/">Ausschreibung</a>, der Verlauf
       im Hafenbecken auf der Seite <a href="/strecke/">Strecke</a>.
     </p>
-  </div>
+  </Prose>
 </Page>

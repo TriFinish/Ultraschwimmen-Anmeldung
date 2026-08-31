@@ -8,6 +8,7 @@
 
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { imageSchema } from './data/schema.js';
 
 const aktuelles = defineCollection({
   loader: glob({ base: './src/content/aktuelles', pattern: '**/*.md' }),
@@ -18,14 +19,9 @@ const aktuelles = defineCollection({
     date: z.date(),
     /** Kurzfassung für die Übersicht. Ohne sie steht dort der Anfang des Textes. */
     excerpt: z.string().optional(),
-    image: z
-      .object({
-        src: z.string().startsWith('/'),
-        alt: z.string().min(1),
-        width: z.number().int().positive(),
-        height: z.number().int().positive(),
-      })
-      .optional(),
+    // Dieselbe Form wie Streckenkarte und Album-Titelbild — deshalb dasselbe
+    // Schema. Stand hier bis zur Einführung von Figure.astro ein zweites Mal.
+    image: imageSchema.optional(),
   }),
 });
 

@@ -1,0 +1,114 @@
+---
+// Das eingebettete raceresult-Formular samt Notausgang.
+//
+// Drei Teile, die zusammengehören und deshalb eine Komponente sind:
+//   1. die Kontinuitätszeile — sagt, was gewählt wurde, auch wenn die Vorwahl
+//      im fremden Formular nicht greift,
+//   2. der Container, in den raceresult rendert,
+//   3. der Notausgang, falls das Widget nicht lädt (Adblocker, Ausfall).
+//
+// Die IDs sind Griffe für src/scripts/page.ts und src/scripts/widget.ts — sie
+// dürfen nicht umbenannt werden, ohne dort mitzuziehen. `divRRRegStart` gibt
+// raceresult vor.
+
+import Prose from '../ui/Prose.astro';
+
+interface Props {
+  /** Direktlink zu raceresult für den Fall, dass das Widget nicht lädt. */
+  fallbackUrl: string;
+  /** Zurück zur Distanzwahl. */
+  backHref: string;
+  legalNote?: string;
+  privacyHref?: string;
+  privacyLabel?: string;
+}
+
+const { fallbackUrl, backHref, legalNote, privacyHref, privacyLabel } = Astro.props;
+---
+
+<div class="continuity">
+  <span class="continuity-text" id="continuity-text">
+    Wähle deinen Wettbewerb unten im Formular.
+  </span>
+  <a class="continuity-change" href={backHref}>Distanzen ansehen</a>
+</div>
+
+<div class="RRRegStart" id="divRRRegStart"></div>
+
+<div class="widget-fallback" id="widget-fallback" hidden>
+  <p>Das Anmeldeformular konnte hier nicht geladen werden.</p>
+  <a class="error-link" href={fallbackUrl} rel="noopener noreferrer">
+    Anmeldung direkt bei raceresult öffnen
+  </a>
+</div>
+
+{
+  /* Wer Vertragspartner wird und wer die Daten verarbeitet, stand auf der
+     raceresult-Zwischenseite, die wir überspringen. Eingebettet ist der Hinweis
+     wichtiger als vorher: In der Adressleiste stand früher `my.raceresult.com`
+     und verriet die Beteiligung Dritter von selbst. */
+}
+{
+  legalNote && (
+    <Prose>
+      <p class="legal-note">
+        {legalNote}{' '}
+        {privacyHref && (
+          <a href={privacyHref} data-umami-event="Datenschutzerklärung geöffnet">
+            {privacyLabel ?? 'Zur Datenschutzerklärung'}
+          </a>
+        )}
+      </p>
+    </Prose>
+  )
+}
+
+<style>
+  .continuity {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    background: var(--surface-sunk);
+  }
+
+  .continuity[hidden] {
+    display: none;
+  }
+
+  .continuity-text {
+    font-weight: 600;
+  }
+
+  .continuity-change,
+  .error-link {
+    color: var(--accent-deep);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .widget-fallback {
+    padding: 1.25rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface-sunk);
+  }
+
+  .widget-fallback[hidden] {
+    display: none;
+  }
+
+  .widget-fallback p {
+    margin: 0 0 0.6rem;
+  }
+
+  .legal-note {
+    color: var(--ink-faint);
+    font-size: var(--step--1);
+    line-height: 1.5;
+  }
+</style>
