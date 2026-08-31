@@ -9,29 +9,31 @@ timer:
   url: https://www.tollense-timing.de/
 
 years:
+  - year: 2026
+    url: https://my.tollense-timing.de/event/results?eventid=383076
   - year: 2025
-    url: https://my.tollense-timing.de/event/results?eventid=329646&lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=329646
   - year: 2024
-    url: https://my.tollense-timing.de/event/results?eventid=275289&lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=275289
   - year: 2023
-    url: https://my.tollense-timing.de/event/results?eventid=228425&lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=228425
   - year: 2022
-    url: https://my.tollense-timing.de/event/results?eventid=201828&lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=201828
   - year: 2021
-    url: https://my.tollense-timing.de/event/results?eventid=174928&lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=174928
   - year: 2020
-    url: https://my.raceresult.com/148891/results?lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=148891
   - year: 2019
-    url: https://my4.raceresult.com/131977/results?lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=131977
   - year: 2016
-    url: https://my4.raceresult.com/57780/?lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=57780
   - year: 2014
-    url: https://my4.raceresult.com/details/index.php?page=4&eventid=31026&lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=31026
   - year: 2013
-    url: https://my2.raceresult.com/details/results.php?lang=de&page=6&eventid=19131&contest=0&name=Ergebnislisten|Ergebnisliste%20Gesamteinlauf_alle&format=view
+    url: https://my.tollense-timing.de/event/results?eventid=19131
   - year: 2012
-    url: https://my2.raceresult.com/details/results.php?lang=de&page=6&eventid=12617&contest=0&name=Ergebnislisten|Ergebnisliste%20Gesamteinlauf_alle&CertificateLink=1&format=view
+    url: https://my.tollense-timing.de/event/results?eventid=12617
   - year: 2011
-    url: https://www3.your-sports.com/details/results.php?lang=de&page=6&eventid=8332&contest=0&name=Ergebnislisten|Ergebnisliste%20Gesamteinlauf_alle&CertificateLink=1&format=view
+    url: https://my.tollense-timing.de/event/results?eventid=8332
   - year: 2010
-    url: https://www3.your-sports.com/details/index.php?page=4&eventid=4910&lang=de
+    url: https://my.tollense-timing.de/event/results?eventid=4910

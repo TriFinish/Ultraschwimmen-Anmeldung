@@ -48,15 +48,3 @@ export function isoDate(date: Date): string {
   const { day, month, year } = parts(date);
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
-
-/**
- * Der Pfad eines Beitrags.
- *
- * Bewusst NICHT die WordPress-Struktur `/2025/08/30/slug/`: Ein Datum in der
- * URL ist Ballast, und die alten Kürzel waren teils nichtssagend
- * („beitrag-1") oder 200 Zeichen lang. Die alten Adressen bleiben trotzdem
- * erreichbar — als Weiterleitung, eingetragen in astro.config.mjs.
- */
-export function postPath(slug: string): string {
-  return `/aktuelles/${slug}/`;
-}

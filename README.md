@@ -25,7 +25,6 @@ Konsolen-Warnung auf der Live-Seite zu landen.
 | `ergebnisse.yaml` | Ergebnislisten der Vorjahre | einmal im Jahr |
 | `fotos.yaml` | Bildergalerien nach Jahrgang (darf leer sein) | einmal im Jahr |
 | `ausschreibung.md` | die Ausschreibung als Fließtext | jedes Jahr |
-| `aktuelles/*.md` | Meldungen, eine Datei je Beitrag | laufend |
 
 **`event.yaml` ist die einzige Quelle für Termin, Preise und Startzeiten.**
 Startseite, Zeitplan, Strecke und Anmeldung rendern daraus — auf der alten

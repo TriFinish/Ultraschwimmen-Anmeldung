@@ -14,7 +14,6 @@ const SEITEN = [
   '/zeitplan/',
   '/strecke/',
   '/ergebnisse/',
-  '/aktuelles/',
   '/fotos/',
   '/kontakt/',
   '/impressum/',
@@ -236,8 +235,6 @@ test.describe('Alte WordPress-Adressen', () => {
     ['/kontaktformular/', /\/kontakt\/$/],
     ['/datenschutzerklaerung/', /\/datenschutz\/$/],
     ['/newsletter/', /\/kontakt\/$/],
-    ['/2025/08/30/ergebnisse-2025/', /\/aktuelles\/2025-08-30-ergebnisse-2025\/$/],
-    ['/2021/09/15/beitrag-1/', /\/aktuelles\/2021-09-15-orgateam\/$/],
   ];
 
   for (const [alt, neu] of UMZUEGE) {

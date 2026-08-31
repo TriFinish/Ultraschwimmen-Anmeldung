@@ -65,11 +65,6 @@ describe('isActiveHref', () => {
     expect(isActiveHref('/', '/zeitplan/')).toBe(false);
   });
 
-  it('bleibt auf Unterseiten markiert', () => {
-    expect(isActiveHref('/aktuelles/', '/aktuelles/')).toBe(true);
-    expect(isActiveHref('/aktuelles/', '/aktuelles/2025/')).toBe(true);
-  });
-
   it('verwechselt keine Präfixe zwischen Geschwistern', () => {
     expect(isActiveHref('/strecke/', '/strecken-archiv/')).toBe(false);
   });
@@ -89,7 +84,7 @@ describe('resolveNav', () => {
   });
 
   it('markiert genau einen Eintrag pro Inhaltsseite', () => {
-    for (const pfad of ['/zeitplan/', '/kontakt/', '/aktuelles/', '/anmelden/']) {
+    for (const pfad of ['/zeitplan/', '/kontakt/', '/anmelden/']) {
       const aktiv = resolveNav(site.nav, pfad).flatMap((i) =>
         isGroup(i) ? i.children.filter((c) => c.isActive) : i.isActive ? [i] : [],
       );
