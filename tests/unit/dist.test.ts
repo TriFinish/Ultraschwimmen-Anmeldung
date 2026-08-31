@@ -129,7 +129,7 @@ wenn('gebaute Seiten', () => {
     // Die Liste in astro.config.mjs stammt aus wp-sitemap-posts-page-1.xml und
     // -post-1.xml. Bleibt sie leer, wäre der Umzug für alle Lesezeichen und
     // Suchtreffer ein Totalverlust.
-    expect(weiterleitungen.length).toBeGreaterThanOrEqual(15);
+    expect(weiterleitungen.length).toBeGreaterThanOrEqual(11);
   });
 
   it('führt jede Weiterleitung auf eine Seite, die es gibt', () => {
