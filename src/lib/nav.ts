@@ -13,6 +13,8 @@ export interface ResolvedLeaf {
   isActive: boolean;
   /** Gehört zusätzlich in die mobile Daumenleiste — siehe site.yaml. */
   mobile?: boolean;
+  /** Iconify-Name für die Daumenleiste, z. B. „lucide:clock". */
+  icon?: string;
 }
 
 export interface ResolvedGroup {
@@ -64,6 +66,7 @@ export function resolveNav(items: NavItem[], pathname: string): ResolvedNavItem[
         href: item.href,
         isActive: isActiveHref(item.href, pathname),
         mobile: item.mobile,
+        icon: item.icon,
       };
     }
 
@@ -72,6 +75,7 @@ export function resolveNav(items: NavItem[], pathname: string): ResolvedNavItem[
       href: child.href,
       isActive: isActiveHref(child.href, pathname),
       mobile: child.mobile,
+      icon: child.icon,
     }));
 
     // Eine Gruppe hat selbst kein Ziel. Sie ist genau dann markiert, wenn man
@@ -98,6 +102,7 @@ export function splitMobileNav(
     label: 'Start',
     href: '/',
     isActive: normalizePath(pathname) === '/',
+    icon: 'lucide:house',
   };
 
   return {

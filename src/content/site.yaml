@@ -19,14 +19,17 @@ nav:
       - label: Anmeldung
         href: /anmelden/
         mobile: true
+        icon: lucide:clipboard-pen
       - label: Ausschreibung
         href: /ausschreibung/
       - label: Zeitplan
         href: /zeitplan/
         mobile: true
+        icon: lucide:clock
       - label: Strecke
         href: /strecke/
         mobile: true
+        icon: lucide:waves
       - label: Ergebnisse
         href: /ergebnisse/
   - label: Aktuelles

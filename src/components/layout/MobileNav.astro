@@ -12,6 +12,7 @@
 // Welche Ziele Reiter sind, steht in site.yaml (`mobile: true`) und nicht hier:
 // Sonst gäbe es zwei Orte, an denen die Navigation gepflegt wird.
 
+import { Icon } from 'astro-icon/components';
 import type { ResolvedLeaf } from '../../lib/nav';
 
 interface Props {
@@ -21,14 +22,12 @@ interface Props {
 
 const { tabs, rest } = Astro.props;
 
-// Ein Symbol je Ziel. Rein dekorativ (aria-hidden): Darunter steht immer das
-// Wort — ein Symbol allein ist geraten, nicht gelesen.
-const SYMBOLE: Record<string, string> = {
-  '/': 'M3 10.5 12 3l9 7.5M5.5 9.5V20h13V9.5',
-  '/anmelden/': 'M12 4v12m0 0 4.5-4.5M12 16l-4.5-4.5M4 20h16',
-  '/zeitplan/': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 4.5V12l3.5 2',
-  '/strecke/': 'M4 18c3-6 6 4 9-2s4-6 7-8M4 18h.01',
-};
+// Symbole aus Lucide (über Iconify), zur Build-Zeit eingebettet. Welches Ziel
+// welches trägt, steht in site.yaml — siehe navLeafSchema.
+//
+// Alle rein dekorativ (aria-hidden): Darunter steht immer das Wort. Ein Symbol
+// allein wird geraten, nicht gelesen.
+const ERSATZSYMBOL = 'lucide:circle';
 ---
 
 <nav class="mobilenav" aria-label="Hauptnavigation, mobil">
@@ -41,9 +40,7 @@ const SYMBOLE: Record<string, string> = {
             href={tab.href}
             aria-current={tab.isActive ? 'page' : undefined}
           >
-            <svg class="mobilenav-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d={SYMBOLE[tab.href] ?? SYMBOLE['/']} />
-            </svg>
+            <Icon class="mobilenav-icon" name={tab.icon ?? ERSATZSYMBOL} aria-hidden="true" />
             <span class="mobilenav-label">{tab.label}</span>
           </a>
         </li>
@@ -64,9 +61,7 @@ const SYMBOLE: Record<string, string> = {
               class="mobilenav-link"
               data-active={rest.some((r) => r.isActive) ? 'true' : undefined}
             >
-              <svg class="mobilenav-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 12h.01M12 12h.01M19 12h.01" />
-              </svg>
+              <Icon class="mobilenav-icon" name="lucide:ellipsis" aria-hidden="true" />
               <span class="mobilenav-label">Mehr</span>
             </summary>
 
@@ -152,14 +147,12 @@ const SYMBOLE: Record<string, string> = {
     display: none;
   }
 
+  /* Lucide-Symbole bringen ihre Strichstärke selbst mit; hier nur die Größe.
+     astro-icon liefert sie mit width/height in `em` aus — ohne diese Regel
+     wären sie so groß wie die Beschriftung darunter. */
   .mobilenav-icon {
     width: 1.375rem;
     height: 1.375rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.75;
-    stroke-linecap: round;
-    stroke-linejoin: round;
   }
 
   .mobilenav-label {

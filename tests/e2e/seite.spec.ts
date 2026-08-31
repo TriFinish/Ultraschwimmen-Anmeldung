@@ -81,6 +81,18 @@ test.describe('Navigation', () => {
     await context.close();
   });
 
+  test('schließt die Kopf-Gruppe beim Klick daneben', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop', 'nur mit Kopfnavigation relevant');
+    await page.goto('/kontakt/');
+
+    const unterpunkt = page.locator(`${kopfnav} a[href="/ausschreibung/"]`);
+    await page.locator(`${kopfnav} summary`).click();
+    await expect(unterpunkt).toBeVisible();
+
+    await page.locator('main').click({ position: { x: 10, y: 10 } });
+    await expect(unterpunkt).toBeHidden();
+  });
+
   test('führt von der Startseite zur Anmeldung', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('link', { name: /Zur Anmeldung/ }).click();
@@ -166,6 +178,38 @@ test.describe('Mobile Daumenleiste', () => {
     await expect(sheet).toBeVisible();
 
     await kontext.close();
+  });
+
+  test('schließt „Mehr" beim Klick daneben', async ({ page }, info) => {
+    test.skip(info.project.name !== 'mobil', 'nur mobil relevant');
+    await page.goto('/zeitplan/');
+
+    const sheet = page.locator('.mobilenav-sheet');
+    await page.locator('.mobilenav-more summary').click();
+    await expect(sheet).toBeVisible();
+
+    // Irgendwo in den Inhalt tippen — nicht wieder auf „Mehr".
+    await page.locator('main').click({ position: { x: 10, y: 10 } });
+    await expect(sheet).toBeHidden();
+  });
+
+  test('schließt „Mehr" mit Escape und lässt den Fokus nicht im Verborgenen', async ({
+    page,
+  }, info) => {
+    test.skip(info.project.name !== 'mobil', 'nur mobil relevant');
+    await page.goto('/zeitplan/');
+    await page.locator('.mobilenav-more summary').click();
+    await page.locator('.mobilenav-sheet a').first().focus();
+
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.mobilenav-sheet')).toBeHidden();
+
+    // Der Fokus muss mitgewandert sein — sonst springt die nächste
+    // Tabulatortaste an eine unvorhersehbare Stelle.
+    const aufSummary = await page.evaluate(
+      () => document.activeElement?.tagName.toLowerCase() === 'summary',
+    );
+    expect(aufSummary).toBe(true);
   });
 
   test('gilt auch im Anmeldetrichter — von dort führt ein Weg zurück', async ({ page }, info) => {
