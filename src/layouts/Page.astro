@@ -103,6 +103,8 @@ const documentTitle = pathname === '/' ? title : `${title} – ${site.site.name}
 
   <script>
     import { initErgebnishinweis } from '../scripts/ergebnishinweis';
+    import { initNav } from '../scripts/nav';
+    initNav();
     initErgebnishinweis();
   </script>
 </Base>

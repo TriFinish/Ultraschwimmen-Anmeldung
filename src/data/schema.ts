@@ -161,6 +161,13 @@ const navLeafSchema = z.object({
   label: z.string().min(1),
   href: internalHref,
   mobile: z.boolean().optional(),
+  // Iconify-Name für die Daumenleiste, z. B. „lucide:clock". Gehört zum
+  // Navigationseintrag und nicht in die Komponente: Sonst stünde die Zuordnung
+  // Ziel → Symbol an einem zweiten Ort und driftete beim ersten Umbenennen.
+  icon: z
+    .string()
+    .regex(/^[a-z0-9-]+:[a-z0-9-]+$/, 'Symbolname im Format „sammlung:name"')
+    .optional(),
 });
 
 // Genau eine Ebene tief. Das ist keine Sparsamkeit, sondern die Form, die das

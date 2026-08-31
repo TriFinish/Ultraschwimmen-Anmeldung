@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import icon from 'astro-icon';
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@tailwindcss/vite';
 
@@ -61,6 +62,11 @@ export default defineConfig({
   },
 
   integrations: [
+    // Iconify-Symbole werden zur BUILD-Zeit aus @iconify-json/lucide als SVG
+    // eingebettet, nicht zur Laufzeit nachgeladen: kein fremder Host, keine
+    // Anfrage im Browser, nichts was ein Adblocker verschluckt. Im HTML landet
+    // nur, was auch benutzt wird.
+    icon(),
     sitemap({
       // Weiterleitungsseiten gehören nicht in die Sitemap — sie sind kein
       // Inhalt, sondern eine Brücke für alte Lesezeichen.
