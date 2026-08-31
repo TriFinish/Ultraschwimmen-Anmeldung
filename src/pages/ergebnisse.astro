@@ -1,0 +1,28 @@
+---
+// Ergebnislisten der Vorjahre.
+
+import Page from '../layouts/Page.astro';
+import Prose from '../components/ui/Prose.astro';
+import ResultYearList from '../components/content/ResultYearList.astro';
+import { loadResults } from '../data/load';
+
+const { timer, years } = loadResults();
+---
+
+<Page
+  title="Ergebnisse"
+  description="Ergebnislisten und Urkunden vergangener Ultraschwimmen-Wettkämpfe seit 2010."
+  heading="Ergebnisse"
+  lead={`Die Ergebnislisten liegen bei unserem Zeitnehmer ${timer.name}. Dort lässt sich auch die eigene Urkunde anzeigen und ausdrucken.`}
+>
+  <ResultYearList years={years} />
+
+  <Prose>
+    <p>
+      Zeitmessung und Auswertung übernimmt
+      <a href={timer.url} rel="noopener noreferrer" target="_blank">{timer.name}</a>. Für die Jahre
+      vor 2021 liegen die Listen noch bei den damaligen Anbietern; die Links führen trotzdem
+      weiterhin ans Ziel.
+    </p>
+  </Prose>
+</Page>

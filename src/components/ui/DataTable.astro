@@ -1,0 +1,91 @@
+---
+// Tabelle aus Spaltenköpfen und Zeilen.
+//
+// Die erste Zelle jeder Zeile wird zum <th scope="row">: In beiden Tabellen
+// dieser Seite ist das die Strecke, und sie beschriftet die Zeile. Ohne das
+// liest ein Screenreader in Zeile fünf nur „4, 09:00, 25 €" vor.
+//
+// Umschlossen von einem scrollbaren Rahmen — auf 390 px passt keine
+// vierspaltige Tabelle, und die Seite selbst darf dabei nicht wandern.
+
+export type Cell = string | number;
+
+interface Props {
+  columns: string[];
+  rows: Cell[][];
+  caption?: string;
+}
+
+const { columns, rows, caption } = Astro.props;
+---
+
+<div class="table-scroll">
+  <table class="table">
+    {caption && <caption>{caption}</caption>}
+    <thead>
+      <tr>
+        {columns.map((col) => <th scope="col">{col}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map(([erste, ...rest]) => (
+          <tr>
+            <th scope="row">{erste}</th>
+            {rest.map((zelle) => (
+              <td>{zelle}</td>
+            ))}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .table caption {
+    margin-bottom: 0.5rem;
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    text-align: left;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.7rem 0.9rem 0.7rem 0;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .table thead th {
+    color: var(--ink-faint);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* Die Streckenbezeichnung ist die Information, nach der gesucht wird —
+     sie bekommt Gewicht, der Rest ordnet sich unter. */
+  .table tbody th {
+    font-size: var(--step-1);
+    font-weight: 700;
+  }
+
+  .table tbody tr:last-child th,
+  .table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+</style>

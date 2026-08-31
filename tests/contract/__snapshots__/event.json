@@ -1,0 +1,59 @@
+{
+  "contests": [
+    {
+      "Value": 7,
+      "Label": "10 km",
+      "SoldOut": false
+    },
+    {
+      "Value": 1,
+      "Label": "8 km",
+      "SoldOut": false
+    },
+    {
+      "Value": 2,
+      "Label": "6 km",
+      "SoldOut": false
+    },
+    {
+      "Value": 3,
+      "Label": "4 km",
+      "SoldOut": false
+    },
+    {
+      "Value": 6,
+      "Label": "2 km Flossenschwimmen",
+      "SoldOut": false
+    },
+    {
+      "Value": 4,
+      "Label": "2 km",
+      "SoldOut": false
+    },
+    {
+      "Value": 5,
+      "Label": "1 km",
+      "SoldOut": false
+    }
+  ],
+  "contestFieldClassName": "RRReg_1_0",
+  "contestFieldControlType": "dropdown",
+  "organizerCssClasses": [
+    "RRReg_StarMandatory",
+    "BoxHTML"
+  ],
+  "organizerCssRedSelectors": [
+    ".RRReg div.RRReg_EntryField .RRReg_RadioGroup.RRReg_RadioGroupTile>label.selected",
+    ".RRReg button",
+    ".RRReg",
+    ".RRReg div.RRReg_Tab>div.RRReg_TabsList>div.selected, .RRReg div.RRReg_Tab>div.RRReg_TabsList>div.selected+div.RRReg_TabsList_RemoveTab",
+    ".RRReg_StarMandatory",
+    ".RRRegStart div.RRReg_EntryField.RRReg_Mandatory>*~label::after"
+  ],
+  "stepTitles": [
+    "Grunddaten",
+    "Check",
+    "Zahlungsmittel",
+    "Bezahlung"
+  ]
+}

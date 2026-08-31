@@ -1,0 +1,44 @@
+---
+// Alle Fotojahrgänge, jüngster zuerst.
+//
+// Der Leerzustand steht hier und nicht in der Seite: „Noch keine Galerien" ist
+// eine Eigenschaft dieser Liste, egal wer sie anzeigt.
+
+import CardGrid from '../ui/CardGrid.astro';
+import PhotoAlbumCard from './PhotoAlbumCard.astro';
+import type { PhotoAlbum } from '../../data/schema';
+
+interface Props {
+  albums: PhotoAlbum[];
+  level?: 2 | 3;
+}
+
+const { albums, level = 2 } = Astro.props;
+const sortiert = [...albums].sort((a, b) => b.year - a.year);
+---
+
+{
+  sortiert.length > 0 ? (
+    <CardGrid min="16rem">
+      {sortiert.map((album) => (
+        <PhotoAlbumCard album={album} level={level} />
+      ))}
+    </CardGrid>
+  ) : (
+    <p class="leer">
+      <slot name="leer">Hier entstehen die Bildergalerien der vergangenen Jahre.</slot>
+    </p>
+  )
+}
+
+<style>
+  .leer {
+    margin: 0;
+    padding: 1.5rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface-sunk);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+</style>

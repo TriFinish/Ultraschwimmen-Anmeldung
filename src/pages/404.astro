@@ -1,0 +1,34 @@
+---
+// 404.
+//
+// Nach dem Umzug von WordPress werden alte Adressen aufgerufen, die es nicht
+// mehr gibt. Statt einer Sackgasse zeigt die Seite die Wege, die es gibt.
+
+import Page from '../layouts/Page.astro';
+import Prose from '../components/ui/Prose.astro';
+import TileList, { type Tile } from '../components/ui/TileList.astro';
+import { loadSite } from '../data/load';
+
+const { nav, contact } = loadSite();
+
+// Alles, was ein Ziel hat — flach, denn hier hilft die Gruppierung nicht.
+const ziele: Tile[] = nav
+  .flatMap((item) => ('href' in item ? [item] : item.children))
+  .map((ziel) => ({ label: ziel.label, href: ziel.href }));
+---
+
+<Page
+  title="Seite nicht gefunden"
+  description="Diese Adresse gibt es nicht (mehr). Hier geht es weiter zu Anmeldung, Zeitplan und Ergebnissen."
+  heading="Seite nicht gefunden"
+  lead="Diese Adresse gibt es nicht mehr — beim Umzug der Website hat sich einiges verschoben. Vielleicht suchst du eines davon:"
+>
+  <TileList items={ziele} label="Seiten dieser Website" />
+
+  <Prose>
+    <p>
+      Nichts dabei? Schreib uns an
+      <a href={`mailto:${contact.email}`}>{contact.email}</a> — dann finden wir es gemeinsam.
+    </p>
+  </Prose>
+</Page>

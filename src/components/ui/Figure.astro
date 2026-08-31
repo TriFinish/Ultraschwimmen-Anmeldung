@@ -1,0 +1,54 @@
+---
+// Bild mit optionaler Bildunterschrift.
+//
+// Stand vorher in strecke.astro und [slug].astro Zeile für Zeile
+// identisch. Hier sind `loading`, `decoding` und die festen Maße an einer
+// Stelle gesetzt — Maße sind Pflicht, damit beim Nachladen nichts springt.
+//
+// `alt` kommt aus dem Schema und ist dort Pflicht: Ein Bild ohne Beschreibung
+// ist für jeden wertlos, der es nicht sehen kann.
+
+import type { Bild } from '../../data/schema';
+
+interface Props {
+  image: Bild;
+  /** Über dem Falz sichtbare Bilder sollen nicht lazy laden. */
+  eager?: boolean;
+}
+
+const { image, eager = false } = Astro.props;
+---
+
+<figure class="figure">
+  <img
+    class="figure-image"
+    src={image.src}
+    alt={image.alt}
+    width={image.width}
+    height={image.height}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+  />
+  {Astro.slots.has('default') && <figcaption class="figure-caption"><slot /></figcaption>}
+</figure>
+
+<style>
+  .figure {
+    margin: 0 0 1.5rem;
+  }
+
+  .figure-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    background: var(--surface-sunk);
+  }
+
+  .figure-caption {
+    margin-top: 0.6rem;
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    line-height: 1.5;
+  }
+</style>

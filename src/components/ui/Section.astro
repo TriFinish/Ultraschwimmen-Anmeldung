@@ -1,0 +1,48 @@
+---
+// Abschnitt mit Überschrift.
+//
+// Die Überschriftenebene ist eine Prop, keine Annahme: Auf der Startseite sind
+// die Abschnitte h2, tiefer verschachtelt können sie h3 sein. Eine fest
+// verdrahtete Ebene erzeugt sonst Sprünge in der Dokumentgliederung.
+//
+// Der Nachsatz ist ein Slot und keine Zeichenkette, weil er fast immer einen
+// Link enthält („… steht in der Ausschreibung").
+
+interface Props {
+  title?: string;
+  level?: 2 | 3;
+}
+
+const { title, level = 2 } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
+---
+
+<section class="section">
+  {title && <Heading class="section-heading">{title}</Heading>}
+  <slot />
+  {Astro.slots.has('note') && <p class="section-note"><slot name="note" /></p>}
+</section>
+
+<style>
+  .section {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .section-heading {
+    margin: 0 0 1rem;
+    font-size: var(--step-2);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .section-note {
+    margin: 1rem 0 0;
+    max-width: var(--measure);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  .section-note :global(a) {
+    color: var(--accent-deep);
+  }
+</style>

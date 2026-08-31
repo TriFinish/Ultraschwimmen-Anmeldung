@@ -1,0 +1,233 @@
+---
+// Die schwebende Leiste am unteren Rand. Nur auf dem Handy.
+//
+// Warum unten: Der Kopf ist beim Scrollen außer Sicht und außer Daumenreichweite.
+// Die vier häufigsten Ziele gehören dorthin, wo der Daumen ohnehin liegt.
+//
+// Kein JavaScript — „Mehr" ist ein natives <details>, genau wie die Gruppe in
+// MainNav. Der Browser bringt Tastaturbedienung, aria-expanded und das
+// Auf- und Zuklappen mit. Eine selbstgebaute Variante wäre mehr Code für
+// weniger Verhalten.
+//
+// Welche Ziele Reiter sind, steht in site.yaml (`mobile: true`) und nicht hier:
+// Sonst gäbe es zwei Orte, an denen die Navigation gepflegt wird.
+
+import { Icon } from 'astro-icon/components';
+import type { ResolvedLeaf } from '../../lib/nav';
+
+interface Props {
+  tabs: ResolvedLeaf[];
+  rest: ResolvedLeaf[];
+}
+
+const { tabs, rest } = Astro.props;
+
+// Symbole aus Lucide (über Iconify), zur Build-Zeit eingebettet. Welches Ziel
+// welches trägt, steht in site.yaml — siehe navLeafSchema.
+//
+// Alle rein dekorativ (aria-hidden): Darunter steht immer das Wort. Ein Symbol
+// allein wird geraten, nicht gelesen.
+const ERSATZSYMBOL = 'lucide:circle';
+---
+
+<nav class="mobilenav" aria-label="Hauptnavigation, mobil">
+  <ul class="mobilenav-list">
+    {
+      tabs.map((tab) => (
+        <li class="mobilenav-item">
+          <a
+            class="mobilenav-link"
+            href={tab.href}
+            aria-current={tab.isActive ? 'page' : undefined}
+          >
+            <Icon class="mobilenav-icon" name={tab.icon ?? ERSATZSYMBOL} aria-hidden="true" />
+            <span class="mobilenav-label">{tab.label}</span>
+          </a>
+        </li>
+      ))
+    }
+
+    {
+      rest.length > 0 && (
+        <li class="mobilenav-item">
+          {/*
+            Bewusst NICHT automatisch offen, wenn man auf einer Seite dahinter
+            steht: Ein Sheet, das sich beim Laden von selbst aufklappt, verdeckt
+            den Inhalt, den man gerade lesen wollte. Stattdessen wird „Mehr"
+            markiert — dasselbe Verhalten wie in iOS-Tab-Bars.
+          */}
+          <details class="mobilenav-more">
+            <summary
+              class="mobilenav-link"
+              data-active={rest.some((r) => r.isActive) ? 'true' : undefined}
+            >
+              <Icon class="mobilenav-icon" name="lucide:ellipsis" aria-hidden="true" />
+              <span class="mobilenav-label">Mehr</span>
+            </summary>
+
+            <ul class="mobilenav-sheet">
+              {rest.map((eintrag) => (
+                <li>
+                  <a
+                    class="mobilenav-sheet-link"
+                    href={eintrag.href}
+                    aria-current={eintrag.isActive ? 'page' : undefined}
+                  >
+                    {eintrag.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </li>
+      )
+    }
+  </ul>
+</nav>
+
+<style>
+  .mobilenav {
+    position: fixed;
+    z-index: 30;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    left: 0.75rem;
+
+    border: 1px solid rgb(255 255 255 / 55%);
+    border-radius: 1.25rem;
+    /* Liquid Glass: Sättigung anheben, damit das Durchscheinende Farbe behält
+       statt milchig zu werden — genau das unterscheidet den Effekt von einem
+       schlichten halbtransparenten Kasten. */
+    background: rgb(255 255 255 / 72%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    box-shadow:
+      0 8px 32px rgb(11 31 51 / 16%),
+      0 1px 0 rgb(255 255 255 / 60%) inset;
+  }
+
+  /* Ohne backdrop-filter (ältere Firefox-Versionen, abgeschaltete Effekte)
+     würde die Leiste den Text darunter überlagern. Dann lieber deckend. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .mobilenav {
+      background: var(--surface);
+      border-color: var(--line);
+    }
+  }
+
+  .mobilenav-list {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .mobilenav-item {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobilenav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    /* 3rem hoch plus Innenabstand: bequem über der 44px-Marke, unterhalb der
+       Fingerkuppen zielen müssen. */
+    padding: 0.55rem 0.25rem 0.6rem;
+    color: var(--ink-soft);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobilenav-link::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Lucide-Symbole bringen ihre Strichstärke selbst mit; hier nur die Größe.
+     astro-icon liefert sie mit width/height in `em` aus — ohne diese Regel
+     wären sie so groß wie die Beschriftung darunter. */
+  .mobilenav-icon {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  .mobilenav-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobilenav-link[aria-current='page'],
+  .mobilenav-link[data-active='true'] {
+    color: var(--accent-deep);
+  }
+
+  .mobilenav-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    border-radius: 0.9rem;
+  }
+
+  /* --- „Mehr" ------------------------------------------------------------ */
+
+  .mobilenav-more {
+    position: relative;
+  }
+
+  .mobilenav-sheet {
+    position: absolute;
+    right: 0;
+    /* Nach OBEN aufklappen: Unterhalb der Leiste ist kein Platz. */
+    bottom: calc(100% + 0.6rem);
+    z-index: 1;
+
+    min-width: 11rem;
+    margin: 0;
+    padding: 0.35rem;
+    list-style: none;
+
+    border: 1px solid rgb(255 255 255 / 55%);
+    border-radius: 1rem;
+    /* Deutlich deckender als die Leiste selbst: Hier steht Text auf Text, und
+       Lesbarkeit geht vor Effekt. */
+    background: rgb(255 255 255 / 96%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 12px 32px rgb(11 31 51 / 18%);
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .mobilenav-sheet {
+      background: var(--surface);
+      border-color: var(--line);
+    }
+  }
+
+  .mobilenav-sheet-link {
+    display: block;
+    padding: 0.6rem 0.75rem;
+    font-size: var(--step--1);
+    line-height: 1.3;
+    border-radius: 0.7rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .mobilenav-sheet-link[aria-current='page'] {
+    background: var(--accent-wash);
+    color: var(--accent-deep);
+    font-weight: 600;
+  }
+
+  /* Ab Tablet übernimmt wieder die Navigation im Kopf. */
+  @media (min-width: 48rem) {
+    .mobilenav {
+      display: none;
+    }
+  }
+</style>

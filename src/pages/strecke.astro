@@ -1,0 +1,44 @@
+---
+// Strecke.
+//
+// Erreichbar unter /strecke/ — die alte Seite hieß /strecken/ (Plural). Die
+// Weiterleitung dorthin steht in astro.config.mjs.
+
+import Page from '../layouts/Page.astro';
+import Figure from '../components/ui/Figure.astro';
+import Prose from '../components/ui/Prose.astro';
+import Section from '../components/ui/Section.astro';
+import DistanceTable from '../components/content/DistanceTable.astro';
+import { loadEvent } from '../data/load';
+
+const { event, venue, course, distances } = loadEvent();
+---
+
+<Page
+  title="Strecke"
+  description={`Der Kurs des ${event.title}: ${course.lap_length_m} m je Runde durch das Hafenbecken im ${venue.name}.`}
+  heading="Strecke"
+  lead={course.headline}
+  wide
+>
+  {
+    course.image && (
+      <Figure image={course.image} eager>
+        Der Kursverlauf im Stadthafen. Ein- und Ausstieg liegen vor dem Power Sports,
+        {' '}{venue.street}.
+      </Figure>
+    )
+  }
+
+  <Prose>
+    {course.paragraphs.map((absatz) => <p>{absatz}</p>)}
+  </Prose>
+
+  <Section title="Wie viele Runden welche Strecke hat">
+    <DistanceTable distances={distances} />
+    <Fragment slot="note">
+      Die Startzeiten stehen im <a href="/zeitplan/">Zeitplan</a>, Preise und Bedingungen in der
+      <a href="/ausschreibung/">Ausschreibung</a>.
+    </Fragment>
+  </Section>
+</Page>

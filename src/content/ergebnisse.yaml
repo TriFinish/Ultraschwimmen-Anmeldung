@@ -1,0 +1,39 @@
+# Ergebnislisten der Vorjahre. Die URLs zeigen auf unseren Zeitnehmer, nicht
+# auf uns — dort liegen die Listen und dort gibt es auch die Urkunden.
+#
+# Die Anbieter haben über die Jahre gewechselt (your-sports → raceresult →
+# tollense-timing). Deshalb keine URL-Vorlage, sondern jede Adresse einzeln.
+
+timer:
+  name: Tollense-Timing
+  url: https://www.tollense-timing.de/
+
+years:
+  - year: 2026
+    url: https://my.tollense-timing.de/event/results?eventid=383076
+  - year: 2025
+    url: https://my.tollense-timing.de/event/results?eventid=329646
+  - year: 2024
+    url: https://my.tollense-timing.de/event/results?eventid=275289
+  - year: 2023
+    url: https://my.tollense-timing.de/event/results?eventid=228425
+  - year: 2022
+    url: https://my.tollense-timing.de/event/results?eventid=201828
+  - year: 2021
+    url: https://my.tollense-timing.de/event/results?eventid=174928
+  - year: 2020
+    url: https://my.tollense-timing.de/event/results?eventid=148891
+  - year: 2019
+    url: https://my.tollense-timing.de/event/results?eventid=131977
+  - year: 2016
+    url: https://my.tollense-timing.de/event/results?eventid=57780
+  - year: 2014
+    url: https://my.tollense-timing.de/event/results?eventid=31026
+  - year: 2013
+    url: https://my.tollense-timing.de/event/results?eventid=19131
+  - year: 2012
+    url: https://my.tollense-timing.de/event/results?eventid=12617
+  - year: 2011
+    url: https://my.tollense-timing.de/event/results?eventid=8332
+  - year: 2010
+    url: https://my.tollense-timing.de/event/results?eventid=4910

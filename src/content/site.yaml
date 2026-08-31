@@ -1,0 +1,93 @@
+# Alles, was das Wettkampfjahr überdauert. Was 2027 neu gepflegt werden muss,
+# steht nebenan in event.yaml.
+
+site:
+  name: Ultraschwimmen
+  tagline: Münsters Freiwasserwettkampf
+  url: https://ultraschwimmen.de
+  logo: /tri-finish/logo.svg
+
+# Reihenfolge hier = Reihenfolge im Menü. Eine Ebene tief, mehr nicht — siehe
+# navItemSchema. Interne Ziele mit führendem UND schließendem Schrägstrich.
+# Kein Eintrag „Startseite": Dorthin führt das Logo im Kopf, wie überall im
+# Web. Ein zusätzlicher Textlink wäre ein zweiter Weg zum selben Ziel.
+nav:
+  - label: Wettkampf
+    children:
+      # `mobile: true` = erscheint zusätzlich in der Daumenleiste am unteren
+      # Rand. Höchstens drei; mehr passt neben „Start" und „Mehr" nicht.
+      - label: Anmeldung
+        href: /anmelden/
+        mobile: true
+        icon: lucide:clipboard-pen
+      - label: Ausschreibung
+        href: /ausschreibung/
+      - label: Zeitplan
+        href: /zeitplan/
+        mobile: true
+        icon: lucide:clock
+      - label: Strecke
+        href: /strecke/
+        mobile: true
+        icon: lucide:waves
+      - label: Ergebnisse
+        href: /ergebnisse/
+  - label: Fotos
+    href: /fotos/
+  - label: Kontakt
+    href: /kontakt/
+
+# Die beiden Wege, auf denen wir erreichbar sind. Facebook stand früher
+# daneben, ist aber bewusst nicht mehr dabei: Wer hier schreibt, soll eine
+# Antwort bekommen, und gepflegt wird nur Instagram.
+contact:
+  email: info@ultraschwimmen.de
+  instagram:
+    handle: "@ultraschwimmen"
+    url: https://www.instagram.com/ultraschwimmen/
+
+# Pflichtangaben nach § 5 TMG. Speisen das Impressum, den Footer und die
+# strukturierten Daten — deshalb hier und nicht als Prosa in der Seite.
+organizer:
+  name: Tri Finish Münster e.V.
+  legal_name: 1. Triathlonverein Finish Münster e. V.
+  address_lines:
+    - Bürogemeinschaft 1. Etage
+    - Lublinring 12
+    - 48147 Münster
+  represented_by: Matthias Arnold, Dominik Pabst und Rolf Sudmann
+  phone: 0251-39489802
+  email: office@trifinish.eu
+  register_court: Amtsgericht Münster
+  register_number: "2815"
+  content_responsible: Rolf Sudmann
+  url: https://trifinish.eu
+
+# Erscheinen als Band über dem Fußbereich. Auf der alten Seite war das ein
+# einziges, fest zusammengesetztes Bild — mit unlesbarem Text auf dem Handy und
+# ohne Links. Einzelne Logos lassen sich verlinken und beschriften.
+sponsors:
+  headline: Unterstützt von
+  items:
+    - name: EFTAS Fernerkundung Technologietransfer GmbH
+      role: Hauptsponsor
+      logo: /sponsors/eftas/logo_long.png
+      # Dieselbe Grafik in 1404x421 — die Quelle, aus der logo_long.png stammt.
+      logo_2x: /sponsors/eftas/Webseite_Sponsoren-Fusszeile_1600px_final.png
+      width: 634
+      height: 125
+      url: https://www.eftas.com/
+      header: true
+    - name: DERMASENCE
+      logo: /sponsors/dermasence/logo.svg
+      width: 460
+      height: 91
+      url: https://www.dermasence.de/
+
+footer:
+  note: Ultraschwimmen ist eine Veranstaltung des Tri Finish Münster e.V.
+  links:
+    - label: Impressum
+      href: /impressum/
+    - label: Datenschutz
+      href: /datenschutz/

@@ -1,0 +1,58 @@
+---
+// Kontakt.
+
+import Page from '../layouts/Page.astro';
+import CardGrid from '../components/ui/CardGrid.astro';
+import Prose from '../components/ui/Prose.astro';
+import ContactCard from '../components/content/ContactCard.astro';
+import { loadEvent, loadSite } from '../data/load';
+
+const { contact, organizer } = loadSite();
+const { event, venue } = loadEvent();
+
+// Der Betreff spart uns das Zuordnen und dem Absender das Erklären.
+const mailto = `mailto:${contact.email}?subject=${encodeURIComponent(`Frage zum ${event.title}`)}`;
+---
+
+<Page
+  title="Kontakt"
+  description={`Fragen zum ${event.title}? Schreib uns eine E-Mail an ${contact.email} oder melde dich bei Instagram.`}
+  heading="Kontakt"
+  lead="Fragen zur Anmeldung, zur Strecke oder zum Ablauf? Schreib uns — wir antworten."
+>
+  <CardGrid min="17rem">
+    <ContactCard kind="E-Mail" value={contact.email} href={mailto}>
+      Der zuverlässigste Weg. Wir antworten in der Regel innerhalb weniger Tage.
+    </ContactCard>
+
+    <ContactCard
+      kind="Instagram"
+      value={contact.instagram.handle}
+      href={contact.instagram.url}
+      external
+    >
+      Für kurze Fragen und alles Aktuelle rund um den Wettkampftag.
+    </ContactCard>
+  </CardGrid>
+
+  <Prose>
+    <h2>Veranstalter</h2>
+    <p>
+      {organizer.legal_name}<br />
+      {organizer.address_lines.map((line) => (<>{line}<br /></>))}
+    </p>
+    <p>
+      Die vollständigen Angaben nach § 5 TMG stehen im <a href="/impressum/">Impressum</a>.
+    </p>
+
+    <h2>Wettkampfgelände</h2>
+    <p>
+      {venue.name}{venue.detail && <>, {venue.detail}</>}<br />
+      {venue.street}, {venue.city}
+    </p>
+    <p>
+      Am Wettkampftag erreichst du uns am schnellsten direkt vor Ort — das Wettkampfbüro öffnet um
+      {' '}{event.office_opens} Uhr.
+    </p>
+  </Prose>
+</Page>

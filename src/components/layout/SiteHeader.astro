@@ -1,0 +1,88 @@
+---
+// Kopfbereich: Logo als Weg zur Startseite, Navigation, Hauptsponsor.
+//
+// Das Logo ist IMMER ein Link — auch auf der Startseite. Vorher wurde es dort
+// zu einem <span>, was gut gemeint war („man ist ja schon da"), aber die eine
+// Konvention bricht, auf die sich jeder verlässt: Logo oben links führt nach
+// Hause. Stattdessen trägt es dort `aria-current="page"`; damit bleibt der
+// Link erhalten und die Ortsangabe geht trotzdem nicht verloren.
+
+import MainNav from './MainNav.astro';
+import type { ResolvedNavItem } from '../../lib/nav';
+import type { SiteData } from '../../data/schema';
+
+type Sponsor = NonNullable<SiteData['sponsors']>['items'][number];
+
+interface Props {
+  siteName: string;
+  tagline: string;
+  items: ResolvedNavItem[];
+  /** Pfad zum Logo unter public/. */
+  logo: string;
+  /** Auf der Startseite bleibt das Logo ein Link, wird aber als aktuell markiert. */
+  isHome?: boolean;
+  /** Der Sponsor mit `header: true` aus site.yaml. */
+  sponsor?: Sponsor;
+}
+
+const { siteName, tagline, items, logo, isHome = false, sponsor } = Astro.props;
+
+// Die zweite Auflösung kommt aus site.yaml — welche Datei das ist, geht diese
+// Komponente nichts an.
+const sponsorSrcset =
+  sponsor?.logo_2x ? `${sponsor.logo} 1x, ${sponsor.logo_2x} 2x` : undefined;
+---
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="brand-mark" href="/" aria-current={isHome ? 'page' : undefined}>
+      {/* alt leer, weil der Linktext direkt daneben dasselbe sagt — sonst
+          liest ein Screenreader den Namen zweimal vor. */}
+      <img src={logo} alt="" width="52" height="33" />
+      <span class="brand-text">
+        <span class="brand-name">{siteName}</span>
+        <span class="brand-tagline">{tagline}</span>
+      </span>
+    </a>
+
+    <MainNav items={items} />
+
+    {
+      sponsor && (
+        <div class="header-sponsor">
+          {/* Das Logo trägt den Sponsornamen als alt-Text; „powered by" steht
+              bereits im Bild, deshalb keine zusätzliche Beschriftung. */}
+          {sponsor.url ? (
+            <a
+              class="header-sponsor-link"
+              href={sponsor.url}
+              rel="noopener noreferrer"
+              target="_blank"
+              data-umami-event={`Sponsorlogo im Kopf: ${sponsor.name}`}
+            >
+              <img
+                class="header-sponsor-logo"
+                src={sponsor.logo}
+                srcset={sponsorSrcset}
+                alt={sponsor.name}
+                width={sponsor.width}
+                height={sponsor.height}
+                decoding="async"
+              />
+            </a>
+          ) : (
+            <img
+              class="header-sponsor-logo"
+              src={sponsor.logo}
+              srcset={sponsorSrcset}
+              alt={sponsor.name}
+              width={sponsor.width}
+              height={sponsor.height}
+              decoding="async"
+            />
+          )}
+        </div>
+      )
+    }
+  </div>
+</header>

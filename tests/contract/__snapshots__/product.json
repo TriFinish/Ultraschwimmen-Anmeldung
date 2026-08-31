@@ -1,0 +1,18 @@
+{
+  "loaderVersion": "v2.0.255",
+  "build": "v14.0.19-13",
+  "productCssSha": "9cfc4995a4206c46ae6aced89ccd2fb4f8e2ac5c2d517dce1cb376f2719bdcaf",
+  "productJsSha": "ae155a9c06ae4f493f2a223385eb4c0ba24c108885f82c8882d7a17929fd9ece",
+  "productCssClasses": [
+    "RRReg_Confirmation",
+    "RRReg_EntryField",
+    "RRReg_EntryFees",
+    "RRReg_TabsList",
+    "RRReg_RadioGroupTile",
+    "RRReg_Nav",
+    "RRReg_Box",
+    "RRReg_Table",
+    "RRReg_Main",
+    "RRReg_Page"
+  ]
+}

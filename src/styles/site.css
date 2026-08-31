@@ -1,0 +1,654 @@
+/* Seitengerüst: Kopf, Navigation, Fuß, Hero, Zeitstrahl.
+
+   Gilt nur für Inhaltsseiten über Page.astro. Der Anmeldetrichter lädt diese
+   Datei nicht.
+
+   Was hier NICHT mehr steht: alles, was zu einer Komponente gehört. Karten,
+   Tabellen, Kacheln, Fließtext und Bilder bringen ihre Regeln seit der
+   Komponentenbibliothek selbst mit — gescopet, siehe src/components/README.md,
+   Regel 4. Diese Datei behält nur, was wirklich seitenweit gilt.
+
+   DIESELBE REGEL WIE IN app.css: keine nackten Element-Selektoren. Zwar
+   rendert das raceresult-Widget nur auf /anmelden/ und damit nie unter diesem
+   Stylesheet — aber die Regel hier zu brechen hieße, sie beim nächsten
+   Verschieben einer Komponente unbemerkt zu brechen. Tokens kommen aus
+   app.css, das Base.astro immer lädt. */
+
+/* ------------------------------------------------------------ Grundgerüst */
+
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 0 0 var(--radius) 0;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+.site-main {
+  display: block;
+  min-height: 60vh;
+  padding: 2rem 0 4rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.container.is-wide {
+  max-width: 68rem;
+}
+
+/* ------------------------------------------------------------ Kopfbereich */
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+/* Eine Zeile, auf jeder Breite: Marke links, Sponsor rechts. Die Navigation
+   sitzt dazwischen — auf dem Handy gibt es sie hier nicht, dort übernimmt die
+   Daumenleiste, und die Zeile bleibt trotzdem gefüllt. */
+.site-header-inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 0.75rem var(--gutter);
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+/* Wird es eng, kürzen beide Zeilen. Ohne das läuft der Text aus seinem
+   Flex-Element heraus und schiebt sich unter das Sponsorlogo — der Abstand
+   dazwischen wäre nur noch auf dem Papier vorhanden. */
+.brand-name,
+.brand-tagline {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brand-name {
+  font-size: var(--step-1);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.brand-tagline {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+/* Auf dem Handy übernimmt MobileNav — zwei Navigationen nebeneinander wären
+   doppelt gepflegt und doppelt vorgelesen. */
+.nav {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .nav {
+    display: block;
+  }
+}
+
+/* Der Hauptsponsor steht direkt neben der Marke — eine Zeile, wie bei einem
+   Trikot-Aufdruck. Er darf nie schrumpfen: Ein gestauchtes Logo ist schlimmer
+   als ein gekürzter Beisatz daneben. */
+.header-sponsor {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-end;
+}
+
+.header-sponsor-link {
+  display: inline-flex;
+  border-radius: 4px;
+}
+
+.header-sponsor-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.header-sponsor-logo {
+  width: auto;
+  height: 1.25rem;
+}
+
+/* ------------------------------------------------------------ Navigation */
+
+/* Die Liste steht immer — auf jeder Breite. Nur die Gruppe klappt auf. */
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  /* `flex-start`, nicht `center`: Klappt die Gruppe auf, wird ihr Element hoch.
+     Zentriert ausgerichtet rutschten die Nachbarn dann auf halbe Höhe. */
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+/* Aufgeklappt bekommt die Gruppe eine eigene Zeile. Ohne das setzt flex-wrap
+   die übrigen Einträge neben das ausgeklappte Feld, und das Menü zerfällt in
+   ein Durcheinander aus drei Spalten. */
+.nav-item.is-group:has(> .nav-group[open]) {
+  flex-basis: 100%;
+}
+
+.nav-link {
+  display: block;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-size: var(--step-0);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  background: var(--surface-sunk);
+  color: var(--accent-deep);
+}
+
+/* Der aktive Eintrag trägt aria-current="page" — die Auszeichnung, die auch
+   ein Screenreader meldet. Das Styling hängt sich an dieselbe Information,
+   statt eine zweite Klasse dafür zu erfinden. */
+.nav-link[aria-current='page'] {
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+}
+
+.nav-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius);
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  list-style: none;
+}
+
+/* Das Standard-Dreieck von <summary> in beiden Engines abschalten. */
+.nav-summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-summary::marker {
+  content: '';
+}
+
+.nav-summary:hover {
+  background: var(--surface-sunk);
+  color: var(--accent-deep);
+}
+
+.nav-summary[data-active='true'] {
+  color: var(--accent-deep);
+}
+
+.nav-chevron {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.nav-group[open] > .nav-summary > .nav-chevron {
+  transform: rotate(225deg) translateY(-1px);
+}
+
+.nav-sublist {
+  list-style: none;
+  margin: 0.25rem 0 0.25rem 0.6rem;
+  padding: 0 0 0 0.75rem;
+  border-left: 2px solid var(--line);
+}
+
+.nav-link.is-sub {
+  font-weight: 500;
+  font-size: var(--step--1);
+}
+
+/* ------------------------------------------------------------ Seitenkopf */
+
+.page-head {
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.page-title {
+  margin: 0;
+  font-size: var(--step-3);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.page-lead {
+  margin: 0.75rem 0 0;
+  max-width: var(--measure);
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------ Sponsoren */
+
+.sponsors {
+  max-width: 68rem;
+  margin: 3rem auto 0;
+  padding: 2rem var(--gutter);
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.sponsors-headline {
+  margin: 0 0 1.25rem;
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.sponsors-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem 2.5rem;
+}
+
+.sponsors-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Die Logos kommen in sehr verschiedenen Seitenverhältnissen. Eine gemeinsame
+   Höhe statt einer gemeinsamen Breite lässt sie gleich gewichtig wirken. */
+.sponsors-logo {
+  display: block;
+  width: auto;
+  height: 2.25rem;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.sponsors-link {
+  display: block;
+}
+
+.sponsors-role {
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+}
+
+/* ------------------------------------------------------------ Fußbereich */
+
+/* Der Fußbereich liegt unter Wasser. Er beginnt mit genau der Farbe, in der
+   die Wellen darüber enden (--water-line), und wird nach unten tiefer. */
+.site-footer {
+  margin-top: 0;
+  background: linear-gradient(to bottom, var(--water-line), var(--water-deep));
+  color: var(--on-water);
+  /* Platz für die schwebende Leiste. Ohne das liegt sie über dem Ende des
+     Fußbereichs — genau der Fehler, den die alte Seite mit ihrer Anmelde-Leiste
+     hatte. Ab Tablet gibt es die Leiste nicht, dann fällt der Platz weg. */
+  padding-bottom: calc(var(--dock) + var(--cta-height));
+}
+
+.site-footer-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 2.5rem var(--gutter) 1.5rem;
+}
+
+.footer-heading {
+  margin: 0 0 0.6rem;
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-water-soft);
+}
+
+.footer-contact,
+.footer-legal {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.footer-link {
+  color: var(--on-water);
+  font-size: var(--step-0);
+  text-decoration: none;
+  /* Unterstrichen bleibt es: Farbe allein unterscheidet Links hier unten nicht
+     mehr vom Fließtext, weil beides hell auf dunkel ist. */
+  border-bottom: 1px solid rgb(255 255 255 / 45%);
+}
+
+.footer-link:hover {
+  border-bottom-color: currentColor;
+}
+
+.footer-org {
+  margin: 0;
+}
+
+.footer-note {
+  margin: 0.5rem 0 0;
+  max-width: 24rem;
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--on-water-soft);
+}
+
+/* Ohne Trennlinie: Das Wasser soll durchgehend sein. Der Abstand darüber
+   trennt genug — eine Linie quer durch die Fläche sähe aus wie eine Kante im
+   Wasser, die es nicht gibt. */
+.footer-copy {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 1.5rem var(--gutter) 2rem;
+  font-size: var(--step--1);
+  color: var(--on-water-soft);
+}
+
+/* -------------------------------------------------------- Fakten-Listen */
+
+/* Beschriftung/Wert-Paare: Impressum, Ausschreibungsdaten, Veranstaltungsort.
+   Als <dl> ausgezeichnet, weil es genau das ist — und ein Screenreader die
+   Zusammengehörigkeit dann auch meldet. */
+
+.facts {
+  margin: 0 0 2.5rem;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.facts-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.facts-term {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.facts-value {
+  margin: 0;
+  font-size: var(--step-0);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* Adresszeilen sollen untereinander stehen, ohne <br> im Markup. */
+.facts-line {
+  display: block;
+}
+
+.facts-link {
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* ----------------------------------------------------------- Hilfsklassen */
+
+/* Für Screenreader da, für Augen nicht. Nicht `display: none` — das nähme es
+   auch der Vorlesehilfe weg. */
+.is-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- Hero */
+
+.hero {
+  margin-bottom: 3.5rem;
+}
+
+.hero-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: var(--step-0);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent-deep);
+}
+
+.hero-title {
+  margin: 0;
+  font-size: var(--step-4);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.hero-lead {
+  margin: 1rem 0 0;
+  max-width: 40rem;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.75rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.4rem;
+  border-radius: var(--radius);
+  background: var(--accent-deep);
+  color: #fff;
+  font-size: var(--step-0);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--ink);
+}
+
+.hero-note {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.back-link {
+  margin: 2.5rem 0 0;
+  font-size: var(--step-0);
+}
+
+.back-link a {
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+
+.back-link a:hover {
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------- Zeitplan (Zeitstrahl) */
+
+.timeline {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.timeline-time {
+  font-size: var(--step-1);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-deep);
+}
+
+.timeline-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.timeline-title {
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.timeline-note {
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------ ab Tablet */
+
+@media (min-width: 48rem) {
+  .site-main {
+    padding-top: 3rem;
+  }
+
+  .sponsors-logo {
+    height: 2.75rem;
+  }
+
+  .site-footer {
+    padding-bottom: 0;
+  }
+
+  .site-header-inner {
+    gap: 1rem;
+  }
+
+  .header-sponsor-logo {
+    height: 1.75rem;
+  }
+
+  .nav-item.is-group {
+    position: relative;
+  }
+
+  /* Ab hier schwebt die Unterliste; die Gruppe braucht keine eigene Zeile mehr. */
+  .nav-item.is-group:has(> .nav-group[open]) {
+    flex-basis: auto;
+  }
+
+  /* Die Gruppe wird zum Aufklappmenü. `open` setzt weiterhin der Browser —
+     wir ändern nur, wo der Inhalt erscheint. */
+  /* Ab hier schwebt die Gruppe als Ausklappmenü, statt den Text zu schieben. */
+  .nav-sublist {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    z-index: 20;
+    min-width: 12rem;
+    margin: 0;
+    padding: 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 12px 28px rgb(11 31 51 / 12%);
+  }
+
+  .facts-row {
+    grid-template-columns: 16rem 1fr;
+    gap: 1.5rem;
+    align-items: baseline;
+  }
+
+  .site-footer-inner {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}

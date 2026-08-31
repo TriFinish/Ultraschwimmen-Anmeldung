@@ -1,0 +1,98 @@
+/* Unsere Seite. Tokens und Layout in einer Datei — das Widget-Theming steht
+   bewusst getrennt in widget.css.
+
+   WICHTIGSTE REGEL: keine nackten Element-Selektoren. Das raceresult-Widget
+   rendert in unser DOM, und alles hier kaskadiert hinein. Ein einziges
+   `div { opacity: .8 }` graut das halbe Anmeldeformular aus. Global erlaubt
+   sind nur `*`, `html` und `body`. Deshalb auch Tailwind ohne Preflight —
+   dessen `button {}`/`input {}`-Resets würden das Formular zerlegen. */
+
+:root {
+  /* Tinte statt Schwarz: Das Logo ist dunkelblau, kein Neutralgrau. */
+  --ink: #0b1f33;
+  --ink-soft: #40566b;
+  --ink-faint: #8496a6;
+
+  --accent: #1b96e3;
+  --accent-deep: #0f6ba8;
+  --accent-wash: #eaf5fd;
+
+  --surface: #ffffff;
+  --surface-sunk: #f4f8fb;
+  --line: #dfe7ee;
+  --line-strong: #c3d2de;
+
+  /* Eine Skala mit echten Sprüngen. Vorher waren es drei Abstufungen von
+     Fett — daher der uniforme, generische Eindruck. */
+  --step--1: 0.8125rem;
+  --step-0: 1rem;
+  --step-1: 1.1875rem;
+  --step-2: 1.5rem;
+  --step-3: clamp(1.75rem, 1.2rem + 2.4vw, 2.5rem);
+  --step-4: clamp(2.25rem, 1.3rem + 4.2vw, 3.75rem);
+
+  --gutter: 1.25rem;
+  --measure: 34rem;
+  --radius: 10px;
+  /* Höhe der Anmelde-Leiste, sobald sie schwebt. Beginnt bei 0, weil sie
+     verborgen startet — page.ts misst und setzt den echten Wert. */
+  --cta-height: 0px;
+
+  /* Der Platz, den die schwebende Daumenleiste am unteren Rand belegt. Alles,
+     was darüber schweben soll — Anmelde-Leiste, Ergebnishinweis — rechnet
+     damit, statt eigene Zahlen zu raten. Ab Tablet gibt es die Leiste nicht. */
+  --dock: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+
+  /* Wasser. Der Fußbereich liegt darunter — deshalb helle Schrift dort.
+     Die Werte sind nicht frei gewählt, sondern am hellsten Punkt des Verlaufs
+     nachgerechnet (--water-line, direkt unter der Wasserlinie):
+     Weiß erreicht dort 6,7:1, --on-water-soft 5,2:1. Beides über der
+     AA-Schwelle von 4,5:1 — und tiefer im Verlauf wird es nur besser. */
+  --water-line: #24608a;
+  --water-deep: #0b2740;
+  --on-water: #ffffff;
+  --on-water-soft: #cfe4f2;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  /* Wasser statt Weiß: derselbe Verlauf wie auf links.ultraschwimmen.de, von
+     oben hell-blaustichig nach unten weiß. Fällt kaum auf und nimmt der Seite
+     trotzdem den Laborcharakter. */
+  background: radial-gradient(circle at 50% 0%, var(--surface-sunk), var(--surface) 65%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-size: var(--step-0);
+  line-height: 1.55;
+  /* Zahlen in Preisen und Countdown dürfen nicht springen. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ab Tablet fällt die schwebende Daumenleiste weg — und mit ihr der Platz,
+   den alles darüber für sie freihält. */
+@media (min-width: 48rem) {
+  :root {
+    --dock: 0.5rem;
+  }
+}

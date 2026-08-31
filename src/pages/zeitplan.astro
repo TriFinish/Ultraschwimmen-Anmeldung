@@ -1,0 +1,81 @@
+---
+// Zeitplan.
+//
+// Er wird aus `distances[].start` berechnet, nicht abgetippt. Auf der alten
+// Seite stand er auf drei Seiten in drei Fassungen — Ausschreibung „Stand
+// 10.2.", Zeitplan „Stand 12.2." —, und niemand konnte sagen, welche galt.
+// Ändert sich hier eine Startzeit, ändert sie sich überall.
+
+import Page from '../layouts/Page.astro';
+import Prose from '../components/ui/Prose.astro';
+import { loadEvent } from '../data/load';
+import { groupByStart } from '../lib/schedule';
+
+const { event, venue, course, distances } = loadEvent();
+const slots = groupByStart(distances);
+---
+
+<Page
+  title="Zeitplan"
+  description={`Startzeiten und Ablauf des ${event.title} am ${event.date_label} im ${venue.name}.`}
+  heading="Zeitplan"
+  lead={`Das ${event.title} findet am ${event.date_label} statt. Alle Zeiten gelten für den Wettkampftag.`}
+>
+  <ol class="timeline">
+    {
+      event.office_opens && (
+        <li class="timeline-item">
+          <span class="timeline-time">{event.office_opens}</span>
+          <span class="timeline-body">
+            <span class="timeline-title">Startunterlagen</span>
+            <span class="timeline-note">
+              Das Wettkampfbüro öffnet — {venue.detail ?? venue.name}, {venue.street}.
+              Es bleibt bis zum Schluss geöffnet.
+            </span>
+          </span>
+        </li>
+      )
+    }
+
+    {
+      slots.map((slot) => (
+        <li class="timeline-item">
+          <span class="timeline-time">{slot.start}</span>
+          <span class="timeline-body">
+            <span class="timeline-title">Start {slot.label}</span>
+            <span class="timeline-note">
+              {slot.distances.length === 1
+                ? `${slot.distances[0]?.laps} Runden à ${course.lap_length_m} m`
+                : 'Gemeinsamer Start aller genannten Strecken.'}
+            </span>
+          </span>
+        </li>
+      ))
+    }
+
+    <li class="timeline-item">
+      <span class="timeline-time">14:00</span>
+      <span class="timeline-body">
+        <span class="timeline-title">Ende des Schwimmens</span>
+      </span>
+    </li>
+  </ol>
+
+  <Prose>
+    <p>
+      Die Voranmeldung ist bis {event.deadline_label} geöffnet.
+      {
+        event.late_fee !== undefined && (
+          <>
+            {' '}Danach ist eine Nachmeldung am Veranstaltungstag gegen eine Gebühr von{' '}
+            {event.late_fee} € möglich.
+          </>
+        )
+      }
+    </p>
+    <p>
+      Alle Strecken und Preise stehen in der <a href="/ausschreibung/">Ausschreibung</a>, der Verlauf
+      im Hafenbecken auf der Seite <a href="/strecke/">Strecke</a>.
+    </p>
+  </Prose>
+</Page>

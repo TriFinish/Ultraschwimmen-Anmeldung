@@ -1,0 +1,55 @@
+---
+// Das HTML-Grundgerüst: <head>, Meta, Stylesheets, Analytics.
+//
+// Bewusst ohne jede Layout-Entscheidung — die trifft Page.astro. Base ist
+// damit die einzige Datei, in der etwas über den Dokumentkopf steht.
+import '../styles/app.css';
+// Ungelayert und global — siehe Kommentarkopf der Datei. Muss NACH app.css
+// stehen, damit unsere Overrides bei gleicher Spezifität gewinnen.
+import '../styles/widget.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Pfad zum Logo unter public/ — zentral in site.yaml gepflegt. */
+  favicon?: string;
+}
+
+const { title, description, favicon = '/tri-finish/logo.svg' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <!--
+      Nicht entfernen: raceresult liefert `registration.js` ohne `charset` im
+      Content-Type aus. Das eingebettete Formular erbt deshalb die Kodierung
+      dieser Seite — ohne diese Zeile wird aus „Zurück" und „März" Buchstabensalat.
+    -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0b1f33" />
+
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+
+    <!--
+      Umami Analytics (self-hosted auf Vercel).
+      TODO vor Livegang: eigene Website-ID für ultraschwimmen.de anlegen und
+      unten eintragen. Solange der Platzhalter steht, wird nichts gemessen;
+      startTracking() warnt zusätzlich in der Konsole.
+    -->
+    <script
+      defer is:inline
+      src="https://umami-six-cyan.vercel.app/script.js"
+      data-website-id="TODO-EIGENE-WEBSITE-ID"></script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
