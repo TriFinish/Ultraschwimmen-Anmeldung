@@ -1,0 +1,29 @@
+---
+// Die Ergebnislisten der Vorjahre.
+//
+// Alle Ziele liegen beim Zeitnehmer, nicht bei uns — deshalb ausnahmslos
+// `external`. Die TileList setzt daraufhin target und rel gemeinsam; darauf
+// besteht tests/unit/dist.test.ts.
+
+import TileList, { type Tile } from '../ui/TileList.astro';
+import type { Results } from '../../data/schema';
+
+interface Props {
+  years: Results['years'];
+}
+
+const { years } = Astro.props;
+
+// Absteigend, das jüngste Jahr zuerst — danach sucht man.
+const items: Tile[] = [...years]
+  .sort((a, b) => b.year - a.year)
+  .map((eintrag) => ({
+    mark: eintrag.year,
+    label: 'Ergebnisliste ansehen',
+    href: eintrag.url,
+    external: true,
+    umamiEvent: `Ergebnisse ${eintrag.year}`,
+  }));
+---
+
+<TileList items={items} label="Ergebnislisten nach Jahr" />

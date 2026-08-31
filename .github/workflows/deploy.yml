@@ -1,5 +1,11 @@
 name: Deploy to GitHub Pages
 
+# Baut die Astro-Seite und veröffentlicht `dist/`.
+#
+# Vorher lud dieser Workflow das handgebaute Verzeichnis `site/` hoch, ohne je
+# einen Build auszuführen. Nach dem Umstieg auf Astro gibt es `site/` nicht mehr
+# — ohne diesen Schritt deployt der Workflow ein leeres Artefakt.
+
 on:
   push:
     branches: [main]
@@ -24,13 +30,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # `npm run build` ist `astro check && astro build`: Ein Typfehler oder ein
+      # ungültiges event.yaml bricht hier ab, statt live zu landen.
+      - name: Build
+        run: npm run build
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload site/ artifact
+      - name: Upload dist/ artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment

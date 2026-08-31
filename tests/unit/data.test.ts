@@ -36,7 +36,7 @@ describe('event.yaml', () => {
   });
 
   it('lehnt eine relative provider.url ab', () => {
-    const relativ = { ...data, provider: { ...data.provider, url: '/anmeldung' } };
+    const relativ = { ...data, provider: { ...data.provider, url: '/anmelden' } };
     expect(eventDataSchema.safeParse(relativ).success).toBe(false);
   });
 

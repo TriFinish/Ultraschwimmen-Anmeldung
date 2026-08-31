@@ -8,9 +8,11 @@ import { CORE_SCHEMA, load as parseYaml } from 'js-yaml';
 import type { z } from 'astro/zod';
 import {
   eventDataSchema,
+  photosSchema,
   resultsSchema,
   siteSchema,
   type EventData,
+  type Photos,
   type Results,
   type SiteData,
 } from './schema.js';
@@ -53,4 +55,8 @@ export function loadSite(path: string = join(CONTENT_DIR, 'site.yaml')): SiteDat
 
 export function loadResults(path: string = join(CONTENT_DIR, 'ergebnisse.yaml')): Results {
   return loadYaml(path, resultsSchema, 'ergebnisse.yaml');
+}
+
+export function loadPhotos(path: string = join(CONTENT_DIR, 'fotos.yaml')): Photos {
+  return loadYaml(path, photosSchema, 'fotos.yaml');
 }

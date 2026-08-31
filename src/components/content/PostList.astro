@@ -1,0 +1,22 @@
+---
+// Alle Beiträge als Kartenraster, neueste zuerst.
+//
+// Das Sortieren steht hier und nicht in der Seite: „neueste zuerst" ist eine
+// Eigenschaft der Beitragsliste, keine der Seite, die sie zeigt.
+
+import type { CollectionEntry } from 'astro:content';
+import CardGrid from '../ui/CardGrid.astro';
+import PostCard from './PostCard.astro';
+
+interface Props {
+  posts: CollectionEntry<'aktuelles'>[];
+  level?: 2 | 3;
+}
+
+const { posts, level = 2 } = Astro.props;
+const sortiert = [...posts].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<CardGrid min="18rem">
+  {sortiert.map((post) => <PostCard post={post} level={level} />)}
+</CardGrid>

@@ -1,0 +1,21 @@
+# Fotogalerien nach Jahrgang.
+#
+# Aufgebaut wie ergebnisse.yaml: Die Bilder liegen nicht bei uns, sondern dort,
+# wo sie gepflegt werden — jeder Eintrag ist ein Jahr und ein Link dorthin.
+#
+# Die Liste darf leer sein. Genau das ist gerade der Fall: Die Galerien der
+# alten WordPress-Installation sind noch nicht umgezogen. Die Seite zeigt
+# solange einen Hinweis statt einer leeren Fläche.
+#
+# Ein Eintrag sieht so aus:
+#
+#   - year: 2025
+#     url: https://…                 # Pflicht, absolut
+#     title: Impressionen vom Start  # optional, sonst „Bilder vom Wettkampftag"
+#     cover:                         # optional, Titelbild der Karte
+#       src: /fotos/2025/cover.jpg
+#       alt: Schwimmerfeld beim Massenstart im Hafenbecken
+#       width: 1600
+#       height: 900
+
+albums: []

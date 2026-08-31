@@ -6,7 +6,7 @@ WordPress-Installation ab und enthält den Anmeldetrichter als eine ihrer Seiten
 Astro + TypeScript, statischer Output, kein Backend, keine eigene Zahlung:
 Vertragspartner bleibt der Verein, das Startgeld zieht tollense-timing ein.
 
-Unter **`/anmeldung/`** läuft der **gesamte** Anmeldevorgang — Distanzwahl,
+Unter **`/anmelden/`** läuft der **gesamte** Anmeldevorgang — Distanzwahl,
 Formular, Bezahlung, Buchung. Das raceresult-Formular ist als JavaScript-Widget
 eingebettet und in unser blaues Theme umgefärbt; der Nutzer wechselt nie die
 Domain. Diese Seite ist die einzige **ohne** Menü: Wer dort ist, soll sich
@@ -23,6 +23,7 @@ Konsolen-Warnung auf der Live-Seite zu landen.
 | `event.yaml` | Termin, Ort, Strecke, Distanzen, Preise, Frist, FAQ | jedes Jahr |
 | `site.yaml` | Navigation, Kontakt, Verein, Sponsoren, Fußzeile | selten |
 | `ergebnisse.yaml` | Ergebnislisten der Vorjahre | einmal im Jahr |
+| `fotos.yaml` | Bildergalerien nach Jahrgang (darf leer sein) | einmal im Jahr |
 | `ausschreibung.md` | die Ausschreibung als Fließtext | jedes Jahr |
 | `aktuelles/*.md` | Meldungen, eine Datei je Beitrag | laufend |
 
@@ -95,11 +96,12 @@ welcher bleibt. Das raceresult-Script lädt **nur** im Formularmodus.
 | Schema + Validierung | [`src/data/schema.ts`](src/data/schema.ts), [`load.ts`](src/data/load.ts) |
 | Reine Logik (testbar ohne Rendern) | [`src/lib/`](src/lib/) — Navigation, Zeitplan, Preise, Datum |
 | Seitengerüst | [`src/layouts/Page.astro`](src/layouts/Page.astro), [`components/layout/`](src/components/layout/) |
-| Anmeldetrichter | [`src/pages/anmeldung.astro`](src/pages/anmeldung.astro) — liegt direkt auf `Base.astro`, ohne Menü |
+| Bausteine | [`src/components/`](src/components/README.md) — `ui/` kennt keine Daten, `content/` kennt unsere Typen |
+| Anmeldetrichter | [`src/pages/anmelden.astro`](src/pages/anmelden.astro) — liegt direkt auf `Base.astro`, ohne Menü |
 | Widget-Anbindung | [`src/scripts/widget.ts`](src/scripts/widget.ts) |
 | Client-Logik des Trichters | [`src/scripts/page.ts`](src/scripts/page.ts) |
 | Design des Trichters | [`src/styles/app.css`](src/styles/app.css) — enthält auch die Tokens |
-| Design der Inhaltsseiten | [`src/styles/site.css`](src/styles/site.css) |
+| Design der Inhaltsseiten | in den Komponenten (gescopet); global nur Gerüst und Tokens in [`site.css`](src/styles/site.css) / [`app.css`](src/styles/app.css) |
 | Widget-Theming | [`src/styles/widget.css`](src/styles/widget.css) |
 | Weiterleitungen alter Adressen | [`astro.config.mjs`](astro.config.mjs) |
 | Canary | [`tests/contract/`](tests/contract/), [`canary.yml`](.github/workflows/canary.yml) |
@@ -107,6 +109,9 @@ welcher bleibt. Das raceresult-Script lädt **nur** im Formularmodus.
 | Anmeldeformular | raceresult, Event `383076`, Formular `Sammel-Anmeldung` |
 
 ### Wie eine Komponente gebaut ist
+
+**Die sechs Regeln der Komponentenbibliothek stehen in
+[`src/components/README.md`](src/components/README.md).** Die wichtigste davon:
 
 **Komponenten holen sich nichts selbst — sie bekommen alles als Props.**
 `loadEvent()` und `getCollection()` rufen ausschließlich Seiten und

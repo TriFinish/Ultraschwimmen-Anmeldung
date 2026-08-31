@@ -1,0 +1,114 @@
+---
+// Die Distanzwahl.
+//
+// Jede Distanz ist eine Karte aus der Bibliothek (`as="label"`), damit sie
+// aussieht wie jede andere Karte der Seite — und ein echtes Radiofeld darin,
+// damit die Auswahl ohne JavaScript funktioniert und die Tastatur sie bedienen
+// kann. Die Markierung hängt per `:has(:checked)` am Feldzustand, nicht an
+// einer Klasse, die ein Skript setzen müsste.
+//
+// Die längste Distanz bekommt die Hero-Zeile: Vorher sahen alle sieben Karten
+// identisch aus, und der Ultra — der Grund für den ganzen Wettkampf — ging
+// darin unter.
+
+import Card from '../ui/Card.astro';
+import CardGrid from '../ui/CardGrid.astro';
+import { formatEuro } from '../../scripts/format';
+import type { Distance } from '../../data/schema';
+
+interface Props {
+  distances: Distance[];
+  /** Beschriftung der Jugendermäßigung, z. B. „Jahrgang 2009 bis …". */
+  youthLabel?: string;
+  /** Name der Radiogruppe — muss zu src/scripts/page.ts passen. */
+  name?: string;
+}
+
+const { distances, youthLabel, name = 'distanz' } = Astro.props;
+
+const hero = distances.reduce((a, b) => (b.laps > a.laps ? b : a));
+const sortiert = [hero, ...distances.filter((d) => d.id !== hero.id)];
+---
+
+<CardGrid min="15rem">
+  {
+    sortiert.map((d) => (
+      <Card as="label" hero={d.id === hero.id}>
+        {d.id === hero.id && <Fragment slot="eyebrow">Die Ultra-Distanz</Fragment>}
+
+        <input class="card-input" type="radio" name={name} value={d.id} />
+
+        <span class="wahl-kopf">
+          <span class="wahl-label">{d.label}</span>
+          <span class="wahl-preis">{formatEuro(d.price)}</span>
+        </span>
+
+        <span class="wahl-meta">
+          <span>Start {d.start} Uhr</span>
+          <span>
+            {d.laps} {d.laps === 1 ? 'Runde' : 'Runden'}
+          </span>
+        </span>
+
+        {d.price_youth !== undefined && youthLabel && (
+          <span class="wahl-jugend">
+            {formatEuro(d.price_youth)} für {youthLabel}
+          </span>
+        )}
+      </Card>
+    ))
+  }
+</CardGrid>
+
+<style>
+  /* Das Feld selbst ist unsichtbar, aber vorhanden und fokussierbar: Es trägt
+     den Zustand, die Karte zeigt ihn. `display: none` nähme es der Tastatur. */
+  .card-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .wahl-kopf {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .wahl-label {
+    /* Ohne das schrumpft die Beschriftung nicht, sondern schiebt den Preis aus
+       der Karte — bei „2 km Flossenschwimmen" genau das, was passiert ist. */
+    min-width: 0;
+    font-size: var(--step-2);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Der Preis bricht nie um. „2 km Flossenschwimmen" ist lang genug, um ihn
+     sonst in „2" und „€" zu zerlegen — eine Zahl, die man zweimal lesen muss. */
+  .wahl-preis {
+    flex-shrink: 0;
+    font-size: var(--step-1);
+    font-weight: 700;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .wahl-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  .wahl-jugend {
+    color: var(--ink-faint);
+    font-size: var(--step--1);
+  }
+</style>

@@ -6,12 +6,16 @@
 // nicht laden konnte, sah kein Datum. Hier steht alles als Text und kommt aus
 // event.yaml — Datum, Ort und Frist können damit nicht mehr veralten.
 //
-// Kein Countdown: Der lebt im Trichter unter /anmeldung/, wo er zur
+// Kein Countdown: Der lebt im Trichter unter /anmelden/, wo er zur
 // Entscheidung beiträgt. Hier wäre er Zierrat und brächte JavaScript mit.
 
 import Page from '../layouts/Page.astro';
+import Card from '../components/ui/Card.astro';
+import CardGrid from '../components/ui/CardGrid.astro';
+import Section from '../components/ui/Section.astro';
+import Waves from '../components/ui/Waves.astro';
+import DistanceTable from '../components/content/DistanceTable.astro';
 import { loadEvent, loadResults } from '../data/load';
-import { formatEuro } from '../scripts/format';
 import { groupByStart } from '../lib/schedule';
 
 const { event, venue, course, distances } = loadEvent();
@@ -21,7 +25,9 @@ const { years } = loadResults();
 const hero = distances.reduce((a, b) => (b.laps > a.laps ? b : a));
 const guenstigste = distances.reduce((a, b) => (b.price < a.price ? b : a));
 const slots = groupByStart(distances);
-const letztesJahr = [...years].sort((a, b) => b.year - a.year)[0];
+const jahre = [...years].sort((a, b) => a.year - b.year);
+const erstesJahr = jahre[0]?.year;
+const letztesJahr = jahre.at(-1)?.year;
 ---
 
 <Page
@@ -38,78 +44,66 @@ const letztesJahr = [...years].sort((a, b) => b.year - a.year)[0];
     </p>
 
     <div class="hero-actions">
-      <a class="button" href="/anmeldung/" data-umami-event="Startseite: Zur Anmeldung">
+      <a class="button" href="/anmelden/" data-umami-event="Startseite: Zur Anmeldung">
         Zur Anmeldung
         <span aria-hidden="true">→</span>
       </a>
       <p class="hero-note">Voranmeldung bis {event.deadline_label}</p>
     </div>
+
+    {/* Derselbe Wellenzug wie im Fußbereich, hier nach unten offen: Er trennt
+        den Einstieg vom Rest, statt eine Linie zu ziehen. */}
+    <Waves height="6rem" fade="down" bleed />
   </section>
 
-  <section class="section">
-    <h2 class="section-heading">Strecken und Startzeiten</h2>
-    <div class="table-scroll">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Strecke</th>
-            <th scope="col">Runden</th>
-            <th scope="col">Start</th>
-            <th scope="col">Meldegebühr</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            [...distances]
-              .sort((a, b) => b.laps - a.laps)
-              .map((d) => (
-                <tr>
-                  <th scope="row">{d.label}</th>
-                  <td>{d.laps}</td>
-                  <td>{d.start} Uhr</td>
-                  <td>{formatEuro(d.price)}</td>
-                </tr>
-              ))
-          }
-        </tbody>
-      </table>
-    </div>
-    <p class="section-note">
+  <Section title="Strecken und Startzeiten">
+    <DistanceTable distances={distances} withPrice />
+    <Fragment slot="note">
       {
         event.youth_label &&
           `Für Kinder und Jugendliche (${event.youth_label}) gelten ermäßigte Gebühren. `
       }Alle Bedingungen stehen in der <a href="/ausschreibung/">Ausschreibung</a>.
-    </p>
-  </section>
+    </Fragment>
+  </Section>
 
-  <section class="section">
-    <h2 class="section-heading">Der Wettkampftag</h2>
-    <div class="cards">
-      <a class="card-link" href="/zeitplan/">
-        <span class="card-link-title">Zeitplan</span>
-        <span class="card-link-text">
+  <Section title="Der Wettkampftag">
+    <CardGrid>
+      <Card href="/zeitplan/">
+        <span class="tile-title">Zeitplan</span>
+        <span class="tile-text">
           Wettkampfbüro ab {event.office_opens} Uhr, erster Start um {slots[0]?.start} Uhr.
         </span>
-        <span class="card-link-more" aria-hidden="true">→</span>
-      </a>
+        <span slot="footer">Ansehen →</span>
+      </Card>
 
-      <a class="card-link" href="/strecke/">
-        <span class="card-link-title">Strecke</span>
-        <span class="card-link-text">
+      <Card href="/strecke/">
+        <span class="tile-title">Strecke</span>
+        <span class="tile-text">
           {course.headline} — Ein- und Ausstieg am Hafenkai, {venue.street}.
         </span>
-        <span class="card-link-more" aria-hidden="true">→</span>
-      </a>
+        <span slot="footer">Ansehen →</span>
+      </Card>
 
-      <a class="card-link" href="/ergebnisse/">
-        <span class="card-link-title">Ergebnisse</span>
-        <span class="card-link-text">
-          Listen und Urkunden aller Jahrgänge{letztesJahr && ` seit ${
-            [...years].sort((a, b) => a.year - b.year)[0]?.year
-          }, zuletzt ${letztesJahr.year}`}.
+      <Card href="/ergebnisse/">
+        <span class="tile-title">Ergebnisse</span>
+        <span class="tile-text">
+          Listen und Urkunden aller Jahrgänge{
+            erstesJahr && ` seit ${erstesJahr}, zuletzt ${letztesJahr}`
+          }.
         </span>
-        <span class="card-link-more" aria-hidden="true">→</span>
-      </a>
-    </div>
-  </section>
+        <span slot="footer">Ansehen →</span>
+      </Card>
+    </CardGrid>
+  </Section>
 </Page>
+
+<style>
+  .tile-title {
+    font-size: var(--step-1);
+    font-weight: 700;
+  }
+
+  .tile-text {
+    color: var(--ink-soft);
+  }
+</style>

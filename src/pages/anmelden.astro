@@ -1,0 +1,114 @@
+---
+// Der Anmeldetrichter — jetzt als reguläre Seite des Auftritts.
+//
+// Bis vor Kurzem lag sie bewusst ohne Menü direkt auf Base.astro („wer hier
+// ist, soll sich anmelden und nicht weiterklicken"). Das kostete aber jeden
+// Weg zurück: Wer hier landete und erst noch den Zeitplan lesen wollte, saß in
+// einer Sackgasse. Sie läuft deshalb über Page.astro wie jede andere Seite —
+// Kopf, Navigation, Fuß und Daumenleiste inklusive.
+//
+// Beide Modi stehen in derselben statischen Seite. `?regname=` entscheidet zur
+// Laufzeit, welcher Block bleibt — den anderen entfernt page.ts. Das
+// raceresult-Script lädt ausschließlich im Formularmodus.
+
+import Page from '../layouts/Page.astro';
+import FaqList from '../components/ui/FaqList.astro';
+import NoteBox from '../components/ui/NoteBox.astro';
+import Section from '../components/ui/Section.astro';
+import StickyCta from '../components/ui/StickyCta.astro';
+import DeadlineCountdown from '../components/content/DeadlineCountdown.astro';
+import DistanceChooser from '../components/content/DistanceChooser.astro';
+import RegistrationWidget from '../components/content/RegistrationWidget.astro';
+import { loadEvent, loadSite } from '../data/load';
+
+const { event, provider, group, legal, distances, faq } = loadEvent();
+const site = loadSite();
+
+const datenschutz = site.footer.links.find((l) => /datenschutz/i.test(l.label));
+
+// An den Client. Nur, was die Laufzeit wirklich braucht.
+const config = {
+  deadline: event.deadline,
+  deadlineLabel: event.deadline_label,
+  officeOpens: event.office_opens,
+  lateFee: event.late_fee,
+  eventId: provider.event_id,
+  distances: distances.map((d) => ({
+    id: d.id,
+    label: d.label,
+    contest_id: d.contest_id,
+    price: d.price,
+  })),
+};
+
+const title = `Anmeldung ${event.title}`;
+const description = `Distanzen, Preise und Anmeldefrist für das ${event.title} im ${event.location} — und der direkte Weg zur Anmeldung.`;
+---
+
+<Page
+  title={title}
+  description={description}
+  heading="Anmeldung"
+  eyebrow={`${event.date_label} · ${event.location}`}
+  lead={`Alle Strecken des ${event.title} auf einen Blick. Anmeldung und Bezahlung laufen hier auf dieser Seite.`}
+  wide
+>
+  {/* is:inline, weil dieser Block Daten transportiert und nicht gebündelt
+      werden darf — page.ts liest ihn zur Laufzeit aus dem DOM. */}
+  <script type="application/json" id="page-config" is:inline set:html={JSON.stringify(config)} />
+
+  <DeadlineCountdown deadlineLabel={event.deadline_label} />
+
+  <!-- ================= Entscheidungsmodus ================= -->
+  <div id="mode-decision">
+    <Section title="Distanz wählen">
+      <DistanceChooser distances={distances} youthLabel={event.youth_label} />
+    </Section>
+
+    {
+      group && (
+        <Section>
+          <NoteBox title={group.headline}>
+            <p>{group.text}</p>
+            {group.note && <Fragment slot="fine">{group.note}</Fragment>}
+          </NoteBox>
+        </Section>
+      )
+    }
+
+    {
+      faq.length > 0 && (
+        <Section title="Häufige Fragen">
+          <FaqList items={faq} />
+        </Section>
+      )
+    }
+
+    <StickyCta
+      id="cta-bar"
+      href="?regname=Sammel-Anmeldung"
+      label="Zur Anmeldung"
+      linkId="cta"
+      hintId="cta-hint"
+      hidden
+    >
+      Anmeldung und Bezahlung laufen hier auf dieser Seite.
+    </StickyCta>
+  </div>
+
+  <!-- ================= Formularmodus ================= -->
+  <div id="mode-form">
+    <RegistrationWidget
+      fallbackUrl={provider.url}
+      backHref="/anmelden/"
+      legalNote={legal?.processing}
+      privacyHref={datenschutz?.href}
+      privacyLabel={`Zur ${datenschutz?.label ?? 'Datenschutzerklärung'}`}
+    />
+  </div>
+</Page>
+
+<script>
+  import { initPage } from '../scripts/page';
+  initPage();
+</script>

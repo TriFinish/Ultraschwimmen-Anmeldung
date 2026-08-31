@@ -21,6 +21,7 @@ export default defineConfig({
   // Vollständig gegen wp-sitemap-posts-page-1.xml und -post-1.xml geprüft.
   redirects: {
     // Seiten, die umbenannt wurden
+    '/anmeldung/': '/anmelden/',
     '/strecken/': '/strecke/',
     '/kontaktformular/': '/kontakt/',
     '/kontakt-2/': '/kontakt/',
@@ -30,14 +31,14 @@ export default defineConfig({
     // nicht mehr gibt. Wer sich melden wollte, findet auf /kontakt/ einen Weg.
     '/newsletter/': '/kontakt/',
 
-    // Galerien. Die Bilder liegen noch auf der alten Installation und kommen
-    // in einem späteren Schritt dazu; bis dahin führt der Weg zur Startseite.
-    '/fotos/': '/',
-    '/fotos-2016-sammlung/': '/',
-    '/fotos-2020-sammlung/': '/',
-    '/fotos-2021-sammlung/': '/',
-    '/fotos-2024-sammlung/': '/',
-    '/fotos-2025-sammlung/': '/',
+    // Galerien. /fotos/ ist inzwischen eine echte Seite; die jahrgangsweisen
+    // Adressen der WordPress-Installation führen dorthin, bis die einzelnen
+    // Galerien in fotos.yaml stehen.
+    '/fotos-2016-sammlung/': '/fotos/',
+    '/fotos-2020-sammlung/': '/fotos/',
+    '/fotos-2021-sammlung/': '/fotos/',
+    '/fotos-2024-sammlung/': '/fotos/',
+    '/fotos-2025-sammlung/': '/fotos/',
 
     // Beiträge. Die alten Kürzel waren teils nichtssagend („beitrag-1") oder
     // 200 Zeichen lang — die neuen Adressen sind lesbar, die alten bleiben
@@ -64,7 +65,9 @@ export default defineConfig({
       // Weiterleitungsseiten gehören nicht in die Sitemap — sie sind kein
       // Inhalt, sondern eine Brücke für alte Lesezeichen.
       filter: (page) =>
-        !/\/(fotos|newsletter|strecken|kontaktformular|datenschutzerklaerung)/.test(page) &&
+        !/\/(anmeldung|fotos-\d{4}-sammlung|newsletter|strecken|kontaktformular|datenschutzerklaerung)/.test(
+          page,
+        ) &&
         !/\/\d{4}\/\d{2}\/\d{2}\//.test(page),
     }),
   ],

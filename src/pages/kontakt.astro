@@ -1,14 +1,11 @@
 ---
 // Kontakt.
-//
-// Kein Formular. Eine statische Seite hat keinen Server, der eine Nachricht
-// entgegennehmen könnte — ein Formular bräuchte einen fremden Dienst, der dann
-// mitliest. Zwei echte Wege sind ehrlicher als ein Eingabefeld, dessen
-// Absenden irgendwo landet.
 
 import Page from '../layouts/Page.astro';
-import { loadSite } from '../data/load';
-import { loadEvent } from '../data/load';
+import CardGrid from '../components/ui/CardGrid.astro';
+import Prose from '../components/ui/Prose.astro';
+import ContactCard from '../components/content/ContactCard.astro';
+import { loadEvent, loadSite } from '../data/load';
 
 const { contact, organizer } = loadSite();
 const { event, venue } = loadEvent();
@@ -23,26 +20,22 @@ const mailto = `mailto:${contact.email}?subject=${encodeURIComponent(`Frage zum 
   heading="Kontakt"
   lead="Fragen zur Anmeldung, zur Strecke oder zum Ablauf? Schreib uns — wir antworten."
 >
-  <div class="contact-ways">
-    <a class="contact-card" href={mailto}>
-      <span class="contact-kind">E-Mail</span>
-      <span class="contact-value">{contact.email}</span>
-      <span class="contact-hint">Der zuverlässigste Weg. Wir antworten in der Regel innerhalb weniger Tage.</span>
-    </a>
+  <CardGrid min="17rem">
+    <ContactCard kind="E-Mail" value={contact.email} href={mailto}>
+      Der zuverlässigste Weg. Wir antworten in der Regel innerhalb weniger Tage.
+    </ContactCard>
 
-    <a
-      class="contact-card"
+    <ContactCard
+      kind="Instagram"
+      value={contact.instagram.handle}
       href={contact.instagram.url}
-      rel="me noopener noreferrer"
-      target="_blank"
+      external
     >
-      <span class="contact-kind">Instagram</span>
-      <span class="contact-value">{contact.instagram.handle}</span>
-      <span class="contact-hint">Für kurze Fragen und alles Aktuelle rund um den Wettkampftag.</span>
-    </a>
-  </div>
+      Für kurze Fragen und alles Aktuelle rund um den Wettkampftag.
+    </ContactCard>
+  </CardGrid>
 
-  <div class="prose">
+  <Prose>
     <h2>Veranstalter</h2>
     <p>
       {organizer.legal_name}<br />
@@ -61,5 +54,5 @@ const mailto = `mailto:${contact.email}?subject=${encodeURIComponent(`Frage zum 
       Am Wettkampftag erreichst du uns am schnellsten direkt vor Ort — das Wettkampfbüro öffnet um
       {' '}{event.office_opens} Uhr.
     </p>
-  </div>
+  </Prose>
 </Page>

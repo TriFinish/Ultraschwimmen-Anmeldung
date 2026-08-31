@@ -10,12 +10,13 @@
 // Was diese Seite tatsächlich tut, und nur das steht hier:
 //   — Auslieferung über GitHub Pages (Server-Logs beim Hoster)
 //   — Reichweitenmessung mit selbst gehostetem Umami, ohne Cookies
-//   — auf /anmeldung/ das eingebettete Formular von raceresult
+//   — auf /anmelden/ das eingebettete Formular von raceresult
 //   — keine eigenen Cookies, keine fremden Schriften, kein Newsletter
 //
 // Der Text ist juristisch zu prüfen, bevor die Domain umgezogen wird.
 
 import Page from '../layouts/Page.astro';
+import Prose from '../components/ui/Prose.astro';
 import { loadSite } from '../data/load';
 
 const { organizer, contact } = loadSite();
@@ -27,7 +28,7 @@ const { organizer, contact } = loadSite();
   heading="Datenschutzerklärung"
   eyebrow="Stand: August 2026"
 >
-  <div class="prose">
+  <Prose>
     <p>
       Diese Seite ist bewusst sparsam gebaut. Sie setzt keine eigenen Cookies, lädt keine Schriften
       von fremden Servern und bindet weder Karten noch Social-Media-Widgets ein. Was trotzdem an
@@ -65,7 +66,7 @@ const { organizer, contact } = loadSite();
 
     <h2>Anmeldung zum Wettkampf</h2>
     <p>
-      Auf der Seite <a href="/anmeldung/">Anmeldung</a> ist das Anmeldeformular unseres Zeitnehmers
+      Auf der Seite <a href="/anmelden/">Anmeldung</a> ist das Anmeldeformular unseres Zeitnehmers
       eingebettet. Es wird von der race result AG in Zusammenarbeit mit tollense-timing
       bereitgestellt und lädt beim Aufruf dieser Seite Programmcode von
       <code>my.raceresult.com</code> nach. Dabei wird Ihre IP-Adresse an race result übermittelt.
@@ -114,5 +115,5 @@ const { organizer, contact } = loadSite();
       Der Nutzung der im Impressum veröffentlichten Kontaktdaten zur Übersendung nicht ausdrücklich
       angeforderter Werbung wird hiermit widersprochen.
     </p>
-  </div>
+  </Prose>
 </Page>

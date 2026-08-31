@@ -1,0 +1,63 @@
+---
+// Ein Fotojahrgang als Karte.
+//
+// Das Jahr ist die Information, nach der gesucht wird — es steht groß und
+// zuerst. Ohne Titelbild tritt an dessen Stelle eine Wellenfläche statt eines
+// grauen Kastens: Eine Galerie ohne Vorschau soll nach Vorfreude aussehen,
+// nicht nach fehlender Datei.
+
+import Card from '../ui/Card.astro';
+import Figure from '../ui/Figure.astro';
+import Waves from '../ui/Waves.astro';
+import type { PhotoAlbum } from '../../data/schema';
+
+interface Props {
+  album: PhotoAlbum;
+  level?: 2 | 3;
+}
+
+const { album, level = 2 } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
+---
+
+<Card href={album.url} external umamiEvent={`Fotos ${album.year}`}>
+  <Fragment slot="media">
+    {
+      album.cover ? (
+        <Figure image={album.cover} />
+      ) : (
+        <div class="album-platzhalter">
+          <Waves height="7rem" />
+        </div>
+      )
+    }
+  </Fragment>
+
+  <Heading class="album-jahr">{album.year}</Heading>
+  <p class="album-titel">{album.title ?? 'Bilder vom Wettkampftag'}</p>
+
+  <span slot="footer">Galerie öffnen →</span>
+</Card>
+
+<style>
+  .album-platzhalter {
+    display: flex;
+    align-items: flex-end;
+    height: 7rem;
+    background: linear-gradient(180deg, var(--accent-wash), var(--surface));
+  }
+
+  .album-jahr {
+    margin: 0;
+    font-size: var(--step-3);
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .album-titel {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+</style>

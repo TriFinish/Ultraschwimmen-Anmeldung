@@ -1,0 +1,48 @@
+---
+// Die Anmeldefrist als Countdown.
+//
+// Der Inhalt ist absichtlich schon im HTML — nicht leer und per Skript
+// gefüllt: Wer kein JavaScript hat, liest so wenigstens den Meldeschluss.
+// src/scripts/page.ts ersetzt die Zeilen dann sekündlich und schaltet nach
+// Fristablauf auf „Voranmeldung geschlossen" um.
+//
+// `data-deadline` ist der Griff, an dem das Skript ansetzt — er darf nicht
+// umbenannt werden, ohne page.ts mitzuziehen.
+
+import NoteBox from '../ui/NoteBox.astro';
+
+interface Props {
+  deadlineLabel: string;
+}
+
+const { deadlineLabel } = Astro.props;
+---
+
+<section class="deadline" data-deadline aria-live="polite">
+  <NoteBox strong>
+    <Fragment slot="eyebrow">
+      <span class="deadline-lead">Voranmeldung noch</span>
+    </Fragment>
+    <p class="deadline-value">…</p>
+    <Fragment slot="fine">
+      <span class="deadline-sub">Schluss: {deadlineLabel}</span>
+    </Fragment>
+  </NoteBox>
+</section>
+
+<style>
+  .deadline-value {
+    margin: 0;
+    font-size: var(--step-2);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Nach Fristablauf setzt page.ts diese Klasse: Der Ton wechselt von
+     „noch Zeit" zu „vorbei, aber es geht weiter". */
+  .deadline.is-closed .deadline-value {
+    font-size: var(--step-1);
+  }
+</style>

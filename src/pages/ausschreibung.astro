@@ -11,6 +11,7 @@
 // gegen event.yaml.
 
 import Page from '../layouts/Page.astro';
+import Prose from '../components/ui/Prose.astro';
 import { Content, frontmatter } from '../content/ausschreibung.md';
 import { loadEvent } from '../data/load';
 
@@ -23,7 +24,7 @@ const { event } = loadEvent();
   heading="Ausschreibung"
   eyebrow={`Stand: ${frontmatter.stand_label}`}
 >
-  <div class="prose">
+  <Prose>
     <Content />
-  </div>
+  </Prose>
 </Page>

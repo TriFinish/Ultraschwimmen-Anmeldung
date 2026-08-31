@@ -1,0 +1,72 @@
+---
+// Hervorgehobener Hinweiskasten mit Randmarkierung.
+//
+// Für das, was zwischen den Abschnitten steht und nicht übersehen werden darf:
+// Sammelanmeldung, Nachmeldegebühr, Fristhinweis. Bewusst kein Rot und kein
+// Warndreieck — das hier sind Auskünfte, keine Fehler.
+
+interface Props {
+  title?: string;
+  level?: 2 | 3;
+  /** Zieht die Aufmerksamkeit stärker: für Fristen und Kosten. */
+  strong?: boolean;
+}
+
+const { title, level = 2, strong = false } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
+---
+
+<div class:list={['note', strong && 'is-strong']}>
+  {Astro.slots.has('eyebrow') && <p class="note-eyebrow"><slot name="eyebrow" /></p>}
+  {title && <Heading class="note-title">{title}</Heading>}
+  <div class="note-body"><slot /></div>
+  {Astro.slots.has('fine') && <p class="note-fine"><slot name="fine" /></p>}
+</div>
+
+<style>
+  .note {
+    padding: 1rem 1.15rem;
+    border-left: 3px solid var(--line-strong);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    background: var(--surface-sunk);
+  }
+
+  .note.is-strong {
+    border-left-color: var(--accent);
+    background: var(--accent-wash);
+  }
+
+  .note-eyebrow {
+    margin: 0 0 0.15rem;
+    color: var(--ink-faint);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .note-title {
+    margin: 0 0 0.35rem;
+    font-size: var(--step-1);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .note-body {
+    color: var(--ink-soft);
+  }
+
+  .note-body :global(p) {
+    margin: 0 0 0.5rem;
+  }
+
+  .note-body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .note-fine {
+    margin: 0.6rem 0 0;
+    color: var(--ink-faint);
+    font-size: var(--step--1);
+  }
+</style>

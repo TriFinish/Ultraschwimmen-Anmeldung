@@ -56,10 +56,45 @@ describe('SiteHeader', () => {
     expect(el.querySelector('.brand-mark')?.getAttribute('href')).toBe('/');
   });
 
-  it('macht das Logo auf der Startseite zu keinem Link ins Nichts', async () => {
-    // Ein Link auf die Seite, auf der man steht, ist eine leere Zusage.
+  it('bleibt auch auf der Startseite ein Link und sagt, dass man dort ist', async () => {
+    // Logo oben links führt nach Hause — diese Konvention gilt auch, wenn man
+    // schon zu Hause ist. Statt den Link zu entfernen (was ihn unauffindbar
+    // macht, sobald man doch woanders landet), wird er als aktuell markiert.
     const el = await render(SiteHeader, { ...props, isHome: true });
-    expect(el.querySelector('.brand-mark')?.tagName.toLowerCase()).toBe('span');
+    const marke = el.querySelector('.brand-mark');
+    expect(marke?.tagName.toLowerCase()).toBe('a');
+    expect(marke?.getAttribute('href')).toBe('/');
+    expect(marke?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('markiert die Marke außerhalb der Startseite nicht als aktuell', async () => {
+    const el = await render(SiteHeader, props);
+    expect(el.querySelector('.brand-mark')?.hasAttribute('aria-current')).toBe(false);
+  });
+
+  it('zeigt den markierten Hauptsponsor mit Namen als alt-Text', async () => {
+    const eftas = site.sponsors?.items.find((s) => s.header);
+    expect(eftas, 'site.yaml führt keinen Sponsor mit header: true').toBeDefined();
+
+    const el = await render(SiteHeader, { ...props, sponsor: eftas });
+    const logo = el.querySelector('.header-sponsor-logo');
+    expect(logo?.getAttribute('alt')).toBe(eftas!.name);
+    // Feste Maße: Sonst springt der Kopf, während das Logo nachlädt.
+    expect(logo?.getAttribute('width')).toBe(String(eftas!.width));
+    expect(logo?.getAttribute('height')).toBe(String(eftas!.height));
+  });
+
+  it('öffnet den Sponsor in einem neuen Tab, aber nie ohne noopener', async () => {
+    const eftas = site.sponsors?.items.find((s) => s.header);
+    const el = await render(SiteHeader, { ...props, sponsor: eftas });
+    const link = el.querySelector('.header-sponsor-link');
+    expect(link?.getAttribute('target')).toBe('_blank');
+    expect(link?.getAttribute('rel')).toContain('noopener');
+  });
+
+  it('kommt ohne Sponsor aus, ohne eine leere Hülle zu hinterlassen', async () => {
+    const el = await render(SiteHeader, props);
+    expect(el.querySelector('.header-sponsor')).toBeNull();
   });
 
   it('lässt das Logo-Bild ohne alt-Text, weil der Name danebensteht', async () => {

@@ -1,0 +1,36 @@
+---
+// Ein Kontaktweg als Karte.
+//
+// Kein Formular auf dieser Seite: Eine statische Seite hat keinen Server, der
+// eine Nachricht entgegennähme. Zwei echte Wege sind ehrlicher als ein
+// Eingabefeld, dessen Absenden irgendwo landet.
+
+import Card from '../ui/Card.astro';
+
+interface Props {
+  kind: string;
+  value: string;
+  href: string;
+  external?: boolean;
+}
+
+const { kind, value, href, external = false } = Astro.props;
+---
+
+<Card href={href} external={external}>
+  <span slot="eyebrow">{kind}</span>
+  <span class="contact-value">{value}</span>
+  <span class="contact-hint"><slot /></span>
+</Card>
+
+<style>
+  .contact-value {
+    font-size: var(--step-1);
+    font-weight: 600;
+  }
+
+  .contact-hint {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+</style>

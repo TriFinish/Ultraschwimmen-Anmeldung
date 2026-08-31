@@ -1,15 +1,21 @@
-/* Seitengerüst: Kopf, Navigation, Fuß, Fließtext.
+/* Seitengerüst: Kopf, Navigation, Fuß, Hero, Zeitstrahl.
 
    Gilt nur für Inhaltsseiten über Page.astro. Der Anmeldetrichter lädt diese
    Datei nicht.
 
+   Was hier NICHT mehr steht: alles, was zu einer Komponente gehört. Karten,
+   Tabellen, Kacheln, Fließtext und Bilder bringen ihre Regeln seit der
+   Komponentenbibliothek selbst mit — gescopet, siehe src/components/README.md,
+   Regel 4. Diese Datei behält nur, was wirklich seitenweit gilt.
+
    DIESELBE REGEL WIE IN app.css: keine nackten Element-Selektoren. Zwar
-   rendert das raceresult-Widget nur auf /anmeldung/ und damit nie unter diesem
+   rendert das raceresult-Widget nur auf /anmelden/ und damit nie unter diesem
    Stylesheet — aber die Regel hier zu brechen hieße, sie beim nächsten
    Verschieben einer Komponente unbemerkt zu brechen. Tokens kommen aus
    app.css, das Base.astro immer lädt. */
 
 /* ------------------------------------------------------------ Grundgerüst */
+
 
 .skip-link {
   position: absolute;
@@ -51,13 +57,15 @@
   background: var(--surface);
 }
 
-/* Mobil gestapelt: Marke oben, Navigation als eigene Zeile darunter. Beides
-   nebeneinander wird auf 390px zu eng, sobald die Marke zweizeilig wird. */
+/* Eine Zeile, auf jeder Breite: Marke links, Sponsor rechts. Die Navigation
+   sitzt dazwischen — auf dem Handy gibt es sie hier nicht, dort übernimmt die
+   Daumenleiste, und die Zeile bleibt trotzdem gefüllt. */
 .site-header-inner {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.5rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   max-width: 68rem;
   margin: 0 auto;
   padding: 0.75rem var(--gutter);
@@ -67,6 +75,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
+  min-width: 0;
   text-decoration: none;
   color: inherit;
 }
@@ -74,7 +83,18 @@
 .brand-text {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   line-height: 1.15;
+}
+
+/* Wird es eng, kürzen beide Zeilen. Ohne das läuft der Text aus seinem
+   Flex-Element heraus und schiebt sich unter das Sponsorlogo — der Abstand
+   dazwischen wäre nur noch auf dem Papier vorhanden. */
+.brand-name,
+.brand-tagline {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-name {
@@ -87,6 +107,42 @@
 .brand-tagline {
   font-size: var(--step--1);
   color: var(--ink-soft);
+}
+
+/* Auf dem Handy übernimmt MobileNav — zwei Navigationen nebeneinander wären
+   doppelt gepflegt und doppelt vorgelesen. */
+.nav {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .nav {
+    display: block;
+  }
+}
+
+/* Der Hauptsponsor steht direkt neben der Marke — eine Zeile, wie bei einem
+   Trikot-Aufdruck. Er darf nie schrumpfen: Ein gestauchtes Logo ist schlimmer
+   als ein gekürzter Beisatz daneben. */
+.header-sponsor {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-end;
+}
+
+.header-sponsor-link {
+  display: inline-flex;
+  border-radius: 4px;
+}
+
+.header-sponsor-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.header-sponsor-logo {
+  width: auto;
+  height: 1.25rem;
 }
 
 /* ------------------------------------------------------------ Navigation */
@@ -284,10 +340,16 @@
 
 /* ------------------------------------------------------------ Fußbereich */
 
+/* Der Fußbereich liegt unter Wasser. Er beginnt mit genau der Farbe, in der
+   die Wellen darüber enden (--water-line), und wird nach unten tiefer. */
 .site-footer {
-  margin-top: 3rem;
-  border-top: 1px solid var(--line);
-  background: var(--surface-sunk);
+  margin-top: 0;
+  background: linear-gradient(to bottom, var(--water-line), var(--water-deep));
+  color: var(--on-water);
+  /* Platz für die schwebende Leiste. Ohne das liegt sie über dem Ende des
+     Fußbereichs — genau der Fehler, den die alte Seite mit ihrer Anmelde-Leiste
+     hatte. Ab Tablet gibt es die Leiste nicht, dann fällt der Platz weg. */
+  padding-bottom: calc(var(--dock) + var(--cta-height));
 }
 
 .site-footer-inner {
@@ -305,7 +367,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--on-water-soft);
 }
 
 .footer-contact,
@@ -319,14 +381,15 @@
 }
 
 .footer-link {
-  color: var(--ink);
+  color: var(--on-water);
   font-size: var(--step-0);
   text-decoration: none;
-  border-bottom: 1px solid var(--line-strong);
+  /* Unterstrichen bleibt es: Farbe allein unterscheidet Links hier unten nicht
+     mehr vom Fließtext, weil beides hell auf dunkel ist. */
+  border-bottom: 1px solid rgb(255 255 255 / 45%);
 }
 
 .footer-link:hover {
-  color: var(--accent-deep);
   border-bottom-color: currentColor;
 }
 
@@ -339,16 +402,18 @@
   max-width: 24rem;
   font-size: var(--step--1);
   line-height: 1.5;
-  color: var(--ink-soft);
+  color: var(--on-water-soft);
 }
 
+/* Ohne Trennlinie: Das Wasser soll durchgehend sein. Der Abstand darüber
+   trennt genug — eine Linie quer durch die Fläche sähe aus wie eine Kante im
+   Wasser, die es nicht gibt. */
 .footer-copy {
   max-width: 68rem;
   margin: 0 auto;
-  padding: 1rem var(--gutter) 2rem;
-  border-top: 1px solid var(--line);
+  padding: 1.5rem var(--gutter) 2rem;
   font-size: var(--step--1);
-  color: var(--ink-faint);
+  color: var(--on-water-soft);
 }
 
 /* -------------------------------------------------------- Fakten-Listen */
@@ -408,22 +473,6 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-.section {
-  margin-bottom: 3rem;
-}
-
-.section-note {
-  margin: 0;
-  max-width: var(--measure);
-  font-size: var(--step--1);
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-
-.section-note a {
-  color: var(--accent-deep);
 }
 
 /* ---------------------------------------------------------------- Hero */
@@ -488,95 +537,6 @@
   color: var(--ink-soft);
 }
 
-/* --------------------------------------------------------------- Kacheln */
-
-.cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-.card-link {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 1.25rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface-sunk);
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.card-link:hover {
-  border-color: var(--accent);
-  background: var(--accent-wash);
-}
-
-.card-link-title {
-  font-size: var(--step-1);
-  font-weight: 700;
-}
-
-.card-link-text {
-  flex: 1;
-  font-size: var(--step--1);
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-
-.card-link-more {
-  color: var(--accent-deep);
-}
-
-/* -------------------------------------------------------------- Beiträge */
-
-.posts {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--line);
-}
-
-.post-item {
-  border-bottom: 1px solid var(--line);
-}
-
-.post-teaser {
-  padding: 1.35rem 0;
-}
-
-.post-date {
-  display: block;
-  margin-bottom: 0.3rem;
-  font-size: var(--step--1);
-  color: var(--ink-faint);
-}
-
-.post-title {
-  margin: 0;
-  font-size: var(--step-1);
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.post-link {
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.post-link:hover {
-  color: var(--accent-deep);
-}
-
-.post-excerpt {
-  margin: 0.4rem 0 0;
-  max-width: var(--measure);
-  font-size: var(--step-0);
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-
 .back-link {
   margin: 2.5rem 0 0;
   font-size: var(--step-0);
@@ -632,266 +592,6 @@
   color: var(--ink-soft);
 }
 
-/* ------------------------------------------------------------- Tabellen */
-
-.section-heading {
-  margin: 2.5rem 0 0.75rem;
-  font-size: var(--step-2);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-}
-
-/* Tabellen dürfen die Seite nie seitlich scrollen lassen — sie scrollen in
-   sich selbst. Auf dem Handy ist das der Unterschied zwischen lesbar und
-   kaputt. */
-.table-scroll {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  margin: 0 0 2rem;
-  border-collapse: collapse;
-  font-size: var(--step-0);
-}
-
-.table th,
-.table td {
-  padding: 0.7rem 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--line);
-}
-
-.table thead th {
-  font-size: var(--step--1);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  border-bottom-color: var(--line-strong);
-  white-space: nowrap;
-}
-
-.table tbody th {
-  font-weight: 600;
-}
-
-.table td {
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-soft);
-}
-
-/* ----------------------------------------------------------- Jahresliste */
-
-/* Ergebnisse und 404: eine Liste großer, gut treffbarer Ziele. */
-
-.year-list {
-  list-style: none;
-  margin: 0 0 2.5rem;
-  padding: 0;
-  border-top: 1px solid var(--line);
-}
-
-.year-item {
-  border-bottom: 1px solid var(--line);
-}
-
-.year-link {
-  display: flex;
-  align-items: baseline;
-  gap: 0.9rem;
-  padding: 0.95rem 0.25rem;
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.year-link:hover {
-  color: var(--accent-deep);
-}
-
-.year-number {
-  min-width: 3.5rem;
-  font-size: var(--step-1);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.year-label {
-  flex: 1;
-  font-size: var(--step-0);
-  color: var(--ink-soft);
-}
-
-.year-link:hover .year-label {
-  color: inherit;
-}
-
-.year-arrow {
-  color: var(--ink-faint);
-}
-
-.year-link:hover .year-arrow {
-  color: inherit;
-}
-
-/* -------------------------------------------------------------- Kontakt */
-
-.contact-ways {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin-bottom: 2.5rem;
-}
-
-.contact-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 1.25rem;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.contact-card:hover {
-  border-color: var(--accent);
-  background: var(--accent-wash);
-}
-
-.contact-kind {
-  font-size: var(--step--1);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.contact-value {
-  font-size: var(--step-1);
-  font-weight: 700;
-  color: var(--accent-deep);
-  overflow-wrap: anywhere;
-}
-
-.contact-hint {
-  font-size: var(--step--1);
-  line-height: 1.5;
-  color: var(--ink-soft);
-}
-
-/* --------------------------------------------------------------- Bilder */
-
-.figure {
-  margin: 0 0 2rem;
-}
-
-.figure-image {
-  display: block;
-  width: 100%;
-  height: auto;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-}
-
-.figure-caption {
-  margin-top: 0.6rem;
-  font-size: var(--step--1);
-  line-height: 1.5;
-  color: var(--ink-soft);
-}
-
-/* ------------------------------------------------------------ Fließtext */
-
-/* Prose ist der eine Ort, an dem HTML aus Markdown landet — dort können wir
-   die Elemente nicht mit Klassen versehen. Deshalb hier Nachfahren-Selektoren
-   unter `.prose`, statt die Elemente global anzufassen. */
-
-.prose {
-  max-width: var(--measure);
-  font-size: var(--step-0);
-  line-height: 1.65;
-  color: var(--ink);
-}
-
-.prose > * + * {
-  margin-top: 1rem;
-}
-
-.prose h2 {
-  margin-top: 2.25rem;
-  margin-bottom: 0.5rem;
-  font-size: var(--step-2);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-}
-
-.prose h3 {
-  margin-top: 1.75rem;
-  margin-bottom: 0.35rem;
-  font-size: var(--step-1);
-  font-weight: 700;
-}
-
-.prose p,
-.prose ul,
-.prose ol {
-  margin-block: 0 1rem;
-}
-
-.prose ul,
-.prose ol {
-  padding-left: 1.25rem;
-}
-
-.prose li + li {
-  margin-top: 0.35rem;
-}
-
-.prose a {
-  color: var(--accent-deep);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-}
-
-.prose strong {
-  font-weight: 700;
-}
-
-.prose img {
-  max-width: 100%;
-  height: auto;
-  border-radius: var(--radius);
-}
-
-.prose table {
-  width: 100%;
-  margin: 0 0 1.5rem;
-  border-collapse: collapse;
-  font-size: var(--step--1);
-}
-
-.prose th,
-.prose td {
-  padding: 0.55rem 0.6rem;
-  text-align: left;
-  border-bottom: 1px solid var(--line);
-}
-
-.prose thead th {
-  font-weight: 700;
-  border-bottom-color: var(--line-strong);
-}
-
-.prose hr {
-  margin: 2rem 0;
-  border: 0;
-  border-top: 1px solid var(--line);
-}
-
 /* ------------------------------------------------------------ ab Tablet */
 
 @media (min-width: 48rem) {
@@ -903,11 +603,16 @@
     height: 2.75rem;
   }
 
+  .site-footer {
+    padding-bottom: 0;
+  }
+
   .site-header-inner {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
     gap: 1rem;
+  }
+
+  .header-sponsor-logo {
+    height: 1.75rem;
   }
 
   .nav-item.is-group {
@@ -940,14 +645,6 @@
     grid-template-columns: 16rem 1fr;
     gap: 1.5rem;
     align-items: baseline;
-  }
-
-  .cards {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .contact-ways {
-    grid-template-columns: repeat(2, 1fr);
   }
 
   .site-footer-inner {

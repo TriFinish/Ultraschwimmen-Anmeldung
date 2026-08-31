@@ -45,7 +45,7 @@ export function startTracking(): void {
   if (tag?.dataset.websiteId?.startsWith('TODO')) {
     console.warn(
       'Umami: Platzhalter-Website-ID aktiv — es wird nichts gemessen. ' +
-        'Vor dem Livegang eigene ID für anmelden.ultraschwimmen.de eintragen.',
+        'Vor dem Livegang eigene ID für ultraschwimmen.de eintragen.',
     );
   }
 }

@@ -49,7 +49,7 @@ describe('normalizePath', () => {
   it('wirft Query und Fragment weg', () => {
     // Der Anmeldetrichter wird über `?regname=` aufgerufen — ohne diesen
     // Schritt wäre der Menüeintrag dort nie markiert.
-    expect(normalizePath('/anmeldung/?regname=Sammel-Anmeldung&d=10km')).toBe('/anmeldung/');
+    expect(normalizePath('/anmelden/?regname=Sammel-Anmeldung&d=10km')).toBe('/anmelden/');
     expect(normalizePath('/impressum/#kontakt')).toBe('/impressum/');
   });
 
@@ -88,12 +88,22 @@ describe('resolveNav', () => {
     expect(items.find(isGroup)?.isActive).toBe(false);
   });
 
-  it('markiert genau einen Eintrag pro Seite', () => {
-    for (const pfad of ['/', '/zeitplan/', '/kontakt/', '/aktuelles/']) {
+  it('markiert genau einen Eintrag pro Inhaltsseite', () => {
+    for (const pfad of ['/zeitplan/', '/kontakt/', '/aktuelles/', '/anmelden/']) {
       const aktiv = resolveNav(site.nav, pfad).flatMap((i) =>
         isGroup(i) ? i.children.filter((c) => c.isActive) : i.isActive ? [i] : [],
       );
       expect(aktiv, `Pfad ${pfad}`).toHaveLength(1);
     }
+  });
+
+  it('markiert auf der Startseite keinen Menüeintrag', () => {
+    // Seit die Startseite nur noch über das Logo erreichbar ist, gibt es dort
+    // nichts zu markieren. Die Ortsangabe trägt stattdessen die Marke im Kopf
+    // als aria-current — siehe SiteHeader.
+    const aktiv = resolveNav(site.nav, '/').flatMap((i) =>
+      isGroup(i) ? i.children.filter((c) => c.isActive) : i.isActive ? [i] : [],
+    );
+    expect(aktiv).toHaveLength(0);
   });
 });
