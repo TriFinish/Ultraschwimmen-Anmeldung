@@ -40,25 +40,6 @@ export default defineConfig({
     '/fotos-2021-sammlung/': '/fotos/',
     '/fotos-2024-sammlung/': '/fotos/',
     '/fotos-2025-sammlung/': '/fotos/',
-
-    // Beiträge. Die alten Kürzel waren teils nichtssagend („beitrag-1") oder
-    // 200 Zeichen lang — die neuen Adressen sind lesbar, die alten bleiben
-    // erreichbar.
-    '/2021/09/15/beitrag-1/': '/aktuelles/2021-09-15-orgateam/',
-    '/2023/08/08/aenderung-wettkampfgelaende/':
-      '/aktuelles/2023-08-08-aenderung-wettkampfgelaende/',
-    '/2023/08/18/nachmeldungen-und-wassertemperatur/':
-      '/aktuelles/2023-08-18-nachmeldungen-und-wassertemperatur/',
-    '/2024/06/05/neopren-testschwimmen-mit-sailfish/':
-      '/aktuelles/2024-06-05-neopren-testschwimmen-mit-sailfish/',
-    '/2024/06/28/ultraschwimmen-zu-gast-beim-ruderverein-muenster/':
-      '/aktuelles/2024-06-28-ultraschwimmen-zu-gast-beim-ruderverein-muenster/',
-    '/2024/08/21/einfahrt-ultraschwimmen/': '/aktuelles/2024-08-21-einfahrt-ultraschwimmen/',
-    '/2025/07/09/flossenschwimmen-wieder-im-angebot/':
-      '/aktuelles/2025-07-09-flossenschwimmen-wieder-im-angebot/',
-    '/2025/08/22/wir-freuen-uns-mit-der-eftas-gmbh-einen-neuen-hauptsponsor-dabeizuhaben-das-muensteraner-unternehmen-entwickelt-seit-ueber-35-jahren-passgenaue-geoit-loesungen-um-umweltrelevante-entscheidungen-und/':
-      '/aktuelles/2025-08-22-eftas-neuer-hauptsponsor/',
-    '/2025/08/30/ergebnisse-2025/': '/aktuelles/2025-08-30-ergebnisse-2025/',
   },
 
   integrations: [

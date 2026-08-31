@@ -32,8 +32,6 @@ nav:
         icon: lucide:waves
       - label: Ergebnisse
         href: /ergebnisse/
-  - label: Aktuelles
-    href: /aktuelles/
   - label: Fotos
     href: /fotos/
   - label: Kontakt

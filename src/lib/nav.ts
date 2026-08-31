@@ -45,9 +45,6 @@ export function normalizePath(path: string): string {
 }
 
 /**
- * Aktiv ist ein Eintrag auf seiner eigenen Seite und auf allem, was darunter
- * liegt: `/aktuelles/` bleibt markiert, während man einen Beitrag liest.
- *
  * Die Startseite ist die Ausnahme. Ihr `href` ist `/` und wäre damit Präfix
  * von allem — sie zählt nur bei exakter Übereinstimmung.
  */
