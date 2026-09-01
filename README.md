@@ -71,7 +71,7 @@ nur gegen die Ausschreibung.
 |---|---|
 | Inhalte | [`src/content/`](src/content/) — siehe Tabelle oben |
 | Schema + Validierung | [`src/data/schema.ts`](src/data/schema.ts), [`load.ts`](src/data/load.ts) |
-| Reine Logik (testbar ohne Rendern) | [`src/lib/`](src/lib/) — Navigation, Zeitplan, Preise, Datum |
+| Reine Logik (testbar ohne Rendern) | [`src/lib/`](src/lib/) — Navigation, Zeitplan, Preise |
 | Seitengerüst | [`src/layouts/Page.astro`](src/layouts/Page.astro), [`components/layout/`](src/components/layout/) |
 | Bausteine | [`src/components/`](src/components/README.md) — `ui/` kennt keine Daten, `content/` kennt unsere Typen |
 | Anmeldetrichter | [`src/pages/anmelden.astro`](src/pages/anmelden.astro) — liegt direkt auf `Base.astro`, ohne Menü |

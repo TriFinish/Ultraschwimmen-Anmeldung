@@ -5,7 +5,7 @@ Drei Ordner, nach der Frage sortiert „was weiß diese Komponente?":
 | Ordner | Weiß von … | Beispiel |
 |---|---|---|
 | `ui/` | nichts über Ultraschwimmen | `Card`, `Figure`, `DataTable`, `NoteBox`, `FaqList`, `StickyCta`, `Waves` |
-| `content/` | unseren Datentypen aus `src/data/schema.ts` | `PostCard`, `DistanceTable`, `DistanceChooser`, `RegistrationWidget` |
+| `content/` | unseren Datentypen aus `src/data/schema.ts` | `PhotoAlbumCard`, `DistanceTable`, `DistanceChooser`, `RegistrationWidget` |
 | `layout/` | dem Seitengerüst | `SiteHeader`, `MobileNav`, `SiteFooter` |
 
 Die Richtung ist einseitig: `content/` benutzt `ui/`, nie umgekehrt. Eine
@@ -14,7 +14,7 @@ Die Richtung ist einseitig: `content/` benutzt `ui/`, nie umgekehrt. Eine
 ## Die sechs Regeln
 
 **1. Ein Domänenobjekt als eine Prop.**
-`<PostCard post={beitrag} />`, nicht `<PostCard title={…} date={…} excerpt={…} />`.
+`<PhotoAlbumCard album={album} />`, nicht `<PhotoAlbumCard year={…} url={…} count={…} />`.
 Kommt ein Feld dazu, ändert sich keine Signatur.
 
 **2. Typen aus der einen Quelle.**

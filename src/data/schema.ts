@@ -49,8 +49,8 @@ export const venueSchema = z.object({
   maps_url: z.string().url().optional(),
 });
 
-// Jedes Bild der Seite hat dieselbe Form — Streckenkarte, Beitragsbild,
-// Album-Titelbild. Ein Schema dafür, damit `Figure.astro` genau einen Typ
+// Jedes Bild der Seite hat dieselbe Form — Streckenkarte, Album-Titelbild,
+// Sponsorenlogo. Ein Schema dafür, damit `Figure.astro` genau einen Typ
 // entgegennimmt und nicht drei fast gleiche.
 //
 // `alt` ist Pflicht, nicht optional: Auf der alten Seite hatte kein einziges
