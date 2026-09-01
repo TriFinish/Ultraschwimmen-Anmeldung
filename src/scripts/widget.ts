@@ -11,8 +11,8 @@
 import { track } from './tracking.js';
 
 // Die Doku (Website Integration, KB 3323) nennt `load.js.php`. Der Name bleibt,
-// auch wenn Tollense in ihrer Mail `load.js` schrieb — beide Dateien sind
-// byte-identisch, aber die Doku ist die belastbarere Referenz.
+// auch wenn anderswo `load.js` genannt wird — beide Dateien sind byte-identisch,
+// aber die Doku ist die belastbarere Referenz.
 const WIDGET_LOADER = 'https://my.raceresult.com/RRRegStart/load.js.php?lang=de';
 const CONTEST_FIELD = '[name="RRReg_1_0"]';
 const WIDGET_TIMEOUT_MS = 25000;

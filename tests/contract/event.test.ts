@@ -1,4 +1,4 @@
-// Schicht B — „Tollense hat das Event bearbeitet".
+// Schicht B — „Der Zeitnehmer hat das Event bearbeitet".
 //
 // Schlägt hier etwas fehl, hat der Zeitnehmer im Backend etwas geändert.
 // Das ist kein Notfall: Wir können nachfragen. Der Workflow labelt diese

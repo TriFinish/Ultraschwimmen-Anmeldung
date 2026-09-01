@@ -1,9 +1,8 @@
 name: Canary — raceresult-Vertrag
 
-# Tollense Timing hat die Einbettung erlaubt, aber ausdrücklich darauf
-# hingewiesen: „RaceResult ändert hier gerne und oft was im Hintergrund, wenn
-# dies dann eure Anmeldung beeinträchtigt bekommen wir es mitunter nicht
-# proaktiv mit." Dieser Job ist die Antwort darauf.
+# Die Einbettung des fremden Anmeldeformulars ist mit dem Zeitnehmer
+# abgestimmt, das Betriebsrisiko liegt aber bei uns: raceresult ändert sein
+# Produkt ohne Ankündigung. Dieser Job ist die Antwort darauf.
 
 on:
   schedule:
@@ -128,8 +127,8 @@ jobs:
 
             const layer = process.env.LAYER || 'event';
             const erklaerung = {
-              product: '**raceresult hat sein Produkt geändert.** Niemand informiert uns darüber — genau davor hat Tollense gewarnt. Prüfen, ob `src/styles/widget.css` und `src/scripts/widget.ts` noch greifen.',
-              event: '**Tollense hat vermutlich das Event bearbeitet.** Kein Notfall: kurz nachfragen, dann ggf. `src/content/event.yaml` angleichen und `npm run canary:update` laufen lassen.',
+              product: '**raceresult hat sein Produkt geändert.** Angekündigt wird das nicht. Prüfen, ob `src/styles/widget.css` und `src/scripts/widget.ts` noch greifen.',
+              event: '**Der Zeitnehmer hat vermutlich das Event bearbeitet.** Kein Notfall: kurz nachfragen, dann ggf. `src/content/event.yaml` angleichen und `npm run canary:update` laufen lassen.',
               unreachable: '**raceresult war nicht erreichbar.** Das ist kein Vertragsbruch. Wenn das mehrere Tage anhält, beim Zeitnehmer nachfragen.',
               closed: '**Die Anmeldung ist geschlossen, obwohl der Meldeschluss noch nicht erreicht ist.** Wir bewerben sie also gerade ins Leere. Sofort beim Zeitnehmer nachfragen — entweder ist das Feld ausgebucht oder jemand hat die Anmeldung versehentlich abgeschaltet. (Nach dem Meldeschluss ist eine geschlossene Anmeldung normal und erzeugt kein Issue.)',
             }[layer];

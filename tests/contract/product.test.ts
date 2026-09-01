@@ -1,7 +1,7 @@
 // Schicht A — „raceresult hat deployed".
 //
-// Schlägt hier etwas fehl, hat raceresult sein Produkt geändert. Niemand
-// informiert uns darüber; genau davor hat Tollense in ihrer Mail gewarnt.
+// Schlägt hier etwas fehl, hat raceresult sein Produkt geändert. Angekündigt
+// wird das nicht — genau dafür gibt es diesen Test.
 // Der Workflow labelt diese Fehlschläge mit `canary:product`.
 
 import { describe, expect, it } from 'vitest';

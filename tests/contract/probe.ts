@@ -142,8 +142,8 @@ function findElement(els: RRElement[], id: string): RRElement | undefined {
   return undefined;
 }
 
-// Alles, was Tollense in ihrem Backend pflegt. Ändert sich hier etwas, genügt
-// eine Rückfrage per Mail — deshalb im Workflow ein eigenes Label.
+// Alles, was der Zeitnehmer in seinem Backend pflegt. Ändert sich hier etwas,
+// genügt eine Rückfrage — deshalb im Workflow ein eigenes Label.
 export async function probeEvent(): Promise<EventProbe> {
   const seite = await fetchRetry(REG_PAGE);
   const page = await seite.text();
